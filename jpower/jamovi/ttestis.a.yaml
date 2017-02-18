@@ -1,0 +1,46 @@
+---
+name:  ttestIS
+title: Independent Samples T-Test
+menuGroup: jpower
+version: '1.0.0'
+jas: '1.0'
+
+options:
+    - name: es
+      title: "Minimally-interesting effect size"
+      type: number
+      min: 0
+      max: 5
+      default: .5
+      
+    - name: power
+      title: "Desired power"
+      type: number
+      min: 0
+      max: 1
+      default: .8
+      
+    - name: n1
+      title: "N, group 1"
+      type: integer
+      min: 2
+      max: 10000
+      default: 20
+      
+    - name: n2
+      title: "N, group 2"
+      type: integer
+      min: 2
+      max: 10000
+      default: 20
+    
+    - name: alt
+      title: Tails
+      type: List
+      options:
+        - "two tailed"
+        - "one tailed"
+      default: "two tailed"
+
+
+...

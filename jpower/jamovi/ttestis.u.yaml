@@ -1,0 +1,16 @@
+title: Independent Samples T-Test
+name: ttestIS
+jus: '1.0'
+stage: 0
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - name: alt
+        type: ComboBox
+        label: Tails
+        options:
+          - label: two tailed
+            value: two tailed
+          - label: one tailed
+            value: one tailed
