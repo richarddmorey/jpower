@@ -1,6 +1,6 @@
 ---
-name:  ttestIS
-title: Independent Samples T test
+name:  anova
+title: ANOVA
 jrs:   "1.0"
 
 items:

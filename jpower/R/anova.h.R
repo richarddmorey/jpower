@@ -3,28 +3,36 @@
 
 #' @importFrom jmvcore Options
 #' @importFrom R6 R6Class
-ttestISOptions <- R6::R6Class(
-    "ttestISOptions",
+anovaOptions <- R6::R6Class(
+    "anovaOptions",
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            es = 0.5,
+            estype = "<i>f</i>",
+            es = 0.3,
             power = 0.8,
             n = 20,
-            alt = "two-tailed",
+            k = 3,
             alpha = 0.05, ...) {
 
             super$initialize(
                 package='jpower',
-                name='ttestIS',
+                name='anova',
                 requiresData=TRUE,
                 ...)
         
+            private$..estype <- jmvcore::OptionList$new(
+                "estype",
+                estype,
+                options=list(
+                    "<i>f</i>",
+                    "<i>&omega;<sup>2</sup></i>"),
+                default="<i>f</i>")
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
                 min=0,
-                default=0.5)
+                default=0.3)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -36,43 +44,43 @@ ttestISOptions <- R6::R6Class(
                 n,
                 min=2,
                 default=20)
-            private$..alt <- jmvcore::OptionList$new(
-                "alt",
-                alt,
-                options=list(
-                    "two-tailed",
-                    "one-tailed, positive",
-                    "one-tailed, negative"),
-                default="two-tailed")
+            private$..k <- jmvcore::OptionInteger$new(
+                "k",
+                k,
+                min=2,
+                default=3)
             private$..alpha <- jmvcore::OptionNumber$new(
                 "alpha",
                 alpha,
                 min=0,
                 default=0.05)
         
+            self$.addOption(private$..estype)
             self$.addOption(private$..es)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
-            self$.addOption(private$..alt)
+            self$.addOption(private$..k)
             self$.addOption(private$..alpha)
         }),
     active = list(
+        estype = function() private$..estype$value,
         es = function() private$..es$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
-        alt = function() private$..alt$value,
+        k = function() private$..k$value,
         alpha = function() private$..alpha$value),
     private = list(
+        ..estype = NA,
         ..es = NA,
         ..power = NA,
         ..n = NA,
-        ..alt = NA,
+        ..k = NA,
         ..alpha = NA)
 )
 
 #' @import jmvcore
 #' @importFrom R6 R6Class
-ttestISResults <- R6::R6Class(
+anovaResults <- R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         powertab = function() private$..powertab,
@@ -86,7 +94,7 @@ ttestISResults <- R6::R6Class(
         ..powercurveN = NA),
     public=list(
         initialize=function(options) {
-            super$initialize(options=options, name="", title="Independent Samples T test")
+            super$initialize(options=options, name="", title="ANOVA")
             private$..powertab <- jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -123,17 +131,17 @@ ttestISResults <- R6::R6Class(
 
 #' @importFrom jmvcore Analysis
 #' @importFrom R6 R6Class
-ttestISBase <- R6::R6Class(
-    "ttestISBase",
+anovaBase <- R6::R6Class(
+    "anovaBase",
     inherit = jmvcore::Analysis,
     public = list(
         initialize = function(options, data=NULL, datasetId="", analysisId="", revision=0) {
             super$initialize(
                 package = 'jpower',
-                name = 'ttestIS',
+                name = 'anova',
                 version = c(1,0,0),
                 options = options,
-                results = ttestISResults$new(options=options),
+                results = anovaResults$new(options=options),
                 data = data,
                 datasetId = datasetId,
                 analysisId = analysisId,
@@ -141,33 +149,36 @@ ttestISBase <- R6::R6Class(
                 pause = NULL)
         }))
 
-#' Independent Samples T-Test
+#' ANOVA
 #'
 #' 
+#' @param estype .
 #' @param es .
 #' @param power .
 #' @param n .
-#' @param alt .
+#' @param k .
 #' @param alpha .
 #' @export
-ttestIS <- function(
-    es = 0.5,
+anova <- function(
+    estype = "<i>f</i>",
+    es = 0.3,
     power = 0.8,
     n = 20,
-    alt = "two-tailed",
+    k = 3,
     alpha = 0.05) {
 
-    options <- ttestISOptions$new(
+    options <- anovaOptions$new(
+        estype = estype,
         es = es,
         power = power,
         n = n,
-        alt = alt,
+        k = k,
         alpha = alpha)
 
-    results <- ttestISResults$new(
+    results <- anovaResults$new(
         options = options)
 
-    analysis <- ttestISClass$new(
+    analysis <- anovaClass$new(
         options = options,
         data = data)
 

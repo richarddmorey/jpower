@@ -18,7 +18,6 @@ ttestISClass <- R6::R6Class(
           alt = self$options$alt
           es = self$options$es
           alpha = self$options$alpha
-          plotby = self$options$plotby
             
           ## Compute numbers for table
           
@@ -67,8 +66,7 @@ ttestISClass <- R6::R6Class(
                      pow = pow,
                      alt = alt,
                      es = es,
-                     alpha = alpha,
-                     plotby = plotby)
+                     alpha = alpha)
           
           self$results$powercurveES$setState(lst)
           self$results$powercurveN$setState(lst)
@@ -119,7 +117,7 @@ ttestISClass <- R6::R6Class(
           
           par(las = 1, xaxs = "i", yaxs = "i")
           plot(nn, y, typ = 'l', 
-               ylab = "Power", xlab = "Sample size",
+               ylab = "Power", xlab = "Sample size (per group)",
                ylim = c(0, 1), lwd = 2)
           
           segments(lst$n, par()$usr[3], lst$n, y.at)
@@ -141,7 +139,7 @@ ttestISClass <- R6::R6Class(
           ncp = sqrt(effN) * lst$es
 
           crit = qt(p = 1 - lst$alpha/2, 
-                      df = 2*lst$n - 2 )
+                      df = df )
           
           if(lst$es > 0){
             xlims = c(qt(.001, df), 

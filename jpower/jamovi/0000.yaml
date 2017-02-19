@@ -17,5 +17,10 @@ analyses:
     ns: jpower
     menuGroup: jpower
     menuTitle: Independent Samples T-Test
+  - title: ANOVA
+    name: anova
+    ns: jpower
+    menuGroup: jpower
+    menuTitle: ANOVA
 
 ...
