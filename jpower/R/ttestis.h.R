@@ -12,8 +12,7 @@ ttestISOptions <- R6::R6Class(
             power = 0.8,
             n = 20,
             alt = "two-tailed",
-            alpha = 0.05,
-            plotby = "Effect size", ...) {
+            alpha = 0.05, ...) {
 
             super$initialize(
                 package='jpower',
@@ -50,36 +49,25 @@ ttestISOptions <- R6::R6Class(
                 alpha,
                 min=0,
                 default=0.05)
-            private$..plotby <- jmvcore::OptionList$new(
-                "plotby",
-                plotby,
-                options=list(
-                    "Effect size",
-                    "Sample size",
-                    "&alpha; (type I error rate)"),
-                default="Effect size")
         
             self$.addOption(private$..es)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..alt)
             self$.addOption(private$..alpha)
-            self$.addOption(private$..plotby)
         }),
     active = list(
         es = function() private$..es$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         alt = function() private$..alt$value,
-        alpha = function() private$..alpha$value,
-        plotby = function() private$..plotby$value),
+        alpha = function() private$..alpha$value),
     private = list(
         ..es = NA,
         ..power = NA,
         ..n = NA,
         ..alt = NA,
-        ..alpha = NA,
-        ..plotby = NA)
+        ..alpha = NA)
 )
 
 #' @import jmvcore
@@ -88,10 +76,12 @@ ttestISResults <- R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         powertab = function() private$..powertab,
-        powercurve = function() private$..powercurve),
+        powercurveES = function() private$..powercurveES,
+        powercurveN = function() private$..powercurveN),
     private = list(
         ..powertab = NA,
-        ..powercurve = NA),
+        ..powercurveES = NA,
+        ..powercurveN = NA),
     public=list(
         initialize=function(options) {
             super$initialize(options=options, name="", title="Independent Samples T-Test")
@@ -103,15 +93,23 @@ ttestISResults <- R6::R6Class(
                 columns=list(
                     list(`name`="var", `title`="", `type`="text"),
                     list(`name`="val", `type`="number", `title`="")))
-            private$..powercurve <- jmvcore::Image$new(
+            private$..powercurveES <- jmvcore::Image$new(
                 options=options,
-                name="powercurve",
-                title="Power curve",
+                name="powercurveES",
+                title="Power curve by effect size",
                 width=400,
                 height=300,
-                renderFun=".plot")
+                renderFun=".powercurveES")
+            private$..powercurveN <- jmvcore::Image$new(
+                options=options,
+                name="powercurveN",
+                title="Power curve by N",
+                width=400,
+                height=300,
+                renderFun=".powercurveN")
             self$add(private$..powertab)
-            self$add(private$..powercurve)}))
+            self$add(private$..powercurveES)
+            self$add(private$..powercurveN)}))
 
 #' @importFrom jmvcore Analysis
 #' @importFrom R6 R6Class
@@ -141,23 +139,20 @@ ttestISBase <- R6::R6Class(
 #' @param n .
 #' @param alt .
 #' @param alpha .
-#' @param plotby .
 #' @export
 ttestIS <- function(
     es = 0.5,
     power = 0.8,
     n = 20,
     alt = "two-tailed",
-    alpha = 0.05,
-    plotby = "Effect size") {
+    alpha = 0.05) {
 
     options <- ttestISOptions$new(
         es = es,
         power = power,
         n = n,
         alt = alt,
-        alpha = alpha,
-        plotby = plotby)
+        alpha = alpha)
 
     results <- ttestISResults$new(
         options = options)

@@ -40,13 +40,4 @@ options:
       min: 0
       default: 0.05
 
-    - name: plotby
-      title: Plot by
-      type: List
-      options:
-        - "Effect size"
-        - "Sample size"
-        - "&alpha; (type I error rate)"
-      default: "Effect size"
-
 ...

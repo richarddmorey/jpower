@@ -36,13 +36,3 @@ children:
         label: '&alpha; (type I error rate)'
         format: number
         inputPattern: '[0-9]+'
-      - name: plotby
-        type: ComboBox
-        label: Plot by
-        options:
-          - label: Effect size
-            value: Effect size
-          - label: Sample size
-            value: Sample size
-          - label: '&alpha; (type I error rate)'
-            value: '&alpha; (type I error rate)'

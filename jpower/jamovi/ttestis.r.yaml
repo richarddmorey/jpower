@@ -17,10 +17,18 @@ items:
           type: number
           title: ''
           
-    - name: powercurve
-      title: Power curve
+    - name: powercurveES
+      title: Power curve by effect size
       type: Image
       width:  400
       height: 300
-      renderFun: .plot
+      renderFun: .powercurveES
+      
+    - name: powercurveN
+      title: Power curve by N
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powercurveN
+      
 ...
