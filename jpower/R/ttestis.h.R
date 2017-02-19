@@ -76,10 +76,12 @@ ttestISResults <- R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         powertab = function() private$..powertab,
+        powerDist = function() private$..powerDist,
         powercurveES = function() private$..powercurveES,
         powercurveN = function() private$..powercurveN),
     private = list(
         ..powertab = NA,
+        ..powerDist = NA,
         ..powercurveES = NA,
         ..powercurveN = NA),
     public=list(
@@ -93,6 +95,13 @@ ttestISResults <- R6::R6Class(
                 columns=list(
                     list(`name`="var", `title`="", `type`="text"),
                     list(`name`="val", `type`="number", `title`="")))
+            private$..powerDist <- jmvcore::Image$new(
+                options=options,
+                name="powerDist",
+                title="Power demonstration",
+                width=400,
+                height=300,
+                renderFun=".powerDist")
             private$..powercurveES <- jmvcore::Image$new(
                 options=options,
                 name="powercurveES",
@@ -108,6 +117,7 @@ ttestISResults <- R6::R6Class(
                 height=300,
                 renderFun=".powercurveN")
             self$add(private$..powertab)
+            self$add(private$..powerDist)
             self$add(private$..powercurveES)
             self$add(private$..powercurveN)}))
 

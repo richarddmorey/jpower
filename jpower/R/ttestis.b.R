@@ -72,7 +72,7 @@ ttestISClass <- R6::R6Class(
           
           self$results$powercurveES$setState(lst)
           self$results$powercurveN$setState(lst)
-          
+          self$results$powerDist$setState(lst)
           
         },
         .powercurveES=function(image, ...) {
@@ -90,7 +90,8 @@ ttestISClass <- R6::R6Class(
             
             
             plot(dd, y, typ = 'l', 
-                 ylab = "Power", xlab = "Effect size")
+                 ylab = "Power", xlab = "Effect size",
+                 ylim = c(0, 1))
             segments(lst$es, par()$usr[3], lst$es, y.at)
             segments(par()$usr[1], y.at , lst$es, y.at)
             points(lst$es, y.at, pch = 19)
@@ -117,7 +118,8 @@ ttestISClass <- R6::R6Class(
           
           
           plot(nn, y, typ = 'l', 
-               ylab = "Power", xlab = "Sample size")
+               ylab = "Power", xlab = "Sample size",
+               ylim = c(0, 1))
           
           segments(lst$n, par()$usr[3], lst$n, y.at)
           segments(par()$usr[1], y.at , lst$n, y.at)
@@ -128,6 +130,66 @@ ttestISClass <- R6::R6Class(
           rect(par()$usr[1], lst$pow, par()$usr[2], 0,
                border = NA, col = rgb(1, 0 , 0, .1))
           
+          TRUE
+        },
+        .powerDist=function(image, ...) {
+          lst <- image$state
+          
+          effN = lst$n / 2
+          df = 2*lst$n - 2
+          ncp = sqrt(effN) * lst$es
+
+          crit = qt(p = 1 - lst$alpha/2, 
+                      df = 2*lst$n - 2 )
+          
+          if(lst$es > 0){
+            xlims = c(qt(.001, df), 
+                      qt(.999, df, ncp))
+          }else{
+            xlims = c(qt(.001, df, ncp),
+                      qt(.999, df))
+          }  
+          
+          y.max = dt(0, df)
+          
+          plot(xlims, xlims, typ = 'n', 
+               ylab = "Probability density", xlab = "t statistic",
+               axes=FALSE, xlim = xlims, 
+               ylim = c(0, y.max))
+          
+          axis(1)
+
+          ## significant below
+          xx = seq(xlims[1], -crit, len = 100)
+          yy.null = dt(xx, df)
+          yy.alt = dt(xx, df, ncp)
+          polygon( c(xx, rev(xx)), c( yy.null, 0*yy.null), 
+                   col = rgb(0,1,1,.3), border = NA)
+          polygon( c(xx, rev(xx)), c( yy.alt, 0*yy.alt), 
+                   col = rgb(1,0,1,.3), border = NA)
+
+          ## significant above
+          xx = seq(crit, xlims[2], len = 100)
+          yy.null = dt(xx, df)
+          yy.alt = dt(xx, df, ncp)
+          polygon( c(xx, rev(xx)), c( yy.null, 0*yy.null), 
+                   col = rgb(0,1,1,.3), border = NA)
+          polygon( c(xx, rev(xx)), c( yy.alt, 0*yy.alt), 
+                   col = rgb(1,0,1,.3), border = NA)
+          
+          ## non-significant
+          xx = seq(-crit, crit, len = 100)
+          yy.null = dt(xx, df)
+          yy.alt = dt(xx, df, ncp)
+          polygon( c(xx, rev(xx)), c( yy.null, 0*yy.null), 
+                   col = rgb(0,1,1,.1), border = NA)
+          polygon( c(xx, rev(xx)), c( yy.alt, 0*yy.alt), 
+                   col = rgb(1,0,1,.1), border = NA)
+          
+
+          abline(v = c(-1,1)*crit)      
+          box()
+
           TRUE
         })
 )

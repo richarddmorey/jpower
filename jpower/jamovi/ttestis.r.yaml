@@ -17,6 +17,13 @@ items:
           type: number
           title: ''
           
+    - name: powerDist
+      title: Power demonstration
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powerDist
+      
     - name: powercurveES
       title: Power curve by effect size
       type: Image
