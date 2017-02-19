@@ -6,11 +6,43 @@ children:
   - type: LayoutBox
     margin: large
     children:
+      - name: es
+        type: TextBox
+        label: Minimally-interesting effect size (&delta;)
+        format: number
+        inputPattern: '[0-9]+'
+      - name: power
+        type: TextBox
+        label: Minimum desired power
+        format: number
+        inputPattern: '[0-9]+'
+      - name: 'n'
+        type: TextBox
+        label: N per group
+        format: number
+        inputPattern: '[0-9]+'
       - name: alt
         type: ComboBox
         label: Tails
         options:
-          - label: two tailed
-            value: two tailed
-          - label: one tailed
-            value: one tailed
+          - label: two-tailed
+            value: two-tailed
+          - label: 'one-tailed, positive'
+            value: 'one-tailed, positive'
+          - label: 'one-tailed, negative'
+            value: 'one-tailed, negative'
+      - name: alpha
+        type: TextBox
+        label: '&alpha; (type I error rate)'
+        format: number
+        inputPattern: '[0-9]+'
+      - name: plotby
+        type: ComboBox
+        label: Plot by
+        options:
+          - label: Effect size
+            value: Effect size
+          - label: Sample size
+            value: Sample size
+          - label: '&alpha; (type I error rate)'
+            value: '&alpha; (type I error rate)'

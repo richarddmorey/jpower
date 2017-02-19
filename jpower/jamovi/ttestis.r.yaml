@@ -4,8 +4,23 @@ title: Independent Samples T-Test
 jrs:   "1.0"
 
 items:
-    - name:  text
-      title: Independent Samples T-Test
-      type:  Preformatted
       
+    - name:  powertab
+      title: A priori power analysis
+      type: Table
+      rows:  4
+      columns:
+        - name: var
+          title: ''
+          type: text
+        - name: val
+          type: number
+          title: ''
+          
+    - name: powercurve
+      title: Power curve
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .plot
 ...

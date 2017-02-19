@@ -7,40 +7,46 @@ jas: '1.0'
 
 options:
     - name: es
-      title: "Minimally-interesting effect size"
-      type: number
+      title: "Minimally-interesting effect size (&delta;)"
+      type: Number
       min: 0
-      max: 5
       default: .5
       
     - name: power
-      title: "Desired power"
-      type: number
+      title: "Minimum desired power"
+      type: Number
       min: 0
       max: 1
       default: .8
       
-    - name: n1
-      title: "N, group 1"
-      type: integer
+    - name: n
+      title: "N per group"
+      type: Integer
       min: 2
-      max: 10000
-      default: 20
-      
-    - name: n2
-      title: "N, group 2"
-      type: integer
-      min: 2
-      max: 10000
       default: 20
     
     - name: alt
       title: Tails
       type: List
       options:
-        - "two tailed"
-        - "one tailed"
-      default: "two tailed"
+        - "two-tailed"
+        - "one-tailed, positive"
+        - "one-tailed, negative"
+      default: "two-tailed"
 
+    - name: alpha
+      title: "&alpha; (type I error rate)"
+      type: Number
+      min: 0
+      default: 0.05
+
+    - name: plotby
+      title: Plot by
+      type: List
+      options:
+        - "Effect size"
+        - "Sample size"
+        - "&alpha; (type I error rate)"
+      default: "Effect size"
 
 ...
