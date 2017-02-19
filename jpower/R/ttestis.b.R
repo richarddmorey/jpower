@@ -88,10 +88,11 @@ ttestISClass <- R6::R6Class(
                                 d = lst$es,
                                 sig.level = lst$alpha)$power
             
+            par(las = 1, xaxs = "i", yaxs = "i")
             
             plot(dd, y, typ = 'l', 
                  ylab = "Power", xlab = "Effect size",
-                 ylim = c(0, 1))
+                 ylim = c(0, 1), lwd = 2)
             segments(lst$es, par()$usr[3], lst$es, y.at)
             segments(par()$usr[1], y.at , lst$es, y.at)
             points(lst$es, y.at, pch = 19)
@@ -116,10 +117,10 @@ ttestISClass <- R6::R6Class(
                                  d = lst$es,
                                  sig.level = lst$alpha)$power
           
-          
+          par(las = 1, xaxs = "i", yaxs = "i")
           plot(nn, y, typ = 'l', 
                ylab = "Power", xlab = "Sample size",
-               ylim = c(0, 1))
+               ylim = c(0, 1), lwd = 2)
           
           segments(lst$n, par()$usr[3], lst$n, y.at)
           segments(par()$usr[1], y.at , lst$n, y.at)
@@ -152,10 +153,11 @@ ttestISClass <- R6::R6Class(
           
           y.max = dt(0, df)
           
+          par(las = 1, xaxs = "i", yaxs = "i")
           plot(xlims, xlims, typ = 'n', 
                ylab = "Probability density", xlab = "t statistic",
                axes=FALSE, xlim = xlims, 
-               ylim = c(0, y.max))
+               ylim = c(0, y.max * 1.1))
           
           axis(1)
 
