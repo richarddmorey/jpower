@@ -3,7 +3,7 @@ name:  anova
 title: ANOVA
 menuGroup: jpower
 version: '1.0.0'
-jas: '1.0'
+jas: '1.1'
 
 options:
 
@@ -11,9 +11,9 @@ options:
       title: "Effect size type"
       type: List
       options:
-        - "<i>f</i>"
-        - "<i>&omega;<sup>2</sup></i>"
-      default: "<i>f</i>"
+        - f
+        - omega
+      default: f
 
     - name: es
       title: "Minimally-interesting effect size"
@@ -45,5 +45,20 @@ options:
       type: Number
       min: 0
       default: 0.05
+      
+    - name: powerDist
+      title: Power demonstration
+      type: Bool
+      default: true
+      
+    - name: powerCurveES
+      title: Power curve by effect size
+      type: Bool
+      default: false
+      
+    - name: powerCurveN
+      title: Power curve by N
+      type: Bool
+      default: false
 
 ...

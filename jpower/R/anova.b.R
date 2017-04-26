@@ -5,195 +5,226 @@ anovaClass <- R6::R6Class(
     "anovaClass",
     inherit = anovaBase,
     private = list(
-      .run = function() {
+        #### Init + run functions ----
+        .run = function() {
+            
+            ## Get options from interface
+            n = self$options$n
+            pow = self$options$power
+            es = self$options$es
+            k = self$options$k
+            alpha = self$options$alpha
+            estype = self$options$estype
+            
+            # Convert omega to f
+            if (estype == "omega" && es >= 1 )
+                jmvcore::reject("Effect size \u03C9\u00B2 must be < 1.", code='error')
+            
+            if (estype == 'f') 
+                f.es <- es 
+            else 
+                f.es <- sqrt(es/(1-es))
+            
+            ## Compute numbers for table
+            pow.n = try(pwr::pwr.anova.test(k = k, f = f.es, sig.level = alpha, power = pow)$n, silent=TRUE)
+            pow.es = try(pwr::pwr.anova.test(k = k, n = n, power = pow, sig.level = alpha)$f, silent=TRUE)
+            pow.pow = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = alpha)$power, silent=TRUE)
+            pow.alpha = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = NULL, power = pow)$sig.level, silent=TRUE)
+            
+            ## Populate table
+            table <- self$results$powertab
+            
+            row <- list()
+            row[['var[n]']] <- "N needed per group to achieve given power"
+            row[['var[es]']] <- "Effect size giving desired power, given N"
+            row[['var[power]']] <- "Power for design, given effect size"
+            row[['var[alpha]']] <- "&alpha; giving desired power, given design and effect size"
+            
+            row[['val[n]']] <- ceiling(pow.n)
+            row[['val[es]']] <- pow.es
+            row[['val[power]']] <- pow.pow
+            row[['val[alpha]']] <- pow.alpha
+            
+            table$setRow(rowNo=1, values=row)
+            
+            ## Prepare plots
+            lst = list(n = n, pow = pow, es = f.es, k = k, alpha = alpha)
+            
+            private$.preparePowerDist(lst)
+            private$.preparePowerCurveES(lst)
+            private$.preparePowerCurveN(lst)
+            
+        },
         
-        # `self$data` contains the data
-        # `self$options` contains the options
-        # `self$results` contains the results object (to populate)
-        
-        ## Get options from interface
-        
-        n = self$options$n
-        pow = self$options$power
-        es = self$options$es
-        k = self$options$k
-        alpha = self$options$alpha
-        estype = self$options$estype
-        
-        if(estype == "<i>&omega;<sup>2</sup></i>" & (es >= 1) ){
-          stop("Effect size <i>&omega;<sup>2</sup></i> must be < 1.")
-        }
-        
-        f.es = ifelse(estype == "<i>f</i>", es, sqrt(es/(1-es)))
-        
-        ## Compute numbers for table
-        
-        pow.n = pwr::pwr.anova.test(k = k,
-                                f = f.es,
-                                sig.level = alpha,
-                                power = pow)$n
-        pow.es = pwr::pwr.anova.test(k = k,
-                                 n = n,
-                                 power = pow,
-                                 sig.level = alpha)$f
-        pow.pow = pwr::pwr.anova.test(k = k,
-                                  n = n,
-                                  f = f.es,
-                                  sig.level = alpha)$power
-        pow.alpha = pwr::pwr.anova.test(k = k,
-                                        n = n,
-                                    f = f.es,
-                                    sig.level = NULL,
-                                    power = pow)$sig.level
-        
-        ## Populate table
-        
-        table <- self$results$powertab
-        
-        table$setRow(rowNo=1, values=list(
-          var="N needed per group to achieve given power",
-          val=ceiling(pow.n)
-        ))
-        
-        table$setRow(rowNo=2, values=list(
-          var="Effect size giving desired power, given N",
-          val=pow.es
-        ))
-        
-        table$setRow(rowNo=3, values=list(
-          var="Power for design, given effect size",
-          val=pow.pow
-        ))
-        
-        table$setRow(rowNo=4, values=list(
-          var="&alpha; giving desired power, given design and effect size",
-          val=pow.alpha
-        ))
-        
-        ## End populate table
-        
-        ## Prepare plots
-        lst = list(n = n,
-                   pow = pow,
-                   es = f.es,
-                   k = k,
-                   alpha = alpha)
-        
-        self$results$powercurveES$setState(lst)
-        self$results$powercurveN$setState(lst)
-        self$results$powerDist$setState(lst)
-        
-      },
-      .powercurveES=function(image, ...) {
-        lst <- image$state
-        
-        ff = seq(0, 1, len = 100)
-        
-        y = pwr::pwr.anova.test(k = lst$k,
-                                n = lst$n,
-                                f = ff,
-                            sig.level = lst$alpha)$power
-        
-        y.at = pwr::pwr.anova.test(k = lst$k,
-                                   n = lst$n,
-                               f = lst$es,
-                               sig.level = lst$alpha)$power
-        
-        par(las = 1, xaxs = "i", yaxs = "i")
-        plot(ff, y, typ = 'l', 
-             ylab = "Power", xlab = "Effect size",
-             ylim = c(0, 1), lwd = 2)
-        segments(lst$es, par()$usr[3], lst$es, y.at)
-        segments(par()$usr[1], y.at , lst$es, y.at)
-        points(lst$es, y.at, pch = 19)
-        
-        rect(par()$usr[1], lst$pow, par()$usr[2], 1,
-             border = NA, col = rgb(0, 0 , 1, .1))
-        rect(par()$usr[1], lst$pow, par()$usr[2], 0,
-             border = NA, col = rgb(1, 0 , 0, .1))
-        
-        TRUE
-      },
-      .powercurveN=function(image, ...) {
-        lst <- image$state
-        
-        nn = seq(2, 100)
-        
-        y = pwr::pwr.anova.test(k = lst$k,
-                                n = nn,
-                            f = lst$es,
-                            sig.level = lst$alpha)$power
-        
-        y.at = pwr::pwr.anova.test(k = lst$k,
-                                   n = lst$n,
-                               f = lst$es,
-                               sig.level = lst$alpha)$power
-        
-        par(las = 1, xaxs = "i", yaxs = "i")
-        plot(nn, y, typ = 'l', 
-             ylab = "Power", xlab = "Sample size (per group)",
-             ylim = c(0, 1), lwd = 2)
-        
-        segments(lst$n, par()$usr[3], lst$n, y.at)
-        segments(par()$usr[1], y.at , lst$n, y.at)
-        points(lst$n, y.at, pch = 19)
-        
-        rect(par()$usr[1], lst$pow, par()$usr[2], 1,
-             border = NA, col = rgb(0, 0 , 1, .1))
-        rect(par()$usr[1], lst$pow, par()$usr[2], 0,
-             border = NA, col = rgb(1, 0 , 0, .1))
-        
-        TRUE
-      },
-      .powerDist=function(image, ...) {
+        #### Plot functions ----
+        .preparePowerDist = function(lst) {
+            
+            image <- self$results$powerDist
+            
+            df1 = (lst$k - 1)
+            df2 = (lst$k - 1) * lst$n 
+            ncp = lst$k * lst$n * lst$es^2
+            
+            crit = qf(p = 1 - lst$alpha,  df1 = df1, df2 = df2)
+            
+            xlims = c(0, qf(.999, df1, df2, ncp))
+            
+            if (df1 > 2)
+                y.max <- (df1 - 2) / df1 * df2 / (df2 + 2)
+            else
+                y.max <- .2
 
-        lst <- image$state
+            y.max = df(y.max, df1, df2)
+            
+            xx = seq(xlims[1], xlims[2], len = 100)
+            yy.null = df(xx, df1, df2)
+            yy.alt = df(xx, df1, df2, ncp)
+            
+            curves <- data.frame(x=rep(xx, 2), 
+                                 ymin=rep(0,length(xx)*2), 
+                                 ymax=c(yy.null, yy.alt), 
+                                 group=rep(c('Null', 'Alt'), each=length(xx)))
+            
+            rect <- data.frame(x1 = 0, x2 = crit,
+                               y1 = 0, y2 = y.max * 1.1)
+            
+            lims <- data.frame(xlim = c(xlims[1], xlims[2]), 
+                               ylim = c(0, y.max * 1.1))
+            
+            image$setState(list(curves=curves, rect=rect, lims=lims))
+            
+        },
+        .powerDist = function(image, ...) {
+            
+            if (is.null(image$state))
+                return(FALSE)
+            
+            curves <- image$state$curves
+            rect <- image$state$rect
+            lims <- image$state$lims
+            
+            themeSpec <- ggplot2::theme(axis.text.y = ggplot2::element_blank(),
+                                        axis.ticks.y = ggplot2::element_blank(),
+                                        legend.position = "none")
+            
+            p <- ggplot2::ggplot() + 
+                ggplot2::geom_ribbon(data=curves, ggplot2::aes(x=x, ymin=ymin, ymax=ymax, fill=group), alpha=.3) +
+                ggplot2::geom_rect(data=rect, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), fill='white', alpha = 0.5) +
+                ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x1), linetype = 'dashed') +
+                ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2), linetype = 'dashed') +
+                ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
+                ggplot2::labs(x=expression(paste(italic("F"), " statistic")), y='Probability Density') +
+                jmvTheme() + themeSpec
+            
+            print(p)
+            
+            TRUE
+        },
+        .preparePowerCurveES = function(lst) {
+            
+            image <- self$results$powerCurveES
+            
+            ff = seq(0, 1, len = 100)
+            
+            y = pwr::pwr.anova.test(k = lst$k, n = lst$n, f = ff, sig.level = lst$alpha)$power
+            y.at = pwr::pwr.anova.test(k = lst$k, n = lst$n, f = lst$es, sig.level = lst$alpha)$power
+            
+            curve <- data.frame(x=ff, y=y)
+            
+            point <- data.frame(x=lst$es, y=y.at)
+            
+            rects <- data.frame(x1 = c(0, 0), x2 = c(1, 1),
+                                y1 = c(0, lst$pow), y2 = c(lst$pow, 1),
+                                group = c('a', 'b'))
+            
+            image$setState(list(curve=curve, point=point, rects=rects))
+            
+        },
+        .powerCurveES = function(image, ...) {
+            
+            if (is.null(image$state))
+                return(FALSE)
+            
+            curve <- image$state$curve
+            point <- image$state$point
+            rects <- image$state$rects
+            pow <- self$options$power
+            
+            p <- ggplot2::ggplot() +
+                ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2, fill=group), alpha = 0.3) +
+                ggplot2::geom_line(data=curve, ggplot2::aes(x=x, y=y)) +
+                ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(0, 1), expand = FALSE) + 
+                ggplot2::geom_segment(data=point, ggplot2::aes(x=0, xend=x, y=y, yend=y)) +
+                ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y)) +
+                ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
+                ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
+                ggplot2::labs(x='Effect Size', y='Power') +
+                jmvTheme() +
+                ggplot2::theme(legend.position="none")
+                
+            
+            print(p)
+            
+            TRUE
+            
+        },
+        .preparePowerCurveN = function(lst) {
+            
+            image <- self$results$powerCurveN
         
-        df1 = (lst$k - 1)
-        df2 = (lst$k - 1) * lst$n 
-        ncp = lst$k * lst$n * lst$es^2
-        
-        crit = qf(p = 1 - lst$alpha, 
-                  df1 = df1,
-                  df2 = df2)
-        
-        xlims = c(0, qf(.999, df1, df2, ncp))
-
-        y.max = ifelse(df1 > 2,
-                       (df1 - 2) / df1 * df2 / (df2 + 2),
-                       .2)
-        y.max = df(y.max, df1, df2)
-        
-        par(las = 1, xaxs = "i", yaxs = "i")
-        plot(xlims, xlims, typ = 'n', 
-             ylab = "Probability density", xlab = "F statistic",
-             axes=FALSE, xlim = xlims, 
-             ylim = c(0, y.max * 1.1))
-        
-        axis(1)
-        
-        ## significant
-        xx = seq(crit, xlims[2], len = 100)
-        yy.null = df(xx, df1, df2)
-        yy.alt = df(xx, df1, df2, ncp)
-        polygon( c(xx, rev(xx)), c( yy.null, 0*yy.null), 
-                 col = rgb(0,1,1,.3), border = NA)
-        polygon( c(xx, rev(xx)), c( yy.alt, 0*yy.alt), 
-                 col = rgb(1,0,1,.3), border = NA)
-        
-        ## non-significant
-        xx = seq(0, crit, len = 100)
-        yy.null = df(xx, df1, df2)
-        yy.alt = df(xx, df1, df2, ncp)
-        polygon( c(xx, rev(xx)), c( yy.null, 0*yy.null), 
-                 col = rgb(0,1,1,.1), border = NA)
-        polygon( c(xx, rev(xx)), c( yy.alt, 0*yy.alt), 
-                 col = rgb(1,0,1,.1), border = NA)
-        
-        
-        abline(v = crit)      
-        box()
-        
-        TRUE
-      })
+            xmax <- pwr::pwr.anova.test(power = 0.9, k = lst$k, f = lst$es, sig.level = lst$alpha)$n
+            
+            if (lst$n > xmax && lst$n >= 100) {
+                xmax <- lst$n * 1.1
+            } else if (xmax < 100) {
+                xmax <- 100
+            }
+            
+            nn = seq(2, xmax)
+            
+            y = pwr::pwr.anova.test(k = lst$k, n = nn, f = lst$es, sig.level = lst$alpha)$power
+            y.at = pwr::pwr.anova.test(k = lst$k, n = lst$n, f = lst$es, sig.level = lst$alpha)$power
+            
+            curve <- data.frame(x=nn, y=y)
+            
+            point <- data.frame(x=lst$n, y=y.at)
+            
+            rects <- data.frame(x1 = c(2, 2), x2 = c(xmax, xmax),
+                                y1 = c(0, lst$pow), y2 = c(lst$pow, 1),
+                                group = c('a', 'b'))
+            
+            lims <- data.frame(xlim = c(2, xmax), 
+                               ylim = c(0, 1))
+            
+            image$setState(list(curve=curve, point=point, rects=rects, lims=lims))
+            
+        },
+        .powerCurveN = function(image, ...) {
+            
+            if (is.null(image$state))
+                return(FALSE)
+            
+            curve <- image$state$curve
+            point <- image$state$point
+            rects <- image$state$rects
+            lims <- image$state$lims
+            pow <- self$options$power
+            
+            p <- ggplot2::ggplot() +
+                ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2, fill=group), alpha = 0.3) +
+                ggplot2::geom_line(data=curve, ggplot2::aes(x=x, y=y)) +
+                ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
+                ggplot2::geom_segment(data=point, ggplot2::aes(x=0, xend=x, y=y, yend=y)) +
+                ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y)) +
+                ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
+                ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
+                ggplot2::labs(x='Sample Size (per group)', y='Power') +
+                jmvTheme() +
+                ggplot2::theme(legend.position="none")
+            
+            print(p)
+            
+            TRUE
+            
+        })
 )

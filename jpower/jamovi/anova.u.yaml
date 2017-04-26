@@ -1,6 +1,6 @@
 title: ANOVA
 name: anova
-jus: '1.0'
+jus: '2.0'
 stage: 0
 children:
   - type: LayoutBox
@@ -10,10 +10,10 @@ children:
         type: ComboBox
         label: Effect size type
         options:
-          - label: <i>f</i>
-            value: <i>f</i>
-          - label: <i>&omega;<sup>2</sup></i>
-            value: <i>&omega;<sup>2</sup></i>
+          - title: f
+            name: f
+          - title: ω²
+            name: omega
       - name: es
         type: TextBox
         label: Minimally-interesting effect size
@@ -39,3 +39,17 @@ children:
         label: '&alpha; (type I error rate)'
         format: number
         inputPattern: '[0-9]+'
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: Label
+        label: Plots
+        children:
+          - type: CheckBox
+            name: powerDist
+          - type: CheckBox
+            name: powerCurveES
+          - type: CheckBox
+            name: powerCurveN
+compilerMode: tame

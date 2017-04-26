@@ -1,6 +1,6 @@
 title: Independent Samples T-Test
 name: ttestIS
-jus: '1.0'
+jus: '2.0'
 stage: 0
 children:
   - type: LayoutBox
@@ -25,14 +25,28 @@ children:
         type: ComboBox
         label: Tails
         options:
-          - label: two-tailed
-            value: two-tailed
-          - label: 'one-tailed, positive'
-            value: 'one-tailed, positive'
-          - label: 'one-tailed, negative'
-            value: 'one-tailed, negative'
+          - title: two-tailed
+            name: two-tailed
+          - title: 'one-tailed, positive'
+            name: 'one-tailed, positive'
+          - title: 'one-tailed, negative'
+            name: 'one-tailed, negative'
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
         inputPattern: '[0-9]+'
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: Label
+        label: Plots
+        children:
+          - type: CheckBox
+            name: powerDist
+          - type: CheckBox
+            name: powerCurveES
+          - type: CheckBox
+            name: powerCurveN
+compilerMode: tame
