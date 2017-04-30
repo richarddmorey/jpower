@@ -12,7 +12,10 @@ ttestISOptions <- R6::R6Class(
             power = 0.8,
             n = 20,
             alt = "two-tailed",
-            alpha = 0.05, ...) {
+            alpha = 0.05,
+            powerDist = TRUE,
+            powerCurveES = FALSE,
+            powerCurveN = FALSE, ...) {
 
             super$initialize(
                 package='jpower',
@@ -23,7 +26,7 @@ ttestISOptions <- R6::R6Class(
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
-                min=0,
+                min=0.01,
                 default=0.5)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
@@ -49,25 +52,46 @@ ttestISOptions <- R6::R6Class(
                 alpha,
                 min=0,
                 default=0.05)
+            private$..powerDist <- jmvcore::OptionBool$new(
+                "powerDist",
+                powerDist,
+                default=TRUE)
+            private$..powerCurveES <- jmvcore::OptionBool$new(
+                "powerCurveES",
+                powerCurveES,
+                default=FALSE)
+            private$..powerCurveN <- jmvcore::OptionBool$new(
+                "powerCurveN",
+                powerCurveN,
+                default=FALSE)
         
             self$.addOption(private$..es)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..alt)
             self$.addOption(private$..alpha)
+            self$.addOption(private$..powerDist)
+            self$.addOption(private$..powerCurveES)
+            self$.addOption(private$..powerCurveN)
         }),
     active = list(
         es = function() private$..es$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         alt = function() private$..alt$value,
-        alpha = function() private$..alpha$value),
+        alpha = function() private$..alpha$value,
+        powerDist = function() private$..powerDist$value,
+        powerCurveES = function() private$..powerCurveES$value,
+        powerCurveN = function() private$..powerCurveN$value),
     private = list(
         ..es = NA,
         ..power = NA,
         ..n = NA,
         ..alt = NA,
-        ..alpha = NA)
+        ..alpha = NA,
+        ..powerDist = NA,
+        ..powerCurveES = NA,
+        ..powerCurveN = NA)
 )
 
 #' @import jmvcore
@@ -77,49 +101,82 @@ ttestISResults <- R6::R6Class(
     active = list(
         powertab = function() private$..powertab,
         powerDist = function() private$..powerDist,
-        powercurveES = function() private$..powercurveES,
-        powercurveN = function() private$..powercurveN),
+        powerCurveES = function() private$..powerCurveES,
+        powerCurveN = function() private$..powerCurveN),
     private = list(
         ..powertab = NA,
         ..powerDist = NA,
-        ..powercurveES = NA,
-        ..powercurveN = NA),
+        ..powerCurveES = NA,
+        ..powerCurveN = NA),
     public=list(
         initialize=function(options) {
             super$initialize(options=options, name="", title="Independent Samples T test")
             private$..powertab <- jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A priori power analysis",
-                rows=4,
+                title="A Priori Power Analysis",
+                rows=1,
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha"),
                 columns=list(
-                    list(`name`="var", `title`="", `type`="text"),
-                    list(`name`="val", `type`="number", `title`="")))
+                    list(`name`="var[n]", `title`="", `type`="text"),
+                    list(`name`="var[es]", `title`="", `type`="text"),
+                    list(`name`="var[power]", `title`="", `type`="text"),
+                    list(`name`="var[alpha]", `title`="", `type`="text"),
+                    list(`name`="val[n]", `title`="", `type`="integer"),
+                    list(`name`="val[es]", `title`="", `type`="number"),
+                    list(`name`="val[power]", `title`="", `type`="number"),
+                    list(`name`="val[alpha]", `title`="", `type`="number")))
             private$..powerDist <- jmvcore::Image$new(
                 options=options,
                 name="powerDist",
-                title="Power demonstration",
+                title="Power Demonstration",
                 width=400,
                 height=300,
-                renderFun=".powerDist")
-            private$..powercurveES <- jmvcore::Image$new(
+                renderFun=".powerDist",
+                visible="(powerDist)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha"))
+            private$..powerCurveES <- jmvcore::Image$new(
                 options=options,
-                name="powercurveES",
-                title="Power curve by effect size",
+                name="powerCurveES",
+                title="Power Curve by Effect Size",
                 width=400,
                 height=300,
-                renderFun=".powercurveES")
-            private$..powercurveN <- jmvcore::Image$new(
+                renderFun=".powerCurveES",
+                visible="(powerCurveES)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha"))
+            private$..powerCurveN <- jmvcore::Image$new(
                 options=options,
-                name="powercurveN",
-                title="Power curve by N",
+                name="powerCurveN",
+                title="Power Curve by N",
                 width=400,
                 height=300,
-                renderFun=".powercurveN")
+                renderFun=".powerCurveN",
+                visible="(powerCurveN)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha"))
             self$add(private$..powertab)
             self$add(private$..powerDist)
-            self$add(private$..powercurveES)
-            self$add(private$..powercurveN)}))
+            self$add(private$..powerCurveES)
+            self$add(private$..powerCurveN)}))
 
 #' @importFrom jmvcore Analysis
 #' @importFrom R6 R6Class
@@ -138,7 +195,8 @@ ttestISBase <- R6::R6Class(
                 datasetId = datasetId,
                 analysisId = analysisId,
                 revision = revision,
-                pause = NULL)
+                pause = NULL,
+                completeWhenFilled = FALSE)
         }))
 
 #' Independent Samples T-Test
@@ -149,20 +207,29 @@ ttestISBase <- R6::R6Class(
 #' @param n .
 #' @param alt .
 #' @param alpha .
+#' @param powerDist .
+#' @param powerCurveES .
+#' @param powerCurveN .
 #' @export
 ttestIS <- function(
     es = 0.5,
     power = 0.8,
     n = 20,
     alt = "two-tailed",
-    alpha = 0.05) {
+    alpha = 0.05,
+    powerDist = TRUE,
+    powerCurveES = FALSE,
+    powerCurveN = FALSE) {
 
     options <- ttestISOptions$new(
         es = es,
         power = power,
         n = n,
         alt = alt,
-        alpha = alpha)
+        alpha = alpha,
+        powerDist = powerDist,
+        powerCurveES = powerCurveES,
+        powerCurveN = powerCurveN)
 
     results <- ttestISResults$new(
         options = options)
@@ -172,7 +239,6 @@ ttestIS <- function(
         data = data)
 
     analysis$run()
-    analysis$render()
 
-    analysis
+    analysis$results
 }

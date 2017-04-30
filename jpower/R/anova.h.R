@@ -8,12 +8,15 @@ anovaOptions <- R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            estype = "<i>f</i>",
+            estype = "f",
             es = 0.3,
             power = 0.8,
             n = 20,
             k = 3,
-            alpha = 0.05, ...) {
+            alpha = 0.05,
+            powerDist = TRUE,
+            powerCurveES = FALSE,
+            powerCurveN = FALSE, ...) {
 
             super$initialize(
                 package='jpower',
@@ -25,9 +28,9 @@ anovaOptions <- R6::R6Class(
                 "estype",
                 estype,
                 options=list(
-                    "<i>f</i>",
-                    "<i>&omega;<sup>2</sup></i>"),
-                default="<i>f</i>")
+                    "f",
+                    "omega"),
+                default="f")
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
@@ -54,6 +57,18 @@ anovaOptions <- R6::R6Class(
                 alpha,
                 min=0,
                 default=0.05)
+            private$..powerDist <- jmvcore::OptionBool$new(
+                "powerDist",
+                powerDist,
+                default=TRUE)
+            private$..powerCurveES <- jmvcore::OptionBool$new(
+                "powerCurveES",
+                powerCurveES,
+                default=FALSE)
+            private$..powerCurveN <- jmvcore::OptionBool$new(
+                "powerCurveN",
+                powerCurveN,
+                default=FALSE)
         
             self$.addOption(private$..estype)
             self$.addOption(private$..es)
@@ -61,6 +76,9 @@ anovaOptions <- R6::R6Class(
             self$.addOption(private$..n)
             self$.addOption(private$..k)
             self$.addOption(private$..alpha)
+            self$.addOption(private$..powerDist)
+            self$.addOption(private$..powerCurveES)
+            self$.addOption(private$..powerCurveN)
         }),
     active = list(
         estype = function() private$..estype$value,
@@ -68,14 +86,20 @@ anovaOptions <- R6::R6Class(
         power = function() private$..power$value,
         n = function() private$..n$value,
         k = function() private$..k$value,
-        alpha = function() private$..alpha$value),
+        alpha = function() private$..alpha$value,
+        powerDist = function() private$..powerDist$value,
+        powerCurveES = function() private$..powerCurveES$value,
+        powerCurveN = function() private$..powerCurveN$value),
     private = list(
         ..estype = NA,
         ..es = NA,
         ..power = NA,
         ..n = NA,
         ..k = NA,
-        ..alpha = NA)
+        ..alpha = NA,
+        ..powerDist = NA,
+        ..powerCurveES = NA,
+        ..powerCurveN = NA)
 )
 
 #' @import jmvcore
@@ -85,49 +109,86 @@ anovaResults <- R6::R6Class(
     active = list(
         powertab = function() private$..powertab,
         powerDist = function() private$..powerDist,
-        powercurveES = function() private$..powercurveES,
-        powercurveN = function() private$..powercurveN),
+        powerCurveES = function() private$..powerCurveES,
+        powerCurveN = function() private$..powerCurveN),
     private = list(
         ..powertab = NA,
         ..powerDist = NA,
-        ..powercurveES = NA,
-        ..powercurveN = NA),
+        ..powerCurveES = NA,
+        ..powerCurveN = NA),
     public=list(
         initialize=function(options) {
             super$initialize(options=options, name="", title="ANOVA")
             private$..powertab <- jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A priori power analysis",
-                rows=4,
+                title="A Priori Power Analysis",
+                rows=1,
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "n",
+                    "k",
+                    "alpha"),
                 columns=list(
-                    list(`name`="var", `title`="", `type`="text"),
-                    list(`name`="val", `type`="number", `title`="")))
+                    list(`name`="var[n]", `title`="", `type`="text"),
+                    list(`name`="var[es]", `title`="", `type`="text"),
+                    list(`name`="var[power]", `title`="", `type`="text"),
+                    list(`name`="var[alpha]", `title`="", `type`="text"),
+                    list(`name`="val[n]", `title`="", `type`="integer"),
+                    list(`name`="val[es]", `title`="", `type`="number"),
+                    list(`name`="val[power]", `title`="", `type`="number"),
+                    list(`name`="val[alpha]", `title`="", `type`="number")))
             private$..powerDist <- jmvcore::Image$new(
                 options=options,
                 name="powerDist",
-                title="Power demonstration",
+                title="Power Demonstration",
                 width=400,
                 height=300,
-                renderFun=".powerDist")
-            private$..powercurveES <- jmvcore::Image$new(
+                renderFun=".powerDist",
+                visible="(powerDist)",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "n",
+                    "k",
+                    "alpha"))
+            private$..powerCurveES <- jmvcore::Image$new(
                 options=options,
-                name="powercurveES",
-                title="Power curve by effect size",
+                name="powerCurveES",
+                title="Power Curve by Effect Size",
                 width=400,
                 height=300,
-                renderFun=".powercurveES")
-            private$..powercurveN <- jmvcore::Image$new(
+                renderFun=".powerCurveES",
+                visible="(powerCurveES)",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "n",
+                    "k",
+                    "alpha"))
+            private$..powerCurveN <- jmvcore::Image$new(
                 options=options,
-                name="powercurveN",
-                title="Power curve by N",
+                name="powerCurveN",
+                title="Power Curve by N",
                 width=400,
                 height=300,
-                renderFun=".powercurveN")
+                renderFun=".powerCurveN",
+                visible="(powerCurveN)",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "n",
+                    "k",
+                    "alpha"))
             self$add(private$..powertab)
             self$add(private$..powerDist)
-            self$add(private$..powercurveES)
-            self$add(private$..powercurveN)}))
+            self$add(private$..powerCurveES)
+            self$add(private$..powerCurveN)}))
 
 #' @importFrom jmvcore Analysis
 #' @importFrom R6 R6Class
@@ -146,7 +207,8 @@ anovaBase <- R6::R6Class(
                 datasetId = datasetId,
                 analysisId = analysisId,
                 revision = revision,
-                pause = NULL)
+                pause = NULL,
+                completeWhenFilled = FALSE)
         }))
 
 #' ANOVA
@@ -158,14 +220,20 @@ anovaBase <- R6::R6Class(
 #' @param n .
 #' @param k .
 #' @param alpha .
+#' @param powerDist .
+#' @param powerCurveES .
+#' @param powerCurveN .
 #' @export
 anova <- function(
-    estype = "<i>f</i>",
+    estype = "f",
     es = 0.3,
     power = 0.8,
     n = 20,
     k = 3,
-    alpha = 0.05) {
+    alpha = 0.05,
+    powerDist = TRUE,
+    powerCurveES = FALSE,
+    powerCurveN = FALSE) {
 
     options <- anovaOptions$new(
         estype = estype,
@@ -173,7 +241,10 @@ anova <- function(
         power = power,
         n = n,
         k = k,
-        alpha = alpha)
+        alpha = alpha,
+        powerDist = powerDist,
+        powerCurveES = powerCurveES,
+        powerCurveN = powerCurveN)
 
     results <- anovaResults$new(
         options = options)
@@ -183,7 +254,6 @@ anova <- function(
         data = data)
 
     analysis$run()
-    analysis$render()
 
-    analysis
+    analysis$results
 }
