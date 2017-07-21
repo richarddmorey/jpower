@@ -2,6 +2,7 @@
 name:  anova
 title: ANOVA
 menuGroup: jpower
+menuSubgroup: ANOVA
 version: '1.0.0'
 jas: '1.1'
 

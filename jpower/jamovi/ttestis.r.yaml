@@ -4,7 +4,7 @@ title: Independent Samples T test
 jrs:   "1.1"
 
 items:
-      
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -15,32 +15,39 @@ items:
         - n
         - alt
         - alpha
-      columns:
-        - name: var[n]
-          title: ''
-          type: text
-        - name: var[es]
-          title: ''
-          type: text
-        - name: var[power]
-          title: ''
-          type: text
-        - name: var[alpha]
-          title: ''
-          type: text
-        - name: val[n]
-          title: ""
-          type: integer
-        - name: val[es]
-          title: ""
-          type: number
-        - name: val[power]
-          title: ""
-          type: number
-        - name: val[alpha]
-          title: ""
-          type: number
-          
+        - calc
+      columns: []
+
+    - name: powerCurveES
+      title: Power Curve by Effect Size
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerCurveES
+      visible: (powerCurveES)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+
+    - name: powerCurveN
+      title: Power Curve by N
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerCurveN
+      visible: (powerCurveN)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+
     - name: powerDist
       title: Power Demonstration
       type: Image
@@ -54,33 +61,6 @@ items:
         - n
         - alt
         - alpha
-      
-    - name: powerCurveES
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 300
-      renderFun: .powerCurveES
-      visible: (powerCurveES)
-      clearWith:
-        - es
-        - power
-        - n
-        - alt
-        - alpha
-      
-    - name: powerCurveN
-      title: Power Curve by N
-      type: Image
-      width:  400
-      height: 300
-      renderFun: .powerCurveN
-      visible: (powerCurveN)
-      clearWith:
-        - es
-        - power
-        - n
-        - alt
-        - alpha
-      
+        - calc
+
 ...

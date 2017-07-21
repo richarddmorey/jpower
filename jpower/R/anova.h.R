@@ -21,7 +21,7 @@ anovaOptions <- R6::R6Class(
             super$initialize(
                 package='jpower',
                 name='anova',
-                requiresData=TRUE,
+                requiresData=FALSE,
                 ...)
         
             private$..estype <- jmvcore::OptionList$new(
@@ -223,6 +223,20 @@ anovaBase <- R6::R6Class(
 #' @param powerDist .
 #' @param powerCurveES .
 #' @param powerCurveN .
+#' @return A results object containing:
+#' \tabular{llllll}{
+#'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
+#' }
+#'
+#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
+#'
+#' \code{results$powertab$asDF}
+#'
+#' \code{as.data.frame(results$powertab)}
+#'
 #' @export
 anova <- function(
     estype = "f",

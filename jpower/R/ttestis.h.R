@@ -8,21 +8,31 @@ ttestISOptions <- R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
+            calc = "n",
             es = 0.5,
             power = 0.8,
             n = 20,
-            alt = "two-tailed",
+            alt = "two.sided",
             alpha = 0.05,
-            powerDist = TRUE,
-            powerCurveES = FALSE,
+            powerDist = FALSE,
+            powerCurveES = TRUE,
             powerCurveN = FALSE, ...) {
 
             super$initialize(
                 package='jpower',
                 name='ttestIS',
-                requiresData=TRUE,
+                requiresData=FALSE,
                 ...)
         
+            private$..calc <- jmvcore::OptionList$new(
+                "calc",
+                calc,
+                options=list(
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"),
+                default="n")
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
@@ -43,10 +53,10 @@ ttestISOptions <- R6::R6Class(
                 "alt",
                 alt,
                 options=list(
-                    "two-tailed",
-                    "one-tailed, positive",
-                    "one-tailed, negative"),
-                default="two-tailed")
+                    "two.sided",
+                    "less",
+                    "greater"),
+                default="two.sided")
             private$..alpha <- jmvcore::OptionNumber$new(
                 "alpha",
                 alpha,
@@ -55,16 +65,17 @@ ttestISOptions <- R6::R6Class(
             private$..powerDist <- jmvcore::OptionBool$new(
                 "powerDist",
                 powerDist,
-                default=TRUE)
+                default=FALSE)
             private$..powerCurveES <- jmvcore::OptionBool$new(
                 "powerCurveES",
                 powerCurveES,
-                default=FALSE)
+                default=TRUE)
             private$..powerCurveN <- jmvcore::OptionBool$new(
                 "powerCurveN",
                 powerCurveN,
                 default=FALSE)
         
+            self$.addOption(private$..calc)
             self$.addOption(private$..es)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
@@ -75,6 +86,7 @@ ttestISOptions <- R6::R6Class(
             self$.addOption(private$..powerCurveN)
         }),
     active = list(
+        calc = function() private$..calc$value,
         es = function() private$..es$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
@@ -84,6 +96,7 @@ ttestISOptions <- R6::R6Class(
         powerCurveES = function() private$..powerCurveES$value,
         powerCurveN = function() private$..powerCurveN$value),
     private = list(
+        ..calc = NA,
         ..es = NA,
         ..power = NA,
         ..n = NA,
@@ -100,14 +113,14 @@ ttestISResults <- R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         powertab = function() private$..powertab,
-        powerDist = function() private$..powerDist,
         powerCurveES = function() private$..powerCurveES,
-        powerCurveN = function() private$..powerCurveN),
+        powerCurveN = function() private$..powerCurveN,
+        powerDist = function() private$..powerDist),
     private = list(
         ..powertab = NA,
-        ..powerDist = NA,
         ..powerCurveES = NA,
-        ..powerCurveN = NA),
+        ..powerCurveN = NA,
+        ..powerDist = NA),
     public=list(
         initialize=function(options) {
             super$initialize(options=options, name="", title="Independent Samples T test")
@@ -121,16 +134,39 @@ ttestISResults <- R6::R6Class(
                     "power",
                     "n",
                     "alt",
-                    "alpha"),
-                columns=list(
-                    list(`name`="var[n]", `title`="", `type`="text"),
-                    list(`name`="var[es]", `title`="", `type`="text"),
-                    list(`name`="var[power]", `title`="", `type`="text"),
-                    list(`name`="var[alpha]", `title`="", `type`="text"),
-                    list(`name`="val[n]", `title`="", `type`="integer"),
-                    list(`name`="val[es]", `title`="", `type`="number"),
-                    list(`name`="val[power]", `title`="", `type`="number"),
-                    list(`name`="val[alpha]", `title`="", `type`="number")))
+                    "alpha",
+                    "calc"),
+                columns=list())
+            private$..powerCurveES <- jmvcore::Image$new(
+                options=options,
+                name="powerCurveES",
+                title="Power Curve by Effect Size",
+                width=400,
+                height=350,
+                renderFun=".powerCurveES",
+                visible="(powerCurveES)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha",
+                    "calc"))
+            private$..powerCurveN <- jmvcore::Image$new(
+                options=options,
+                name="powerCurveN",
+                title="Power Curve by N",
+                width=400,
+                height=350,
+                renderFun=".powerCurveN",
+                visible="(powerCurveN)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha",
+                    "calc"))
             private$..powerDist <- jmvcore::Image$new(
                 options=options,
                 name="powerDist",
@@ -144,39 +180,12 @@ ttestISResults <- R6::R6Class(
                     "power",
                     "n",
                     "alt",
-                    "alpha"))
-            private$..powerCurveES <- jmvcore::Image$new(
-                options=options,
-                name="powerCurveES",
-                title="Power Curve by Effect Size",
-                width=400,
-                height=300,
-                renderFun=".powerCurveES",
-                visible="(powerCurveES)",
-                clearWith=list(
-                    "es",
-                    "power",
-                    "n",
-                    "alt",
-                    "alpha"))
-            private$..powerCurveN <- jmvcore::Image$new(
-                options=options,
-                name="powerCurveN",
-                title="Power Curve by N",
-                width=400,
-                height=300,
-                renderFun=".powerCurveN",
-                visible="(powerCurveN)",
-                clearWith=list(
-                    "es",
-                    "power",
-                    "n",
-                    "alt",
-                    "alpha"))
+                    "alpha",
+                    "calc"))
             self$add(private$..powertab)
-            self$add(private$..powerDist)
             self$add(private$..powerCurveES)
-            self$add(private$..powerCurveN)}))
+            self$add(private$..powerCurveN)
+            self$add(private$..powerDist)}))
 
 #' @importFrom jmvcore Analysis
 #' @importFrom R6 R6Class
@@ -202,6 +211,7 @@ ttestISBase <- R6::R6Class(
 #' Independent Samples T-Test
 #'
 #' 
+#' @param calc .
 #' @param es .
 #' @param power .
 #' @param n .
@@ -210,18 +220,34 @@ ttestISBase <- R6::R6Class(
 #' @param powerDist .
 #' @param powerCurveES .
 #' @param powerCurveN .
+#' @return A results object containing:
+#' \tabular{llllll}{
+#'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#' }
+#'
+#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
+#'
+#' \code{results$powertab$asDF}
+#'
+#' \code{as.data.frame(results$powertab)}
+#'
 #' @export
 ttestIS <- function(
+    calc = "n",
     es = 0.5,
     power = 0.8,
     n = 20,
-    alt = "two-tailed",
+    alt = "two.sided",
     alpha = 0.05,
-    powerDist = TRUE,
-    powerCurveES = FALSE,
+    powerDist = FALSE,
+    powerCurveES = TRUE,
     powerCurveN = FALSE) {
 
     options <- ttestISOptions$new(
+        calc = calc,
         es = es,
         power = power,
         n = n,

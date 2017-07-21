@@ -94,7 +94,7 @@ anovaClass <- R6::R6Class(
             image$setState(list(curves=curves, rect=rect, lims=lims))
             
         },
-        .powerDist = function(image, ...) {
+        .powerDist = function(image, ggtheme, ...) {
             
             if (is.null(image$state))
                 return(FALSE)
@@ -114,7 +114,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2), linetype = 'dashed') +
                 ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
                 ggplot2::labs(x=expression(paste(italic("F"), " statistic")), y='Probability Density') +
-                jmvTheme() + themeSpec
+                ggtheme + themeSpec
             
             print(p)
             
@@ -140,7 +140,7 @@ anovaClass <- R6::R6Class(
             image$setState(list(curve=curve, point=point, rects=rects))
             
         },
-        .powerCurveES = function(image, ...) {
+        .powerCurveES = function(image, ggtheme, ...) {
             
             if (is.null(image$state))
                 return(FALSE)
@@ -159,7 +159,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
                 ggplot2::labs(x='Effect Size', y='Power') +
-                jmvTheme() +
+                ggtheme +
                 ggplot2::theme(legend.position="none")
                 
             
@@ -199,7 +199,7 @@ anovaClass <- R6::R6Class(
             image$setState(list(curve=curve, point=point, rects=rects, lims=lims))
             
         },
-        .powerCurveN = function(image, ...) {
+        .powerCurveN = function(image, ggtheme, ...) {
             
             if (is.null(image$state))
                 return(FALSE)
@@ -219,7 +219,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
                 ggplot2::labs(x='Sample Size (per group)', y='Power') +
-                jmvTheme() +
+                ggtheme +
                 ggplot2::theme(legend.position="none")
             
             print(p)

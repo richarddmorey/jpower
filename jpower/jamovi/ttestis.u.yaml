@@ -6,36 +6,45 @@ children:
   - type: LayoutBox
     margin: large
     children:
+      - type: ComboBox
+        name: calc
+  - type: LayoutBox
+    margin: large
+    children:
       - name: es
         type: TextBox
         label: Minimally-interesting effect size (&delta;)
         format: number
         inputPattern: '[0-9]+'
+        enable: (!calc:es)
       - name: power
         type: TextBox
         label: Minimum desired power
         format: number
         inputPattern: '[0-9]+'
+        enable: (!calc:power)
       - name: 'n'
         type: TextBox
         label: N per group
         format: number
         inputPattern: '[0-9]+'
-      - name: alt
-        type: ComboBox
-        label: Tails
-        options:
-          - title: two-tailed
-            name: two-tailed
-          - title: 'one-tailed, positive'
-            name: 'one-tailed, positive'
-          - title: 'one-tailed, negative'
-            name: 'one-tailed, negative'
+        enable: (!calc:n)
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
         inputPattern: '[0-9]+'
+        enable: (!calc:alpha)
+      - name: alt
+        type: ComboBox
+        label: Tails
+        options:
+          - title: two-tailed
+            name: two.sided
+          - title: 'one-tailed, positive'
+            name: less
+          - title: 'one-tailed, negative'
+            name: greater
   - type: LayoutBox
     margin: large
     stretchFactor: 1
@@ -44,9 +53,9 @@ children:
         label: Plots
         children:
           - type: CheckBox
-            name: powerDist
-          - type: CheckBox
             name: powerCurveES
           - type: CheckBox
             name: powerCurveN
+          - type: CheckBox
+            name: powerDist
 compilerMode: tame
