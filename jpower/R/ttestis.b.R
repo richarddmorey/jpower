@@ -134,7 +134,7 @@ ttestISClass <- R6::R6Class(
                    "for detecting the specified effect size.")
           }
           
-          html$content <- str
+          html$setContent(str)
           
         },
         #### Populate table ----
