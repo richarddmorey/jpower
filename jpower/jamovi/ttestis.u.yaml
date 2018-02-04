@@ -52,7 +52,7 @@ children:
         options:
           - title: two-tailed
             name: two.sided
-          - title: 'one-tailed, positive'
+          - title: 'one-tailed (consistent)'
             name: greater
   - type: LayoutBox
     margin: large

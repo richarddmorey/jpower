@@ -17,7 +17,7 @@ ttestISClass <- R6::R6Class(
             n = self$options$n
             n_ratio = self$options$n_ratio
             pow = self$options$power
-            alt = self$options$alt # only two-tailed is supported at the moment
+            alt = self$options$alt 
             es = self$options$es
             alpha = self$options$alpha
 
@@ -419,33 +419,43 @@ ttestISClass <- R6::R6Class(
             d <- ifelse(calc == 'es', r$es, lst$es)
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+            alt <- lst$alt
 
             effN = n1 * n2 / (n1 + n2)
             df = n1 + n2 - 2
             ncp = sqrt(effN) * d
-
-            crit = qt(p = 1 - alpha / 2, df = df)
-
-            if(lst$es > 0) {
-                xlims = c(qt(.001, df), qt(.999, df, ncp))
-            } else {
-                xlims = c(qt(.001, df, ncp), qt(.999, df))
+            
+            if(alt == "two.sided"){
+              crit = qt(p = 1 - alpha / 2, df = df) / sqrt(effN)
+            }else{
+              crit = qt(p = 1 - alpha, df = df) / sqrt(effN)
             }
 
-            y.max = dt(0, df)
+            if(lst$es > 0) {
+                xlims = c(qt(.001, df), qt(.999, df, ncp)) / sqrt(effN)
+            } else {
+                xlims = c(qt(.001, df, ncp), qt(.999, df)) / sqrt(effN)
+            }
 
-            xx = seq(xlims[1], xlims[2], len = 100)
-            yy.null = dt(xx, df)
-            yy.alt = dt(xx, df, ncp)
+            y.max = dt(0, df) / sqrt(effN)
+
+            xx = seq(xlims[1], xlims[2], len = 100) 
+            yy.null = dt(xx * sqrt(effN), df) / sqrt(effN)
+            yy.alt = dt(xx * sqrt(effN), df, ncp) / sqrt(effN)
 
             curves <- data.frame(x=rep(xx, 2),
                                  ymin=rep(0,length(xx)*2),
                                  ymax=c(yy.null, yy.alt),
                                  group=rep(c('Null', 'Alt'), each=length(xx)))
 
-            rect <- data.frame(x1 = -crit, x2 = crit,
+            if(alt == "two.sided"){
+              rect <- data.frame(x1 = -crit, x2 = crit,
                                y1 = 0, y2 = y.max * 1.1)
-
+            }else{
+              rect <- data.frame(x1 = xlims[1] - 1, x2 = crit,
+                                 y1 = 0, y2 = y.max * 1.1)
+            }
+            
             lims <- data.frame(xlim = c(xlims[1], xlims[2]),
                                ylim = c(0, y.max * 1.1))
 
@@ -460,6 +470,7 @@ ttestISClass <- R6::R6Class(
             curves <- image$state$curves
             rect <- image$state$rect
             lims <- image$state$lims
+            alt = self$options$alt
 
             themeSpec <- ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                                         axis.ticks.y = ggplot2::element_blank(),
@@ -471,7 +482,7 @@ ttestISClass <- R6::R6Class(
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x1), linetype = 'dashed') +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2), linetype = 'dashed') +
                 ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
-                ggplot2::labs(x=expression(paste(italic("t"), " statistic")), y='Probability Density') +
+                ggplot2::labs(x="Observed standardized effect size (d)", y='Probability Density') +
                 ggtheme + themeSpec
 
             print(p)
