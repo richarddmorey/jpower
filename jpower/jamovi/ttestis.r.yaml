@@ -16,7 +16,24 @@ items:
         - alt
         - alpha
         - calc
+        - n_ratio
       columns: []
+
+    - name: powerContour
+      title: Power Contour
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerContour
+      visible: (powerContour)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+        - n_ratio
 
     - name: powerCurveES
       title: Power Curve by Effect Size
@@ -32,6 +49,7 @@ items:
         - alt
         - alpha
         - calc
+        - n_ratio
 
     - name: powerCurveN
       title: Power Curve by N
@@ -47,6 +65,7 @@ items:
         - alt
         - alpha
         - calc
+        - n_ratio
 
     - name: powerDist
       title: Power Demonstration
@@ -62,5 +81,6 @@ items:
         - alt
         - alpha
         - calc
+        - n_ratio
 
 ...

@@ -16,25 +16,36 @@ children:
         label: Minimally-interesting effect size (&delta;)
         format: number
         inputPattern: '[0-9]+'
-        enable: (!calc:es)
+        enable: '(!calc:es)'
       - name: power
         type: TextBox
         label: Minimum desired power
         format: number
         inputPattern: '[0-9]+'
-        enable: (!calc:power)
+        enable: '(!calc:power)'
       - name: 'n'
         type: TextBox
-        label: N per group
+        label: N for group 1
         format: number
         inputPattern: '[0-9]+'
-        enable: (!calc:n)
+        enable: '(!calc:n)'
+      - name: 'n_ratio'
+        type: TextBox
+        label: Relative size of group 2 to group 1
+        format: number
+        inputPattern: '[0-9]+'
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
         inputPattern: '[0-9]+'
-        enable: (!calc:alpha)
+        enable: '(!calc:alpha)'
+        suggestedValues:
+          - value: 0.1
+          - value: 0.05
+          - value: 0.01
+          - value: 0.005
+          - value: 0.001
       - name: alt
         type: ComboBox
         label: Tails
@@ -42,8 +53,6 @@ children:
           - title: two-tailed
             name: two.sided
           - title: 'one-tailed, positive'
-            name: less
-          - title: 'one-tailed, negative'
             name: greater
   - type: LayoutBox
     margin: large
@@ -53,9 +62,14 @@ children:
         label: Plots
         children:
           - type: CheckBox
+            name: powerContour
+            #enable: '(!calc:alpha)'
+          - type: CheckBox
             name: powerCurveES
+            #enable: '(!calc:n)'
           - type: CheckBox
             name: powerCurveN
+            #enable: '(!calc:es)'
           - type: CheckBox
             name: powerDist
 compilerMode: tame

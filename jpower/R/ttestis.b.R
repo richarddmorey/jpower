@@ -15,37 +15,66 @@ ttestISClass <- R6::R6Class(
 
             ## Get options from interface
             n = self$options$n
+            n_ratio = self$options$n_ratio
             pow = self$options$power
             alt = self$options$alt # only two-tailed is supported at the moment
             es = self$options$es
             alpha = self$options$alpha
 
-            stats <- list(n = n, pow = pow, alt = alt, es = es, alpha = alpha)
-
+            stats <- list(n1 = n, 
+                          n2 = ceiling(n_ratio * n),
+                          n_ratio = n_ratio, 
+                          pow = pow,
+                          alt = alt,
+                          es = es, 
+                          alpha = alpha)
+            
+            plotSettings = list(
+              lens = 20,
+              x.axis.n = 8,
+              pow.n.levels = 10,
+              curve.n = 128,
+              
+              maxn = 100,
+              max.scale = 1.5,
+              
+              mind = 0,
+              maxd = 2,
+              
+              background.alpha = .7,
+              #stripe.cols = pal(pow.n.levels)[c(1,pow.n.levels)]
+              stripe.cols = c("black", "black") 
+            )
+            plotSettings$pal = function(...) 
+              viridis::viridis(..., alpha = plotSettings$background.alpha)
+            
             ## Compute results
             results <- private$.compute(stats)
 
             ## Populate tables and plots
             private$.populatePowerTab(results)
             private$.preparePowerDist(results, stats)
-            private$.preparePowerCurveES(results, stats)
-            private$.preparePowerCurveN(results, stats)
+            private$.preparePowerContour(results, stats, plotSettings)
+            private$.preparePowerCurveES(results, stats, plotSettings)
+            private$.preparePowerCurveN(results, stats, plotSettings)
 
         },
 
         #### Compute results ----
         .compute = function(stats) {
 
+            
             ## Compute numbers for table
-            pow.n = ceiling(try(pwr::pwr.t.test(d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)$n, silent=TRUE))
-            pow.es = try(pwr::pwr.t.test(n = stats$n, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
-            pow.pow = try(pwr::pwr.t.test(n = stats$n, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
-            pow.alpha = try(pwr::pwr.t.test(n = stats$n, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
+            pow.n = try(ceiling(jpower::pwr.t2n.ratio(n_ratio = stats$n_ratio, d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)), silent=TRUE)
+            pow.es = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
+            pow.pow = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
+#            pow.alpha = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
 
-            if (class(pow.alpha) == 'try-error')
-                pow.alpha <- 0
+#            if (class(pow.alpha) == 'try-error')
+#                pow.alpha <- 0
 
-            return(list(n=pow.n, es=pow.es, power=pow.pow, alpha=pow.alpha))
+            
+            return(list(n1=pow.n, n2=ceiling(pow.n * stats$n_ratio), es=pow.es, power=pow.pow))
 
         },
 
@@ -57,17 +86,17 @@ ttestISClass <- R6::R6Class(
             calc <- self$options$calc
 
             if (calc == 'n')
-                order <- c(1,2,3,4)
+                order <- c(1,2,3,4,5)
             else if (calc == 'es')
-                order <- c(2,1,3,4)
+                order <- c(3,1,2,4,5)
             else if (calc == 'power')
-                order <- c(3,1,2,4)
+                order <- c(4,1,2,3,5)
             else
-                order <- c(4,1,2,3)
+                order <- c(5,1,2,3,4)
 
-            colNames <- c("n", "es", "power", "alpha")
-            colLabels <- c("N per Group", "Effect Size", "Power", "\u03B1")
-            colType <- c("integer", "number", "number", "number")
+            colNames <- c("n1", "n2", "es", "power", "alpha")
+            colLabels <- c("N\u2081", "N\u2082", "Effect Size", "Power", "\u03B1")
+            colType <- c("integer", "integer", "number", "number", "number")
 
             for (i in seq_along(order))
                 table$addColumn(colNames[order[i]], title=colLabels[order[i]],
@@ -75,9 +104,12 @@ ttestISClass <- R6::R6Class(
                                 type=colType[order[i]])
 
             row <- list()
-            for (i in 2:4)
-                row[[colNames[order[i]]]] <- self$options[[colNames[order[i]]]]
+            for (i in 2:5)
+              row[[colNames[order[i]]]] <- self$options[[colNames[order[i]]]]
 
+            row[["n1"]] = self$options[["n"]]
+            row[["n2"]] = ceiling(self$options[["n"]] * self$options[["n_ratio"]])
+            
             table$setRow(rowNo=1, values=row)
 
         },
@@ -89,39 +121,149 @@ ttestISClass <- R6::R6Class(
 
             calc <- self$options$calc
 
-            r <- results[[calc]]
-
             row <- list()
-            row[[calc]] <- r
-
+            
+            if(calc == "n"){
+              row[["n1"]] <- results[["n1"]]
+              row[["n2"]] <- results[["n2"]]
+            }else{
+              row[[calc]] <- results[[calc]]
+            }
             table$setRow(rowNo=1, values=row)
 
         },
 
         #### Plot functions ----
-        .preparePowerCurveES = function(r, lst) {
+        .preparePowerContour = function(r, lst, ps) {
+          
+          image <- self$results$powerContour
+          
+          calc <- self$options$calc
+          
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio, 
+                                        power = max(0.9, power), 
+                                        d = d,
+                                        sig.level = alpha,
+                                        alternative = alt)
+          
+          if (n1 > maxn && n1 >= ps$maxn) {
+            maxn <- n1 * ps$max.scale
+          } else if (maxn < ps$maxn) {
+            maxn <- ps$maxn
+          }
+          
+          
+          minn = ifelse(n_ratio<1, 
+                        max(ceiling( 3 / (1 + n_ratio) ), 2 / n_ratio),
+                        max(ceiling( 3 / (1 + n_ratio) ), 2 * n_ratio))
+          
+          
+          nn = unique(ceiling(exp(seq(log(minn), log(maxn), len = ps$lens))-.001))
+          dd = seq(ps$mind, ps$maxd, len = ps$lens)
+          nn2 = ceiling(n_ratio * nn)
+          
+          z.pwr = sapply(dd, function(delta){
+            pwr::pwr.t2n.test(nn, nn2, 
+                              d = delta, 
+                              sig.level = alpha,
+                              alternative = alt)$power
+          })
+          
+          z.delta = sapply(nn, function(N){
+            n2 = ceiling(n_ratio * N)
+            pwr::pwr.t2n.test(N, n2, 
+                              sig.level = alpha,
+                              power = power,
+                              alternative = alt)$d
+          })
+          
+
+          
+          image$setState(list(z.pwr = z.pwr, 
+                              z.delta = z.delta,
+                              ps = ps,
+                              nn = nn,
+                              dd = dd, 
+                              n1 = n1,
+                              n_ratio = n_ratio,
+                              delta = d,
+                              alpha = alpha))
+          
+        },
+        .powerContour = function(image, ggtheme, ...){
+          
+          image <- self$results$powerContour
+          
+          z.delta <- image$state$z.delta
+          z.pwr <- image$state$z.pwr
+          ps <- image$state$ps
+          pow <- image$state$pow
+          n1 <- image$state$n1
+          n2 <- image$state$n2
+          alpha <- image$state$alpha
+          dd <- image$state$dd
+          nn <- image$state$nn
+          ps <- image$state$ps
+          delta <- image$state$delta
+          n_ratio <- image$state$n_ratio
+          
+          filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels, 
+                         ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),               
+                         xlab = "Sample size (group 1)",
+                         plot.axes = {
+                           at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
+                           axis(1, at = log(at.N), lab = at.N)
+                           axis(2)
+                           if(n_ratio!=1){
+                             axis(3, at = log(at.N), lab = ceiling(at.N * n_ratio))
+                             mtext("Sample size (group 2)", 3, line = par()$mgp[1],  adj = .5)
+                           }
+                           jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
+                           #contour(log(N), delta, z.pwr, add=TRUE)
+                           jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                          x1 = log(n1), y1 = par()$usr[3], 
+                                          x0 = log(n1), 
+                                          y0 = delta, lwd = 2, arr.adj = 1)
+                           jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                            x0 = log(n1), y0 = delta,
+                                            x1 = par()$usr[1], y1 = delta,
+                                            lwd = 2)
+                         }, key.title = {
+                           mtext("Power",3, .5)
+                         }
+          )
+          
+          
+          TRUE
+        },
+        .preparePowerCurveES = function(r, lst, ps) {
 
             image <- self$results$powerCurveES
 
             calc <- self$options$calc
 
-            n <- ifelse(calc == 'n', r$n, lst$n)
+            n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+            n2 <- ifelse(calc == 'n', r$n2, lst$n2)
             d <- ifelse(calc == 'es', r$es, lst$es)
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
-
-            dd = seq(0, 2, len = 100)
-
-            y = pwr::pwr.t.test(n = n, d = dd, sig.level = alpha)$power
-
-            curve <- data.frame(x=dd, y=y)
-
-            point <- data.frame(x=d, y=power)
-
-            rects <- data.frame(x1 = 0, x2 = 2,
-                              y1 = power, y2 = 1)
-
-            image$setState(list(curve=curve, point=point, rects=rects, n=n, alpha=alpha))
+            alt <- lst$alt
+            
+            dd = seq(ps$mind, ps$maxd, len = ps$curve.n)
+            
+            y = pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
+            cols = ps$pal(ps$pow.n.levels)
+            yrect = seq(0,1,1/ps$pow.n.levels)
+            
+            image$setState(list(cols = cols, dd=dd, y = y, yrect=yrect, n1=n1, n2=n2, alpha=alpha, delta = d, pow = power, ps = ps))
 
         },
         .powerCurveES = function(image, ggtheme, ...) {
@@ -129,97 +271,140 @@ ttestISClass <- R6::R6Class(
             if (is.null(image$state))
                 return(FALSE)
 
-            curve <- image$state$curve
-            point <- image$state$point
-            rects <- image$state$rects
-            pow <- self$options$power
-            n <- image$state$n
+            y <- image$state$y
+            cols <- image$state$cols
+            yrect <- image$state$yrect
+            pow <- image$state$pow
+            n1 <- image$state$n1
+            n2 <- image$state$n2
             alpha <- image$state$alpha
+            dd <- image$state$dd
+            ps <- image$state$ps
+            delta <- image$state$delta
+            
 
-            label <- jmvcore::format("  N = {}, \u03B1 = {}", n, round(alpha,3))
+            label <- jmvcore::format("  N\u2081 = {}, N\u2082 = {}, \u03B1 = {}", n1, n2, round(alpha,3))
 
-            p <- ggplot2::ggplot() +
-                ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), alpha = 0.3) +
-                ggplot2::geom_line(data=curve, ggplot2::aes(x=x, y=y, lty = 'a')) +
-                ggplot2::coord_cartesian(xlim = c(0, 2), ylim = c(0, 1), expand = FALSE) +
-                ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y), linetype = 'dashed') +
-                ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
-                ggplot2::geom_hline(yintercept = point$y, linetype = 'dashed') +
-                ggplot2::labs(x='Effect Size', y='Power') +
-                ggplot2::scale_linetype_manual(name='', labels=label, values='solid') +
-                ggtheme +
-                ggplot2::theme(legend.position='top',
-                               legend.text=ggplot2::element_text(size=16))
-
-            print(p)
-
+            plot(dd, y, ty='n', ylim = c(0,1), las = 1, ylab = "Power", 
+                 xlab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),
+                 yaxs = 'i', xaxs = "i")
+            mtext(substitute(paste(N[1]==n1,", ",N[2]==n2,", ",alpha==a), 
+                             list(a = alpha, n1 = n1,n2=n2)),
+                  adj = 1)
+            
+            for(i in 1:ps$pow.n.levels){
+              rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
+                   col = cols[i])
+            }
+            
+            jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                          dd, y, lwd = 3)
+            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                           x0 = delta, y0 = pow, 
+                           x1 = delta, 
+                           y1 = 0, lwd = 3, arr.adj = 1)
+            jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                             x0 = min(dd), y0 = pow,
+                             x1 = delta, y1 = pow,
+                             lwd = 3)
+            
             TRUE
 
         },
-        .preparePowerCurveN = function(r, lst) {
+        .preparePowerCurveN = function(r, lst, ps) {
 
             image <- self$results$powerCurveN
 
             calc <- self$options$calc
 
-            n <- ifelse(calc == 'n', r$n, lst$n)
+            n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+            n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+            n_ratio = lst$n_ratio
             d <- ifelse(calc == 'es', r$es, lst$es)
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+            alt <- lst$alt
+            
+            maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio, 
+                                          power = max(0.9, power), 
+                                          d = d,
+                                          sig.level = alpha,
+                                          alternative = alt)
 
-            xmax <- pwr::pwr.t.test(power = 0.9, d = d, sig.level = alpha)$n
-
-            if (n > xmax && n >= 100) {
-                xmax <- n * 1.1
-            } else if (xmax < 100) {
-                xmax <- 100
+            if (n1 > maxn && n1 >= ps$maxn) {
+              maxn <- n1 * ps$max.scale
+            } else if (maxn < ps$maxn) {
+              maxn <- ps$maxn
             }
+            
+            
+            minn = ifelse(n_ratio<1, 
+                          max(ceiling( 3 / (1 + n_ratio) ), 2 / n_ratio),
+                          max(ceiling( 3 / (1 + n_ratio) ), 2 * n_ratio))
+            
+            nn = seq(minn, maxn)
 
-            nn = seq(2, xmax)
+            y = pwr::pwr.t2n.test(n1 = nn, 
+                                  n2 = ceiling(nn * lst$n_ratio), 
+                                  d = d, sig.level = alpha, alternative = alt)$power
 
-            y = pwr::pwr.t.test(n = nn, d = d, sig.level = alpha)$power
-
-            curve <- data.frame(x=nn, y=y)
-
-            point <- data.frame(x=n, y=power)
-
-            rects <- data.frame(x1 = 2, x2 = xmax,
-                                y1 = power, y2 = 1)
-
-            lims <- data.frame(xlim = c(2, xmax),
+            cols = ps$pal(ps$pow.n.levels)
+            yrect = seq(0,1,1/ps$pow.n.levels)
+            
+            lims <- data.frame(xlim = c(minn, maxn),
                                ylim = c(0, 1))
 
-            image$setState(list(curve=curve, point=point, rects=rects, lims=lims, d=d, alpha=alpha))
+            image$setState(list(n1 = n1, cols = cols, nn = nn, y = y, yrect = yrect, lims=lims, delta=d, alpha=alpha, n_ratio = n_ratio, pow = power, ps = ps))
 
         },
         .powerCurveN = function(image, ggtheme, ...) {
 
             if (is.null(image$state))
                 return(FALSE)
-
-            curve <- image$state$curve
-            point <- image$state$point
-            rects <- image$state$rects
+            
+            cols <- image$state$cols
+            yrect <- image$state$yrect
             lims <- image$state$lims
-            d <- image$state$d
+            delta <- image$state$delta
             alpha <- image$state$alpha
+            n_ratio <- image$state$n_ratio
+            nn <- image$state$nn
+            pow <- image$state$pow
+            n1 <- image$state$n1
+            y <- image$state$y
+            ps <- image$state$ps
+            
+            
+            label <- jmvcore::format(" N\u2082 = {} \u00D7 N\u2081,  \u03B4 = {}, \u03B1 = {}", round(n_ratio, 3), round(delta,3), round(alpha,3))
 
-            label <- jmvcore::format("  \u03B4 = {}, \u03B1 = {}", round(d,3), round(alpha,3))
-
-            p <- ggplot2::ggplot() +
-                ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), alpha = 0.3) +
-                ggplot2::geom_line(data=curve, ggplot2::aes(x=x, y=y, lty = 'a')) +
-                ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
-                ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y), linetype = 'dashed') +
-                ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
-                ggplot2::geom_hline(yintercept = point$y, linetype = 'dashed') +
-                ggplot2::labs(x='Sample Size (per group)', y='Power') +
-                ggplot2::scale_linetype_manual(name='', labels=label, values='solid') +
-                ggtheme +
-                ggplot2::theme(legend.position="top", legend.text=ggplot2::element_text(size=16))
-
-            print(p)
-
+            plot(log(nn), y, ty='n', xlim = log(lims$xlim), ylim = lims$ylim, las = 1, ylab = "Power", 
+                 xlab = "Sample size (group 1)",
+                 yaxs = 'i', xaxs = "i", axes = FALSE)
+          
+            at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
+            axis(1, at = log(at.N), lab = at.N)
+            axis(2, las = 1)
+            
+            mtext(substitute(paste(delta==d, ", ", N[2]==nr %*% N[1],", ", alpha==a), 
+                             list(a = alpha, nr = n_ratio, d = round(delta,3))),
+                  adj = 1)
+            
+            for(i in 1:ps$pow.n.levels){
+              rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
+                   col = cols[i])
+            }
+            
+            jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                          log(nn), y, lwd = 3)
+            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                           x0 = log(n1), y0 = pow, 
+                           x1 = log(n1), 
+                           y1 = 0, lwd = 3, arr.adj = 1)
+            jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                             x0 = min(log(nn)), y0 = pow,
+                             x1 = log(n1), y1 = pow,
+                             lwd = 3)
+            
             TRUE
 
         },
@@ -229,13 +414,14 @@ ttestISClass <- R6::R6Class(
 
             calc <- self$options$calc
 
-            n <- ifelse(calc == 'n', r$n, lst$n)
+            n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+            n2 <- ifelse(calc == 'n', r$n2, lst$n2)
             d <- ifelse(calc == 'es', r$es, lst$es)
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
 
-            effN = n / 2
-            df = 2 * n - 2
+            effN = n1 * n2 / (n1 + n2)
+            df = n1 + n2 - 2
             ncp = sqrt(effN) * d
 
             crit = qt(p = 1 - alpha / 2, df = df)
