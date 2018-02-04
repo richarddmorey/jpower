@@ -78,5 +78,10 @@ options:
       title: Power curve by N
       type: Bool
       default: false
+      
+    - name: text
+      title: Explanatory text?
+      type: Bool
+      default: true
 
 ...

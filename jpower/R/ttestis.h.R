@@ -16,7 +16,8 @@ ttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             powerContour = TRUE,
             powerDist = FALSE,
             powerCurveES = TRUE,
-            powerCurveN = FALSE, ...) {
+            powerCurveN = FALSE,
+            text = TRUE, ...) {
 
             super$initialize(
                 package='jpower',
@@ -82,6 +83,10 @@ ttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "powerCurveN",
                 powerCurveN,
                 default=FALSE)
+            private$..text <- jmvcore::OptionBool$new(
+                "text",
+                text,
+                default=TRUE)
 
             self$.addOption(private$..calc)
             self$.addOption(private$..es)
@@ -94,6 +99,7 @@ ttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             self$.addOption(private$..powerDist)
             self$.addOption(private$..powerCurveES)
             self$.addOption(private$..powerCurveN)
+            self$.addOption(private$..text)
         }),
     active = list(
         calc = function() private$..calc$value,
@@ -106,7 +112,8 @@ ttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         powerContour = function() private$..powerContour$value,
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
-        powerCurveN = function() private$..powerCurveN$value),
+        powerCurveN = function() private$..powerCurveN$value,
+        text = function() private$..text$value),
     private = list(
         ..calc = NA,
         ..es = NA,
@@ -118,12 +125,14 @@ ttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         ..powerContour = NA,
         ..powerDist = NA,
         ..powerCurveES = NA,
-        ..powerCurveN = NA)
+        ..powerCurveN = NA,
+        ..text = NA)
 )
 
 ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
+        intro = function() private$.items[["intro"]],
         powertab = function() private$.items[["powertab"]],
         powerContour = function() private$.items[["powerContour"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
@@ -136,6 +145,11 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="",
                 title="Independent Samples T test")
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="intro",
+                title="Introduction",
+                visible="(text)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -173,7 +187,7 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 width=400,
                 height=350,
                 renderFun=".powerCurveES",
-                visible="(powerCurveES)",
+                visible="(powerCurveES & !calc:n)",
                 clearWith=list(
                     "es",
                     "power",
@@ -189,7 +203,7 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 width=400,
                 height=350,
                 renderFun=".powerCurveN",
-                visible="(powerCurveN)",
+                visible="(powerCurveN & !calc:es)",
                 clearWith=list(
                     "es",
                     "power",
@@ -248,8 +262,10 @@ ttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param powerDist .
 #' @param powerCurveES .
 #' @param powerCurveN .
+#' @param text .
 #' @return A results object containing:
 #' \tabular{llllll}{
+#'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
@@ -275,7 +291,8 @@ ttestIS <- function(
     powerContour = TRUE,
     powerDist = FALSE,
     powerCurveES = TRUE,
-    powerCurveN = FALSE) {
+    powerCurveN = FALSE,
+    text = TRUE) {
 
     if ( ! requireNamespace('jmvcore'))
         stop('ttestIS requires jmvcore to be installed (restart may be required)')
@@ -291,7 +308,8 @@ ttestIS <- function(
         powerContour = powerContour,
         powerDist = powerDist,
         powerCurveES = powerCurveES,
-        powerCurveN = powerCurveN)
+        powerCurveN = powerCurveN,
+        text = text)
 
     results <- ttestISResults$new(
         options = options)

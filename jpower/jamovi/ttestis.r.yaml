@@ -5,6 +5,11 @@ jrs:   "1.1"
 
 items:
 
+    - name: intro
+      title: Introduction
+      type: Html
+      visible: (text)
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -41,7 +46,7 @@ items:
       width:  400
       height: 350
       renderFun: .powerCurveES
-      visible: (powerCurveES)
+      visible: (powerCurveES & !calc:n)
       clearWith:
         - es
         - power
@@ -57,7 +62,7 @@ items:
       width:  400
       height: 350
       renderFun: .powerCurveN
-      visible: (powerCurveN)
+      visible: (powerCurveN & !calc:es)
       clearWith:
         - es
         - power

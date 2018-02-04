@@ -29,7 +29,7 @@ children:
         format: number
         inputPattern: '[0-9]+'
         enable: '(!calc:n)'
-      - name: 'n_ratio'
+      - name: n_ratio
         type: TextBox
         label: Relative size of group 2 to group 1
         format: number
@@ -52,7 +52,7 @@ children:
         options:
           - title: two-tailed
             name: two.sided
-          - title: 'one-tailed (consistent)'
+          - title: one-tailed (consistent)
             name: greater
   - type: LayoutBox
     margin: large
@@ -63,13 +63,17 @@ children:
         children:
           - type: CheckBox
             name: powerContour
-            #enable: '(!calc:alpha)'
           - type: CheckBox
             name: powerCurveES
-            #enable: '(!calc:n)'
+            enable: '(!calc:n)'
           - type: CheckBox
             name: powerCurveN
-            #enable: '(!calc:es)'
+            enable: '(!calc:es)'
           - type: CheckBox
             name: powerDist
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: CheckBox
+            name: text
 compilerMode: tame

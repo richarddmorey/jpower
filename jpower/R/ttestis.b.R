@@ -52,6 +52,7 @@ ttestISClass <- R6::R6Class(
             results <- private$.compute(stats)
 
             ## Populate tables and plots
+            private$.populateIntro()
             private$.populatePowerTab(results)
             private$.preparePowerDist(results, stats)
             private$.preparePowerContour(results, stats, plotSettings)
@@ -113,7 +114,29 @@ ttestISClass <- R6::R6Class(
             table$setRow(rowNo=1, values=row)
 
         },
-
+        .populateIntro = function(){
+          
+          calc <- self$options$calc
+          
+          html <- self$results$intro
+          
+          str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
+                      "the sensitivity of a design and test. ")
+          
+          if(calc == "n"){
+            str = paste0(str, "You have chosen to calculate the minimum sample size needed ",
+                   "to have an experiment sensitive enough to consistently detect the specified hypothetical effect size.")
+          }else if(calc == "es"){
+            str = paste0(str, "You have chosen to calculate the minimum hypothetical effect size ",
+                   "for which the chosen design will have the specified sensitivity.")
+          }else if(calc == "power"){
+            str = paste0(str, "You have chosen to calculate the sensitivity of the chosen design ",
+                   "for detecting the specified effect size.")
+          }
+          
+          html$content <- str
+          
+        },
         #### Populate table ----
         .populatePowerTab = function(results) {
 
