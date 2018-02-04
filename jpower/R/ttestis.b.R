@@ -200,6 +200,8 @@ ttestISClass <- R6::R6Class(
         },
         .powerContour = function(image, ggtheme, ...){
           
+          calc <- self$options$calc
+          
           image <- self$results$powerContour
           
           z.delta <- image$state$z.delta
@@ -228,6 +230,7 @@ ttestISClass <- R6::R6Class(
                            }
                            jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
                            #contour(log(N), delta, z.pwr, add=TRUE)
+                           if(calc == "n"){
                            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                           x1 = log(n1), y1 = par()$usr[3], 
                                           x0 = log(n1), 
@@ -236,6 +239,17 @@ ttestISClass <- R6::R6Class(
                                             x0 = log(n1), y0 = delta,
                                             x1 = par()$usr[1], y1 = delta,
                                             lwd = 2)
+                           }else if(calc == "es"){
+                             jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                    x1 = log(n1), y1 = par()$usr[3], 
+                                                    x0 = log(n1), 
+                                                    y0 = delta, lwd = 2)
+                             jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                      x0 = log(n1), y0 = delta,
+                                                      x1 = par()$usr[1], y1 = delta,
+                                                      lwd = 2, arr.adj = 1)
+                           }
+                           points(log(n1), delta, pch = 21, col = "black", bg = "white", cex = 1.5)
                          }, key.title = {
                            mtext("Power",3, .5)
                          }
