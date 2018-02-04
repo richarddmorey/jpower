@@ -66,9 +66,9 @@ ttestISClass <- R6::R6Class(
             
             ## Compute numbers for table
             pow.n = try(ceiling(jpower::pwr.t2n.ratio(n_ratio = stats$n_ratio, d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)), silent=TRUE)
-            pow.es = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
-            pow.pow = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
-#            pow.alpha = try(pwr::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
+            pow.es = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
+            pow.pow = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
+#            pow.alpha = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
 
 #            if (class(pow.alpha) == 'try-error')
 #                pow.alpha <- 0
@@ -148,6 +148,7 @@ ttestISClass <- R6::R6Class(
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
           
+          
           maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio, 
                                         power = max(0.9, power), 
                                         d = d,
@@ -165,13 +166,12 @@ ttestISClass <- R6::R6Class(
                         max(ceiling( 3 / (1 + n_ratio) ), 2 / n_ratio),
                         max(ceiling( 3 / (1 + n_ratio) ), 2 * n_ratio))
           
-          
           nn = unique(ceiling(exp(seq(log(minn), log(maxn), len = ps$lens))-.001))
           dd = seq(ps$mind, ps$maxd, len = ps$lens)
           nn2 = ceiling(n_ratio * nn)
           
           z.pwr = sapply(dd, function(delta){
-            pwr::pwr.t2n.test(nn, nn2, 
+            jpower::pwr.t2n.test(nn, nn2, 
                               d = delta, 
                               sig.level = alpha,
                               alternative = alt)$power
@@ -179,7 +179,7 @@ ttestISClass <- R6::R6Class(
           
           z.delta = sapply(nn, function(N){
             n2 = ceiling(n_ratio * N)
-            pwr::pwr.t2n.test(N, n2, 
+            jpower::pwr.t2n.test(N, n2, 
                               sig.level = alpha,
                               power = power,
                               alternative = alt)$d
@@ -195,7 +195,8 @@ ttestISClass <- R6::R6Class(
                               n1 = n1,
                               n_ratio = n_ratio,
                               delta = d,
-                              alpha = alpha))
+                              alpha = alpha
+                              ))
           
         },
         .powerContour = function(image, ggtheme, ...){
@@ -216,7 +217,7 @@ ttestISClass <- R6::R6Class(
           ps <- image$state$ps
           delta <- image$state$delta
           n_ratio <- image$state$n_ratio
-          
+
           filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels, 
                          ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),               
                          xlab = "Sample size (group 1)",
@@ -273,7 +274,7 @@ ttestISClass <- R6::R6Class(
             
             dd = seq(ps$mind, ps$maxd, len = ps$curve.n)
             
-            y = pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
+            y = jpower::pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
             cols = ps$pal(ps$pow.n.levels)
             yrect = seq(0,1,1/ps$pow.n.levels)
             
@@ -358,7 +359,7 @@ ttestISClass <- R6::R6Class(
             
             nn = seq(minn, maxn)
 
-            y = pwr::pwr.t2n.test(n1 = nn, 
+            y = jpower::pwr.t2n.test(n1 = nn, 
                                   n2 = ceiling(nn * lst$n_ratio), 
                                   d = d, sig.level = alpha, alternative = alt)$power
 
