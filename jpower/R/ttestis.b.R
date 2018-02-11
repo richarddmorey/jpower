@@ -329,10 +329,11 @@ ttestISClass <- R6::R6Class(
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
           
-          str = paste0("The power contour plot shows how the sensitivity of the ",
+          str = paste0("<p>The power contour plot shows how the sensitivity of the ",
                        "test changes with the hypothetical effect size ",
                        "and the sample sizes in the design. As you increase the sample sizes, ",
-                       "smaller effect sizes become reliably detectable. Conversely, if one is satisfied ",
+                       "smaller effect sizes become reliably detectable.",
+                       "<p>Conversely, if one is satisfied ",
                        "to reliably detect only larger effect sizes, smaller sample sizes are needed. ",
                        "The solid black curve on the contour plot shows sample size/effect size combinations
                        with a power of ",round(power, 3),". The point shows the specified ",
@@ -422,12 +423,35 @@ ttestISClass <- R6::R6Class(
           n1 <- ifelse(calc == 'n', r$n1, lst$n1)
           n2 <- ifelse(calc == 'n', r$n2, lst$n2)
           d <- ifelse(calc == 'es', r$es, lst$es)
+          d <- round(d,3)
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
           
-          str = paste0("The power curve above shows how power increases for ",
-                       "larger hypothetical effect sizes.")
+          n_text = ifelse(n1==n2,
+                          paste0("sample sizes of ",n1," in each group"),
+                          paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
+          )
+          
+          if(alt == "two.sided"){
+            tail_text = "two-sided"
+            null_text = "<i>δ≤</i>0,"
+            crit_text = "criteria"
+          }else{
+            tail_text = "one-sided"
+            null_text = "<i>δ=</i>0,"
+            crit_text = "criterion"
+          }
+          
+          d50 = jpower::pwr.t2n.test(n1 = n1, n2 = n2, sig.level = alpha, power = .5, alternative = alt)$d
+          
+          str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
+                       "is larger for larger effect sizes. If we obtained ", n_text,
+                       " our test and design would only be sufficiently sensitive (power >", round(power, 3),
+                       " to effect sizes of <i>δ≥</i>",d,". ",
+                       "<p>We would be more than likely to miss (power less than 50%) effect sizes less than ",
+                       round(d50,3),"."
+          )
           
           html$setContent(str)
           
@@ -595,12 +619,31 @@ ttestISClass <- R6::R6Class(
           n1 <- ifelse(calc == 'n', r$n1, lst$n1)
           n2 <- ifelse(calc == 'n', r$n2, lst$n2)
           d <- ifelse(calc == 'es', r$es, lst$es)
+          d <- round(d,3)
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
           
-          str = paste0("The power curve above shows how power increases for ",
-                       "larger sample sizes.")
+          n_text = ifelse(n1==n2,
+                          paste0("sample sizes of at least ",n1," in each group"),
+                          paste0("group sample sizes of at least ", n1, " and ", n2, ", respectively")
+          )
+          
+          if(alt == "two.sided"){
+            tail_text = "two-sided"
+            null_text = "<i>δ≤</i>0,"
+            crit_text = "criteria"
+          }else{
+            tail_text = "one-sided"
+            null_text = "<i>δ=</i>0,"
+            crit_text = "criterion"
+          }
+          
+          str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
+                       "is larger for larger effect sizes. In order for our test and design to have sufficient sensitivity ",
+                       "(power > ", round(power,3),") to detect an effect size of ", d, " or larger, ",
+                       "we would need ", n_text, "."
+          )
           
           html$setContent(str)
           
@@ -642,12 +685,37 @@ ttestISClass <- R6::R6Class(
           n1 <- ifelse(calc == 'n', r$n1, lst$n1)
           n2 <- ifelse(calc == 'n', r$n2, lst$n2)
           d <- ifelse(calc == 'es', r$es, lst$es)
+          d <- round(d,2)
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
           
-          str = paste0("Sampling ",
-                       "distributions")
+          n_text = ifelse(n1==n2,
+                          paste0("a sample size of ",n1," in each group"),
+                          paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
+          )
+          
+          if(alt == "two.sided"){
+            tail_text = "two-sided"
+            null_text = "<i>δ≤</i>0,"
+            crit_text = "criteria"
+          }else{
+            tail_text = "one-sided"
+            null_text = "<i>δ=</i>0,"
+            crit_text = "criterion"
+          }
+          
+          str = paste0("<p>The figure above shows two sampling distributions: the sampling distribution ",
+                       "of the <i>estimated</i> effect size when <i>δ=</i>0 (left), and when <i>δ=</i>",d,
+                       " (right). Both assume ",n_text,".",
+                       "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
+                       " test with <i>α=</i>",alpha,". If the null hypothesis were true and ", null_text, 
+                       "the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
+                       "<p>On the other hand, if <i>δ≥</i>",d,", the evidence would exceed the criterion ",
+                       " &mdash; and hence we would correctly claim that <i>δ≥</i>0 &mdash; at least ",
+                       100*round(power,3),"% of the time. The design's power for detecting effects <i>δ≥</i>",d,
+                       " is thus ",round(power,3),".")
+
           
           html$setContent(str)
         
