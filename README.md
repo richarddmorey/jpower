@@ -4,6 +4,8 @@ A module to compute power for various designs within [jamovi](https://www.jamovi
 
 ![Screenshot of jpower](https://github.com/richarddmorey/jpower/raw/master/img/jpower1.png)
 
+Currently, only independent sample t tests are implemented.
+
 ## How to install jpower in jamovi
 
 1. Install the latest version of [jamovi](https://www.jamovi.org/download.html).
@@ -45,4 +47,4 @@ unlink(c(fname, paste0(dname, "/jpower-master/")), recursive = TRUE)
 
 ```
 
-5. Run jamovi and select an option from the jpower menu. Currently, only independent sample t tests are implemented.
+5. Run jamovi and select an option from the jpower menu. 
