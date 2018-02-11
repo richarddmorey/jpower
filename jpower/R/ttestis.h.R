@@ -134,10 +134,15 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         powertab = function() private$.items[["powertab"]],
+        tabText = function() private$.items[["tabText"]],
         powerContour = function() private$.items[["powerContour"]],
+        contourText = function() private$.items[["contourText"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
+        curveESText = function() private$.items[["curveESText"]],
         powerCurveN = function() private$.items[["powerCurveN"]],
-        powerDist = function() private$.items[["powerDist"]]),
+        curveNText = function() private$.items[["curveNText"]],
+        powerDist = function() private$.items[["powerDist"]],
+        distText = function() private$.items[["distText"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -164,6 +169,11 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "calc",
                     "n_ratio"),
                 columns=list()))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="tabText",
+                title="Table context",
+                visible="(text)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
@@ -180,6 +190,11 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "alpha",
                     "calc",
                     "n_ratio")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="contourText",
+                title="Power contour context",
+                visible="(text & powerContour)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveES",
@@ -196,6 +211,11 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "alpha",
                     "calc",
                     "n_ratio")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="curveESText",
+                title="Power contour by effect size context",
+                visible="(text & powerCurveES & !calc:n)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveN",
@@ -212,6 +232,11 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "alpha",
                     "calc",
                     "n_ratio")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="curveNText",
+                title="Power contour by N context",
+                visible="(text & powerCurveN & !calc:es)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerDist",
@@ -227,7 +252,12 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "alt",
                     "alpha",
                     "calc",
-                    "n_ratio")))}))
+                    "n_ratio")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="distText",
+                title="Sampling distributions",
+                visible="(text & powerDist)"))}))
 
 ttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "ttestISBase",
@@ -267,10 +297,15 @@ ttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$tabText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$contourText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$curveESText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$curveNText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$distText} \tab \tab \tab \tab \tab a html \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

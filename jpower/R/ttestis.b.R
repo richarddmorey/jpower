@@ -29,35 +29,21 @@ ttestISClass <- R6::R6Class(
                           es = es, 
                           alpha = alpha)
             
-            plotSettings = list(
-              lens = 20,
-              x.axis.n = 8,
-              pow.n.levels = 10,
-              curve.n = 128,
-              
-              maxn = 100,
-              max.scale = 1.5,
-              
-              mind = 0,
-              maxd = 2,
-              
-              background.alpha = .7,
-              #stripe.cols = pal(pow.n.levels)[c(1,pow.n.levels)]
-              stripe.cols = c("black", "black") 
-            )
-            plotSettings$pal = function(...) 
-              viridis::viridis(..., alpha = plotSettings$background.alpha)
-            
             ## Compute results
             results <- private$.compute(stats)
 
             ## Populate tables and plots
             private$.populateIntro()
+            private$.populateTabText(results, stats)
             private$.populatePowerTab(results)
             private$.preparePowerDist(results, stats)
-            private$.preparePowerContour(results, stats, plotSettings)
-            private$.preparePowerCurveES(results, stats, plotSettings)
-            private$.preparePowerCurveN(results, stats, plotSettings)
+            private$.populateContourText(results, stats)
+            private$.preparePowerContour(results, stats)
+            private$.preparePowerCurveES(results, stats)
+            private$.populatePowerCurveESText(results, stats)
+            private$.populatePowerCurveNText(results, stats)
+            private$.populateDistText(results, stats)
+            private$.preparePowerCurveN(results, stats)
 
         },
 
@@ -137,6 +123,49 @@ ttestISClass <- R6::R6Class(
           html$setContent(str)
           
         },
+        .populateTabText = function(r, lst){
+  
+          html <- self$results$tabText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+
+          n_text = ifelse(n1==n2,
+                              paste0("a sample size of ",n1," in each group "),
+                              paste0("group sample sizes of ", n1, " and ", n2, ", respectively, ")
+                              )
+          tail_text = ifelse(alt == "two.sided",
+                             "two-sided",
+                             "one-sided"
+                             )
+          
+          if(calc == "n"){
+            str = paste0("You will need ", n_text," to reliably (with probability greater than ",
+                         power, ") detect an effect size of ",
+                         "<i>δ=</i>",d,", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
+                         ".")
+          }else if(calc == "es"){
+            str = paste0("A design with ", n_text, "will reliably (with probability greater than ",
+                         power, ") detect effect sizes of <i>δ≥</i>", round(d,3),
+                         ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
+                         ".")
+          }else if(calc == "power"){
+            str = paste0("A design with ", n_text, " can detect an effect size of ",
+                         "<i>δ=</i>", d, " with a probability of ",
+                         round(power,3), ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
+                         ".")
+          }
+          
+          html$setContent(str)
+  
+        },
         #### Populate table ----
         .populatePowerTab = function(results) {
 
@@ -157,9 +186,11 @@ ttestISClass <- R6::R6Class(
         },
 
         #### Plot functions ----
-        .preparePowerContour = function(r, lst, ps) {
+        .preparePowerContour = function(r, lst) {
           
           image <- self$results$powerContour
+          
+          ps <- jpower::ttestPlotSettings
           
           calc <- self$options$calc
           
@@ -179,7 +210,7 @@ ttestISClass <- R6::R6Class(
                                         alternative = alt)
           
           if (n1 > maxn && n1 >= ps$maxn) {
-            maxn <- n1 * ps$max.scale
+            maxn <- ceiling(n1 * ps$max.scale)
           } else if (maxn < ps$maxn) {
             maxn <- ps$maxn
           }
@@ -218,7 +249,9 @@ ttestISClass <- R6::R6Class(
                               n1 = n1,
                               n_ratio = n_ratio,
                               delta = d,
-                              alpha = alpha
+                              alpha = alpha,
+                              minn = minn,
+                              maxn = maxn
                               ))
           
         },
@@ -282,10 +315,39 @@ ttestISClass <- R6::R6Class(
           
           TRUE
         },
-        .preparePowerCurveES = function(r, lst, ps) {
+        .populateContourText = function(r, lst){
+          
+          html <- self$results$contourText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          str = paste0("The power contour plot shows how the sensitivity of the ",
+                       "test changes with the hypothetical effect size ",
+                       "and the sample sizes in the design. As you increase the sample sizes, ",
+                       "smaller effect sizes become reliably detectable. Conversely, if one is satisfied ",
+                       "to reliably detect only larger effect sizes, smaller sample sizes are needed. ",
+                       "The solid black curve on the contour plot shows sample size/effect size combinations
+                       with a power of ",round(power, 3),". The point shows the specified ",
+                       " design and effect size."
+                       )
+          
+          html$setContent(str)
+          
+        },
+        .preparePowerCurveES = function(r, lst) {
 
             image <- self$results$powerCurveES
 
+            ps <- jpower::ttestPlotSettings
+            
             calc <- self$options$calc
 
             n1 <- ifelse(calc == 'n', r$n1, lst$n1)
@@ -301,7 +363,7 @@ ttestISClass <- R6::R6Class(
             cols = ps$pal(ps$pow.n.levels)
             yrect = seq(0,1,1/ps$pow.n.levels)
             
-            image$setState(list(cols = cols, dd=dd, y = y, yrect=yrect, n1=n1, n2=n2, alpha=alpha, delta = d, pow = power, ps = ps))
+            image$setState(list(cols = cols, dd=dd, y = y, yrect=yrect, n1=n1, n2=n2, alpha=alpha, delta = d, pow = power))
 
         },
         .powerCurveES = function(image, ggtheme, ...) {
@@ -317,8 +379,9 @@ ttestISClass <- R6::R6Class(
             n2 <- image$state$n2
             alpha <- image$state$alpha
             dd <- image$state$dd
-            ps <- image$state$ps
             delta <- image$state$delta
+            
+            ps <- jpower::ttestPlotSettings
             
 
             label <- jmvcore::format("  N\u2081 = {}, N\u2082 = {}, \u03B1 = {}", n1, n2, round(alpha,3))
@@ -349,11 +412,33 @@ ttestISClass <- R6::R6Class(
             TRUE
 
         },
-        .preparePowerCurveN = function(r, lst, ps) {
+        .populatePowerCurveESText = function(r, lst){
+          
+          html <- self$results$curveESText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          str = paste0("The power curve above shows how power increases for ",
+                       "larger hypothetical effect sizes.")
+          
+          html$setContent(str)
+          
+        },
+        .preparePowerCurveN = function(r, lst) {
 
             image <- self$results$powerCurveN
 
             calc <- self$options$calc
+            
+            ps <- jpower::ttestPlotSettings
 
             n1 <- ifelse(calc == 'n', r$n1, lst$n1)
             n2 <- ifelse(calc == 'n', r$n2, lst$n2)
@@ -370,7 +455,7 @@ ttestISClass <- R6::R6Class(
                                           alternative = alt)
 
             if (n1 > maxn && n1 >= ps$maxn) {
-              maxn <- n1 * ps$max.scale
+              maxn <- ceiling(n1 * ps$max.scale)
             } else if (maxn < ps$maxn) {
               maxn <- ps$maxn
             }
@@ -392,7 +477,7 @@ ttestISClass <- R6::R6Class(
             lims <- data.frame(xlim = c(minn, maxn),
                                ylim = c(0, 1))
 
-            image$setState(list(n1 = n1, cols = cols, nn = nn, y = y, yrect = yrect, lims=lims, delta=d, alpha=alpha, n_ratio = n_ratio, pow = power, ps = ps))
+            image$setState(list(n1 = n1, cols = cols, nn = nn, y = y, yrect = yrect, lims=lims, delta=d, alpha=alpha, n_ratio = n_ratio, pow = power))
 
         },
         .powerCurveN = function(image, ggtheme, ...) {
@@ -410,8 +495,8 @@ ttestISClass <- R6::R6Class(
             pow <- image$state$pow
             n1 <- image$state$n1
             y <- image$state$y
-            ps <- image$state$ps
             
+            ps <- jpower::ttestPlotSettings
             
             label <- jmvcore::format(" N\u2082 = {} \u00D7 N\u2081,  \u03B4 = {}, \u03B1 = {}", round(n_ratio, 3), round(delta,3), round(alpha,3))
 
@@ -500,6 +585,26 @@ ttestISClass <- R6::R6Class(
             image$setState(list(curves=curves, rect=rect, lims=lims))
 
         },
+        .populatePowerCurveNText = function(r, lst){
+          
+          html <- self$results$curveNText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          str = paste0("The power curve above shows how power increases for ",
+                       "larger sample sizes.")
+          
+          html$setContent(str)
+          
+        },
         .powerDist = function(image, ggtheme, ...) {
 
             if (is.null(image$state))
@@ -526,5 +631,25 @@ ttestISClass <- R6::R6Class(
             print(p)
 
             TRUE
+        },
+        .populateDistText = function(r, lst){
+          
+          html <- self$results$distText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          str = paste0("Sampling ",
+                       "distributions")
+          
+          html$setContent(str)
+        
         })
 )

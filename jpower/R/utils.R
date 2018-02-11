@@ -43,7 +43,7 @@ pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power =
           log(pow) - log(power)
         }, interval = c(0,1))$root
         d = exp(log(es) - log1p(-es))
-        d = ifelse(b$alternative == "less", -d, d)
+        d = ifelse(alternative == "less", -d, d)
       }else{
         stop("Invalid alternative")
       }

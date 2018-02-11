@@ -23,6 +23,11 @@ items:
         - calc
         - n_ratio
       columns: []
+      
+    - name: tabText
+      title: Table context
+      type: Html
+      visible: (text)
 
     - name: powerContour
       title: Power Contour
@@ -39,6 +44,11 @@ items:
         - alpha
         - calc
         - n_ratio
+        
+    - name: contourText
+      title: Power contour context
+      type: Html
+      visible: (text & powerContour)
 
     - name: powerCurveES
       title: Power Curve by Effect Size
@@ -55,6 +65,11 @@ items:
         - alpha
         - calc
         - n_ratio
+      
+    - name: curveESText
+      title: Power contour by effect size context
+      type: Html
+      visible: (text & powerCurveES & !calc:n)
 
     - name: powerCurveN
       title: Power Curve by N
@@ -71,6 +86,11 @@ items:
         - alpha
         - calc
         - n_ratio
+        
+    - name: curveNText
+      title: Power contour by N context
+      type: Html
+      visible: (text & powerCurveN & !calc:es)
 
     - name: powerDist
       title: Power Demonstration
@@ -87,5 +107,10 @@ items:
         - alpha
         - calc
         - n_ratio
+        
+    - name: distText
+      title: Sampling distributions
+      type: Html
+      visible: (text & powerDist)
 
 ...

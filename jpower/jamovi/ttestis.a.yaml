@@ -80,7 +80,7 @@ options:
       default: false
       
     - name: text
-      title: Explanatory text?
+      title: Explanatory text
       type: Bool
       default: true
 
