@@ -60,8 +60,12 @@ ttestISClass <- R6::R6Class(
 #            if (class(pow.alpha) == 'try-error')
 #                pow.alpha <- 0
 
+            d50 = jpower::pwr.t2n.test(n1 = stats$n1,
+                                       n2 = stats$n2,
+                                       sig.level = stats$alpha, 
+                                       power = .5, alternative = stats$alt)$d
             
-            return(list(n1=pow.n, n2=ceiling(pow.n * stats$n_ratio), es=pow.es, power=pow.pow))
+            return(list(n1=pow.n, n2=ceiling(pow.n * stats$n_ratio), es=pow.es, power=pow.pow, d50 = d50))
 
         },
 
@@ -81,9 +85,9 @@ ttestISClass <- R6::R6Class(
             else
                 order <- c(5,1,2,3,4)
 
-            colNames <- c("n1", "n2", "es", "power", "alpha")
-            colLabels <- c("N\u2081", "N\u2082", "Effect Size", "Power", "\u03B1")
-            colType <- c("integer", "integer", "number", "number", "number")
+            colNames <- c("n1", "n2", "es", "power", "alpha","d50")
+            colLabels <- c("N\u2081", "N\u2082", "Effect Size", "Power", "\u03B1", "ES for design<br/>to have 50% power")
+            colType <- c("integer", "integer", "number", "number", "number", "number")
 
             for (i in seq_along(order))
                 table$addColumn(colNames[order[i]], title=colLabels[order[i]],
@@ -174,6 +178,8 @@ ttestISClass <- R6::R6Class(
             calc <- self$options$calc
 
             row <- list()
+            
+            row[["d50"]] = results[["d50"]]
             
             if(calc == "n"){
               row[["n1"]] <- results[["n1"]]
@@ -449,7 +455,7 @@ ttestISClass <- R6::R6Class(
                        "is larger for larger effect sizes. If we obtained ", n_text,
                        " our test and design would only be sufficiently sensitive (power >", round(power, 3),
                        " to effect sizes of <i>δ≥</i>",d,". ",
-                       "<p>We would be more than likely to miss (power less than 50%) effect sizes less than ",
+                       "<p>We would be more than likely to miss (power less than 50%) effect sizes less than <i>δ=</i>",
                        round(d50,3),"."
           )
           
@@ -650,6 +656,8 @@ ttestISClass <- R6::R6Class(
         },
         .powerDist = function(image, ggtheme, ...) {
 
+            ps <- jpower::ttestPlotSettings
+            
             if (is.null(image$state))
                 return(FALSE)
 
@@ -663,13 +671,13 @@ ttestISClass <- R6::R6Class(
                                         legend.position = "none")
 
             p <- ggplot2::ggplot() +
-                ggplot2::geom_ribbon(data=curves, ggplot2::aes(x=x, ymin=ymin, ymax=ymax, fill=group), alpha=.3) +
-                ggplot2::geom_rect(data=rect, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), fill='white', alpha = 0.5) +
+                ggplot2::geom_ribbon(data=curves, ggplot2::aes(x=x, ymin=ymin, ymax=ymax, fill=group), alpha=.6) +
+                ggplot2::geom_rect(data=rect, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), fill='white', alpha = 0.4) +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x1), linetype = 'dashed') +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2), linetype = 'dashed') +
                 ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, expand = FALSE) +
                 ggplot2::labs(x="Observed standardized effect size (d)", y='Probability Density') +
-                ggtheme + themeSpec
+                ggtheme + themeSpec + ggplot2::scale_fill_manual(values=ps$pal(5)[c(4,1)])
 
             print(p)
 
@@ -697,11 +705,11 @@ ttestISClass <- R6::R6Class(
           
           if(alt == "two.sided"){
             tail_text = "two-sided"
-            null_text = "<i>δ≤</i>0,"
+            null_text = "<i>δ=</i>0,"
             crit_text = "criteria"
           }else{
             tail_text = "one-sided"
-            null_text = "<i>δ=</i>0,"
+            null_text = "<i>δ≤</i>0,"
             crit_text = "criterion"
           }
           
@@ -709,8 +717,10 @@ ttestISClass <- R6::R6Class(
                        "of the <i>estimated</i> effect size when <i>δ=</i>0 (left), and when <i>δ=</i>",d,
                        " (right). Both assume ",n_text,".",
                        "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
-                       " test with <i>α=</i>",alpha,". If the null hypothesis were true and ", null_text, 
-                       "the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
+                       " test with <i>α=</i>",alpha,". When the observed effect size is far enough ",
+                       "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
+                       "If the null hypothesis were true and ", null_text, 
+                       " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
                        "<p>On the other hand, if <i>δ≥</i>",d,", the evidence would exceed the criterion ",
                        " &mdash; and hence we would correctly claim that <i>δ≥</i>0 &mdash; at least ",
                        100*round(power,3),"% of the time. The design's power for detecting effects <i>δ≥</i>",d,
