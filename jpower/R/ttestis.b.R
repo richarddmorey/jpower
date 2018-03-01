@@ -150,8 +150,15 @@ ttestISClass <- R6::R6Class(
                              "one-sided"
                              )
           
+          probs = c(.5, .8, .95)
+          probs_es = sapply(probs, function(p){
+            jpower::pwr.t2n.test(n1 = n1, n2 = n2, 
+                                 sig.level = alpha, power = p,
+                                 alternative = alt)$d
+          })
+          
           if(calc == "n"){
-            str = paste0("You will need ", n_text," to reliably (with probability greater than ",
+            str = paste0("We would need ", n_text," to reliably (with probability greater than ",
                          power, ") detect an effect size of ",
                          "<i>δ=</i>",d,", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
@@ -166,6 +173,19 @@ ttestISClass <- R6::R6Class(
                          round(power,3), ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
           }
+          
+          hypo_text = ifelse(alt == "two.sided",
+                             "<i>|δ|>0</i>",
+                             "<i>δ>0</i>")
+          
+          str = paste0(str,"<br><p>To evaluate the design specified in the table, we can consider ",
+                       "how sensitive it is to true effects of increasing sizes; that is, are we likely to ",
+                       "correctly conclude that ", hypo_text, " when the effect size is large enough to care about? ",
+                       "<p>The test would more than likely miss effect sizes of <i>0<δ≤</i>", round(probs_es[1],3),"; that is, power to detect these effect sizes is no more than 50%.",
+                       "<p>The test would stand a good chance of missing effect sizes of ",round(probs_es[1],3),"<i><δ≤</i>", round(probs_es[2],3),"; that is, power to detect these effect sizes is between 50% and 80%.",
+                       "<p>The test would probably detect effect sizes of ",round(probs_es[2],3),"<i><δ≤</i>", round(probs_es[3],3),", but it also wouldn't be surprising if the test missed them. Power to detect these effect sizes is between 80% and 95%.",
+                       "<p>The test would almost surely detect effect sizes of <i>δ≥</i>", round(probs_es[3],3),"; that is, power to detect these effect sizes is greater than 95%."
+          )
           
           html$setContent(str)
   
@@ -337,7 +357,7 @@ ttestISClass <- R6::R6Class(
           
           str = paste0("<p>The power contour plot shows how the sensitivity of the ",
                        "test changes with the hypothetical effect size ",
-                       "and the sample sizes in the design. As you increase the sample sizes, ",
+                       "and the sample sizes in the design. As we increase the sample sizes, ",
                        "smaller effect sizes become reliably detectable.",
                        "<p>Conversely, if one is satisfied ",
                        "to reliably detect only larger effect sizes, smaller sample sizes are needed. ",
