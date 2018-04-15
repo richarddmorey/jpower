@@ -135,6 +135,7 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
         intro = function() private$.items[["intro"]],
         powertab = function() private$.items[["powertab"]],
         tabText = function() private$.items[["tabText"]],
+        powerEStab = function() private$.items[["powerEStab"]],
         powerContour = function() private$.items[["powerContour"]],
         contourText = function() private$.items[["contourText"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
@@ -174,6 +175,33 @@ ttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 name="tabText",
                 title="Table context",
                 visible="(text)"))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="powerEStab",
+                title="Power by Effect Size",
+                rows=4,
+                visible="(text)",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "alt",
+                    "alpha",
+                    "calc",
+                    "n_ratio"),
+                columns=list(
+                    list(
+                        `name`="es", 
+                        `title`="True effect size", 
+                        `type`="number"),
+                    list(
+                        `name`="power", 
+                        `title`="Power to detect", 
+                        `type`="text"),
+                    list(
+                        `name`="desc", 
+                        `title`="Description", 
+                        `type`="text"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
@@ -298,6 +326,7 @@ ttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$tabText} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$powerEStab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$contourText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
