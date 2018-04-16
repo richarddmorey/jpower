@@ -58,22 +58,29 @@ children:
     margin: large
     stretchFactor: 1
     children:
-      - type: Label
-        label: Plots
-        children:
-          - type: CheckBox
-            name: powerContour
-          - type: CheckBox
-            name: powerCurveES
-            enable: '(!calc:n)'
-          - type: CheckBox
-            name: powerCurveN
-            enable: '(!calc:es)'
-          - type: CheckBox
-            name: powerDist
       - type: LayoutBox
         margin: large
+        stretchFactor: 1
+        cell:
+          column: 0
+          row: 0
         children:
-          - type: CheckBox
-            name: text
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: powerContour
+              - type: CheckBox
+                name: powerCurveES
+                enable: '(!calc:n)'
+              - type: CheckBox
+                name: powerCurveN
+                enable: '(!calc:es)'
+              - type: CheckBox
+                name: powerDist
+          - type: Label
+            label: Additional Options
+            children:
+              - type: CheckBox
+                name: text
 compilerMode: tame

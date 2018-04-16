@@ -1,6 +1,4 @@
 
-# This file is a generated template, your changes will not be overwritten
-
 ttestISClass <- R6::R6Class(
     "ttestISClass",
     inherit = ttestISBase,
@@ -9,6 +7,7 @@ ttestISClass <- R6::R6Class(
         .init = function() {
 
             private$.initPowerTab()
+            private$.initPowerESTab()
 
         },
         .run = function() {
@@ -17,18 +16,18 @@ ttestISClass <- R6::R6Class(
             n = self$options$n
             n_ratio = self$options$n_ratio
             pow = self$options$power
-            alt = self$options$alt 
+            alt = self$options$alt
             es = self$options$es
             alpha = self$options$alpha
 
-            stats <- list(n1 = n, 
+            stats <- list(n1 = n,
                           n2 = ceiling(n_ratio * n),
-                          n_ratio = n_ratio, 
+                          n_ratio = n_ratio,
                           pow = pow,
                           alt = alt,
-                          es = es, 
+                          es = es,
                           alpha = alpha)
-            
+
             ## Compute results
             results <- private$.compute(stats)
 
@@ -50,7 +49,7 @@ ttestISClass <- R6::R6Class(
         #### Compute results ----
         .compute = function(stats) {
 
-            
+
             ## Compute numbers for table
             pow.n = try(ceiling(jpower::pwr.t2n.ratio(n_ratio = stats$n_ratio, d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)), silent=TRUE)
             pow.es = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
@@ -62,9 +61,9 @@ ttestISClass <- R6::R6Class(
 
             d50 = jpower::pwr.t2n.test(n1 = stats$n1,
                                        n2 = stats$n2,
-                                       sig.level = stats$alpha, 
+                                       sig.level = stats$alpha,
                                        power = .5, alternative = stats$alt)$d
-            
+
             return(list(n1=pow.n, n2=ceiling(pow.n * stats$n_ratio), es=pow.es, power=pow.pow, d50 = d50))
 
         },
@@ -91,28 +90,42 @@ ttestISClass <- R6::R6Class(
 
             for (i in seq_along(order))
                 table$addColumn(colNames[order[i]], title=colLabels[order[i]],
-                                superTitle=if (i > 1) "User Defined" else NULL,
+                                superTitle=if (calc == 'n' && i > 2 || calc != 'n' && i > 1) "User Defined" else NULL,
                                 type=colType[order[i]])
 
             row <- list()
             for (i in 2:5)
               row[[colNames[order[i]]]] <- self$options[[colNames[order[i]]]]
 
-            row[["n1"]] = self$options[["n"]]
-            row[["n2"]] = ceiling(self$options[["n"]] * self$options[["n_ratio"]])
-            
+            if (self$options$calc != 'n') {
+                row[["n1"]] = self$options[["n"]]
+                row[["n2"]] = ceiling(self$options[["n"]] * self$options[["n_ratio"]])
+            }
+
             table$setRow(rowNo=1, values=row)
 
         },
+        .initPowerESTab = function() {
+
+            table <- self$results$powerEStab
+
+            pow <- c('≤50%', '50% &ndash; 80%', '80% &ndash; 95%', '≥95%')
+            desc <- c('Likely miss', 'Good chance of missing', 'Probably detect', 'Almost surely detect')
+
+            for (i in 1:4) {
+                row <- list('power' = pow[i], 'desc' = desc[i])
+                table$setRow(rowNo=i, values=row)
+            }
+        },
         .populateIntro = function(){
-          
+
           calc <- self$options$calc
-          
+
           html <- self$results$intro
-          
+
           str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
                       "the sensitivity of a design and test. ")
-          
+
           if(calc == "n"){
             str = paste0(str, "You have chosen to calculate the minimum sample size needed ",
                    "to have an experiment sensitive enough to consistently detect the specified hypothetical effect size.")
@@ -123,14 +136,15 @@ ttestISClass <- R6::R6Class(
             str = paste0(str, "You have chosen to calculate the sensitivity of the chosen design ",
                    "for detecting the specified effect size.")
           }
-          
+
           html$setContent(str)
-          
+
         },
         .populateTabText = function(r, lst){
-  
+
           html <- self$results$tabText
-          
+          table <- self$results$powerEStab
+
           ## Get options from interface
           calc <- self$options$calc
           n_ratio <- lst$n_ratio
@@ -149,14 +163,14 @@ ttestISClass <- R6::R6Class(
                              "two-sided",
                              "one-sided"
                              )
-          
+
           probs = c(.5, .8, .95)
           probs_es = sapply(probs, function(p){
-            jpower::pwr.t2n.test(n1 = n1, n2 = n2, 
+            jpower::pwr.t2n.test(n1 = n1, n2 = n2,
                                  sig.level = alpha, power = p,
                                  alternative = alt)$d
           })
-          
+
           if(calc == "n"){
             str = paste0("We would need ", n_text," to reliably (with probability greater than ",
                          power, ") detect an effect size of ",
@@ -173,22 +187,28 @@ ttestISClass <- R6::R6Class(
                          round(power,3), ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
           }
-          
+
           hypo_text = ifelse(alt == "two.sided",
                              "<i>|δ|>0</i>",
                              "<i>δ>0</i>")
-          
-          str = paste0(str,"<br><p>To evaluate the design specified in the table, we can consider ",
+
+          str = paste0(str,"<p>To evaluate the design specified in the table, we can consider ",
                        "how sensitive it is to true effects of increasing sizes; that is, are we likely to ",
-                       "correctly conclude that ", hypo_text, " when the effect size is large enough to care about? ",
-                       "<p>The test would more than likely miss effect sizes of <i>0<δ≤</i>", round(probs_es[1],3),"; that is, power to detect these effect sizes is no more than 50%.",
-                       "<p>The test would stand a good chance of missing effect sizes of ",round(probs_es[1],3),"<i><δ≤</i>", round(probs_es[2],3),"; that is, power to detect these effect sizes is between 50% and 80%.",
-                       "<p>The test would probably detect effect sizes of ",round(probs_es[2],3),"<i><δ≤</i>", round(probs_es[3],3),", but it also wouldn't be surprising if the test missed them. Power to detect these effect sizes is between 80% and 95%.",
-                       "<p>The test would almost surely detect effect sizes of <i>δ≥</i>", round(probs_es[3],3),"; that is, power to detect these effect sizes is greater than 95%."
+                       "correctly conclude that ", hypo_text, " when the effect size is large enough to care about?"
           )
-          
+
           html$setContent(str)
-  
+
+          esText <- c(paste0('0 < δ ≤ ', format(round(probs_es[1],3), nsmall=3)),
+                       paste0(format(round(probs_es[1],3), nsmall=3),' < δ ≤ ', format(round(probs_es[2],3), nsmall=3)),
+                       paste0(format(round(probs_es[2],3), nsmall=3),' < δ ≤ ', format(round(probs_es[3],3), nsmall=3)),
+                       paste0('δ ≥ ', format(round(probs_es[3],3), nsmall=3)))
+
+          for (i in 1:4) {
+              row <- list('es' = format(esText[i], nsmall=3))
+              table$setRow(rowNo=i, values=row)
+          }
+
         },
         #### Populate table ----
         .populatePowerTab = function(results) {
@@ -198,9 +218,9 @@ ttestISClass <- R6::R6Class(
             calc <- self$options$calc
 
             row <- list()
-            
+
             row[["d50"]] = results[["d50"]]
-            
+
             if(calc == "n"){
               row[["n1"]] <- results[["n1"]]
               row[["n2"]] <- results[["n2"]]
@@ -213,13 +233,13 @@ ttestISClass <- R6::R6Class(
 
         #### Plot functions ----
         .preparePowerContour = function(r, lst) {
-          
+
           image <- self$results$powerContour
-          
+
           ps <- jpower::ttestPlotSettings
-          
+
           calc <- self$options$calc
-          
+
           n_ratio <- lst$n_ratio
           n1 <- ifelse(calc == 'n', r$n1, lst$n1)
           n2 <- ifelse(calc == 'n', r$n2, lst$n2)
@@ -227,51 +247,51 @@ ttestISClass <- R6::R6Class(
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
-          
-          
-          maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio, 
-                                        power = max(0.9, power), 
+
+
+          maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio,
+                                        power = max(0.9, power),
                                         d = d,
                                         sig.level = alpha,
                                         alternative = alt)
-          
+
           if (n1 > maxn && n1 >= ps$maxn) {
             maxn <- ceiling(n1 * ps$max.scale)
           } else if (maxn < ps$maxn) {
             maxn <- ps$maxn
           }
-          
-          
-          minn = ifelse(n_ratio<1, 
+
+
+          minn = ifelse(n_ratio<1,
                         max(ceiling( 3 / (1 + n_ratio) ), 2 / n_ratio),
                         max(ceiling( 3 / (1 + n_ratio) ), 2 * n_ratio))
-          
+
           nn = unique(ceiling(exp(seq(log(minn), log(maxn), len = ps$lens))-.001))
           dd = seq(ps$mind, ps$maxd, len = ps$lens)
           nn2 = ceiling(n_ratio * nn)
-          
+
           z.pwr = sapply(dd, function(delta){
-            jpower::pwr.t2n.test(nn, nn2, 
-                              d = delta, 
+            jpower::pwr.t2n.test(nn, nn2,
+                              d = delta,
                               sig.level = alpha,
                               alternative = alt)$power
           })
-          
+
           z.delta = sapply(nn, function(N){
             n2 = ceiling(n_ratio * N)
-            jpower::pwr.t2n.test(N, n2, 
+            jpower::pwr.t2n.test(N, n2,
                               sig.level = alpha,
                               power = power,
                               alternative = alt)$d
           })
-          
 
-          
-          image$setState(list(z.pwr = z.pwr, 
+
+
+          image$setState(list(z.pwr = z.pwr,
                               z.delta = z.delta,
                               ps = ps,
                               nn = nn,
-                              dd = dd, 
+                              dd = dd,
                               n1 = n1,
                               n_ratio = n_ratio,
                               delta = d,
@@ -279,14 +299,14 @@ ttestISClass <- R6::R6Class(
                               minn = minn,
                               maxn = maxn
                               ))
-          
+
         },
         .powerContour = function(image, ggtheme, ...){
-          
+
           calc <- self$options$calc
-          
+
           image <- self$results$powerContour
-          
+
           z.delta <- image$state$z.delta
           z.pwr <- image$state$z.pwr
           ps <- image$state$ps
@@ -300,8 +320,8 @@ ttestISClass <- R6::R6Class(
           delta <- image$state$delta
           n_ratio <- image$state$n_ratio
 
-          filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels, 
-                         ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),               
+          filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels,
+                         ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),
                          xlab = "Sample size (group 1)",
                          plot.axes = {
                            at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
@@ -315,8 +335,8 @@ ttestISClass <- R6::R6Class(
                            #contour(log(N), delta, z.pwr, add=TRUE)
                            if(calc == "n"){
                            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                          x1 = log(n1), y1 = par()$usr[3], 
-                                          x0 = log(n1), 
+                                          x1 = log(n1), y1 = par()$usr[3],
+                                          x0 = log(n1),
                                           y0 = delta, lwd = 2, arr.adj = 1)
                            jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                             x0 = log(n1), y0 = delta,
@@ -324,8 +344,8 @@ ttestISClass <- R6::R6Class(
                                             lwd = 2)
                            }else if(calc == "es"){
                              jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                                    x1 = log(n1), y1 = par()$usr[3], 
-                                                    x0 = log(n1), 
+                                                    x1 = log(n1), y1 = par()$usr[3],
+                                                    x0 = log(n1),
                                                     y0 = delta, lwd = 2)
                              jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                                       x0 = log(n1), y0 = delta,
@@ -337,14 +357,14 @@ ttestISClass <- R6::R6Class(
                            mtext("Power",3, .5)
                          }
           )
-          
-          
+
+
           TRUE
         },
         .populateContourText = function(r, lst){
-          
+
           html <- self$results$contourText
-          
+
           ## Get options from interface
           calc <- self$options$calc
           n_ratio <- lst$n_ratio
@@ -354,7 +374,7 @@ ttestISClass <- R6::R6Class(
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
-          
+
           str = paste0("<p>The power contour plot shows how the sensitivity of the ",
                        "test changes with the hypothetical effect size ",
                        "and the sample sizes in the design. As we increase the sample sizes, ",
@@ -365,16 +385,16 @@ ttestISClass <- R6::R6Class(
                        with a power of ",round(power, 3),". The point shows the specified ",
                        " design and effect size."
                        )
-          
+
           html$setContent(str)
-          
+
         },
         .preparePowerCurveES = function(r, lst) {
 
             image <- self$results$powerCurveES
 
             ps <- jpower::ttestPlotSettings
-            
+
             calc <- self$options$calc
 
             n1 <- ifelse(calc == 'n', r$n1, lst$n1)
@@ -383,13 +403,13 @@ ttestISClass <- R6::R6Class(
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
             alt <- lst$alt
-            
+
             dd = seq(ps$mind, ps$maxd, len = ps$curve.n)
-            
+
             y = jpower::pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
             cols = ps$pal(ps$pow.n.levels)
             yrect = seq(0,1,1/ps$pow.n.levels)
-            
+
             image$setState(list(cols = cols, dd=dd, y = y, yrect=yrect, n1=n1, n2=n2, alpha=alpha, delta = d, pow = power))
 
         },
@@ -407,42 +427,42 @@ ttestISClass <- R6::R6Class(
             alpha <- image$state$alpha
             dd <- image$state$dd
             delta <- image$state$delta
-            
+
             ps <- jpower::ttestPlotSettings
-            
+
 
             label <- jmvcore::format("  N\u2081 = {}, N\u2082 = {}, \u03B1 = {}", n1, n2, round(alpha,3))
 
-            plot(dd, y, ty='n', ylim = c(0,1), las = 1, ylab = "Power", 
+            plot(dd, y, ty='n', ylim = c(0,1), las = 1, ylab = "Power",
                  xlab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),
                  yaxs = 'i', xaxs = "i")
-            mtext(substitute(paste(N[1]==n1,", ",N[2]==n2,", ",alpha==a), 
+            mtext(substitute(paste(N[1]==n1,", ",N[2]==n2,", ",alpha==a),
                              list(a = alpha, n1 = n1,n2=n2)),
                   adj = 1)
-            
+
             for(i in 1:ps$pow.n.levels){
               rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
                    col = cols[i])
             }
-            
+
             jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                           dd, y, lwd = 3)
             jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                           x0 = delta, y0 = pow, 
-                           x1 = delta, 
+                           x0 = delta, y0 = pow,
+                           x1 = delta,
                            y1 = 0, lwd = 3, arr.adj = 1)
             jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                              x0 = min(dd), y0 = pow,
                              x1 = delta, y1 = pow,
                              lwd = 3)
-            
+
             TRUE
 
         },
         .populatePowerCurveESText = function(r, lst){
-          
+
           html <- self$results$curveESText
-          
+
           ## Get options from interface
           calc <- self$options$calc
           n_ratio <- lst$n_ratio
@@ -453,12 +473,12 @@ ttestISClass <- R6::R6Class(
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
-          
+
           n_text = ifelse(n1==n2,
                           paste0("sample sizes of ",n1," in each group"),
                           paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
           )
-          
+
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>δ≤</i>0,"
@@ -468,9 +488,9 @@ ttestISClass <- R6::R6Class(
             null_text = "<i>δ=</i>0,"
             crit_text = "criterion"
           }
-          
+
           d50 = jpower::pwr.t2n.test(n1 = n1, n2 = n2, sig.level = alpha, power = .5, alternative = alt)$d
-          
+
           str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                        "is larger for larger effect sizes. If we obtained ", n_text,
                        " our test and design would only be sufficiently sensitive (power >", round(power, 3),
@@ -478,16 +498,16 @@ ttestISClass <- R6::R6Class(
                        "<p>We would be more than likely to miss (power less than 50%) effect sizes less than <i>δ=</i>",
                        round(d50,3),"."
           )
-          
+
           html$setContent(str)
-          
+
         },
         .preparePowerCurveN = function(r, lst) {
 
             image <- self$results$powerCurveN
 
             calc <- self$options$calc
-            
+
             ps <- jpower::ttestPlotSettings
 
             n1 <- ifelse(calc == 'n', r$n1, lst$n1)
@@ -497,9 +517,9 @@ ttestISClass <- R6::R6Class(
             power <- ifelse(calc == 'power', r$power, lst$pow)
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
             alt <- lst$alt
-            
-            maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio, 
-                                          power = max(0.9, power), 
+
+            maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio,
+                                          power = max(0.9, power),
                                           d = d,
                                           sig.level = alpha,
                                           alternative = alt)
@@ -509,21 +529,21 @@ ttestISClass <- R6::R6Class(
             } else if (maxn < ps$maxn) {
               maxn <- ps$maxn
             }
-            
-            
-            minn = ifelse(n_ratio<1, 
+
+
+            minn = ifelse(n_ratio<1,
                           max(ceiling( 3 / (1 + n_ratio) ), 2 / n_ratio),
                           max(ceiling( 3 / (1 + n_ratio) ), 2 * n_ratio))
-            
+
             nn = seq(minn, maxn)
 
-            y = jpower::pwr.t2n.test(n1 = nn, 
-                                  n2 = ceiling(nn * lst$n_ratio), 
+            y = jpower::pwr.t2n.test(n1 = nn,
+                                  n2 = ceiling(nn * lst$n_ratio),
                                   d = d, sig.level = alpha, alternative = alt)$power
 
             cols = ps$pal(ps$pow.n.levels)
             yrect = seq(0,1,1/ps$pow.n.levels)
-            
+
             lims <- data.frame(xlim = c(minn, maxn),
                                ylim = c(0, 1))
 
@@ -534,7 +554,7 @@ ttestISClass <- R6::R6Class(
 
             if (is.null(image$state))
                 return(FALSE)
-            
+
             cols <- image$state$cols
             yrect <- image$state$yrect
             lims <- image$state$lims
@@ -545,39 +565,39 @@ ttestISClass <- R6::R6Class(
             pow <- image$state$pow
             n1 <- image$state$n1
             y <- image$state$y
-            
+
             ps <- jpower::ttestPlotSettings
-            
+
             label <- jmvcore::format(" N\u2082 = {} \u00D7 N\u2081,  \u03B4 = {}, \u03B1 = {}", round(n_ratio, 3), round(delta,3), round(alpha,3))
 
-            plot(log(nn), y, ty='n', xlim = log(lims$xlim), ylim = lims$ylim, las = 1, ylab = "Power", 
+            plot(log(nn), y, ty='n', xlim = log(lims$xlim), ylim = lims$ylim, las = 1, ylab = "Power",
                  xlab = "Sample size (group 1)",
                  yaxs = 'i', xaxs = "i", axes = FALSE)
-          
+
             at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
             axis(1, at = log(at.N), lab = at.N)
             axis(2, las = 1)
-            
-            mtext(substitute(paste(delta==d, ", ", N[2]==nr %*% N[1],", ", alpha==a), 
+
+            mtext(substitute(paste(delta==d, ", ", N[2]==nr %*% N[1],", ", alpha==a),
                              list(a = alpha, nr = n_ratio, d = round(delta,3))),
                   adj = 1)
-            
+
             for(i in 1:ps$pow.n.levels){
               rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
                    col = cols[i])
             }
-            
+
             jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                           log(nn), y, lwd = 3)
             jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                           x0 = log(n1), y0 = pow, 
-                           x1 = log(n1), 
+                           x0 = log(n1), y0 = pow,
+                           x1 = log(n1),
                            y1 = 0, lwd = 3, arr.adj = 1)
             jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                              x0 = min(log(nn)), y0 = pow,
                              x1 = log(n1), y1 = pow,
                              lwd = 3)
-            
+
             TRUE
 
         },
@@ -597,7 +617,7 @@ ttestISClass <- R6::R6Class(
             effN = n1 * n2 / (n1 + n2)
             df = n1 + n2 - 2
             ncp = sqrt(effN) * d
-            
+
             if(alt == "two.sided"){
               crit = qt(p = 1 - alpha / 2, df = df) / sqrt(effN)
             }else{
@@ -612,7 +632,7 @@ ttestISClass <- R6::R6Class(
 
             y.max = dt(0, df) / sqrt(effN)
 
-            xx = seq(xlims[1], xlims[2], len = 100) 
+            xx = seq(xlims[1], xlims[2], len = 100)
             yy.null = dt(xx * sqrt(effN), df) / sqrt(effN)
             yy.alt = dt(xx * sqrt(effN), df, ncp) / sqrt(effN)
 
@@ -628,7 +648,7 @@ ttestISClass <- R6::R6Class(
               rect <- data.frame(x1 = xlims[1] - 1, x2 = crit,
                                  y1 = 0, y2 = y.max * 1.1)
             }
-            
+
             lims <- data.frame(xlim = c(xlims[1], xlims[2]),
                                ylim = c(0, y.max * 1.1))
 
@@ -636,9 +656,9 @@ ttestISClass <- R6::R6Class(
 
         },
         .populatePowerCurveNText = function(r, lst){
-          
+
           html <- self$results$curveNText
-          
+
           ## Get options from interface
           calc <- self$options$calc
           n_ratio <- lst$n_ratio
@@ -649,12 +669,12 @@ ttestISClass <- R6::R6Class(
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
-          
+
           n_text = ifelse(n1==n2,
                           paste0("sample sizes of at least ",n1," in each group"),
                           paste0("group sample sizes of at least ", n1, " and ", n2, ", respectively")
           )
-          
+
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>δ≤</i>0,"
@@ -664,20 +684,20 @@ ttestISClass <- R6::R6Class(
             null_text = "<i>δ=</i>0,"
             crit_text = "criterion"
           }
-          
+
           str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                        "is larger for larger effect sizes. In order for our test and design to have sufficient sensitivity ",
                        "(power > ", round(power,3),") to detect an effect size of ", d, " or larger, ",
                        "we would need ", n_text, "."
           )
-          
+
           html$setContent(str)
-          
+
         },
         .powerDist = function(image, ggtheme, ...) {
 
             ps <- jpower::ttestPlotSettings
-            
+
             if (is.null(image$state))
                 return(FALSE)
 
@@ -691,7 +711,7 @@ ttestISClass <- R6::R6Class(
                                         legend.position = "none")
 
             p <- ggplot2::ggplot() +
-                ggplot2::geom_ribbon(data=curves, ggplot2::aes(x=x, ymin=ymin, ymax=ymax, fill=group), alpha=.6) +
+                ggplot2::geom_ribbon(data=curves, ggplot2::aes(x=x, ymin=ymin, ymax=ymax, fill=group), color='#333333', alpha=.6) +
                 ggplot2::geom_rect(data=rect, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), fill='white', alpha = 0.4) +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x1), linetype = 'dashed') +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2), linetype = 'dashed') +
@@ -704,9 +724,9 @@ ttestISClass <- R6::R6Class(
             TRUE
         },
         .populateDistText = function(r, lst){
-          
+
           html <- self$results$distText
-          
+
           ## Get options from interface
           calc <- self$options$calc
           n_ratio <- lst$n_ratio
@@ -717,12 +737,12 @@ ttestISClass <- R6::R6Class(
           power <- ifelse(calc == 'power', r$power, lst$pow)
           alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
           alt <- lst$alt
-          
+
           n_text = ifelse(n1==n2,
                           paste0("a sample size of ",n1," in each group"),
                           paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
           )
-          
+
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>δ=</i>0,"
@@ -732,22 +752,22 @@ ttestISClass <- R6::R6Class(
             null_text = "<i>δ≤</i>0,"
             crit_text = "criterion"
           }
-          
+
           str = paste0("<p>The figure above shows two sampling distributions: the sampling distribution ",
                        "of the <i>estimated</i> effect size when <i>δ=</i>0 (left), and when <i>δ=</i>",d,
                        " (right). Both assume ",n_text,".",
                        "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
                        " test with <i>α=</i>",alpha,". When the observed effect size is far enough ",
                        "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
-                       "If the null hypothesis were true and ", null_text, 
+                       "If the null hypothesis were true and ", null_text,
                        " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
                        "<p>On the other hand, if <i>δ≥</i>",d,", the evidence would exceed the criterion ",
                        " &mdash; and hence we would correctly claim that <i>δ≥</i>0 &mdash; at least ",
                        100*round(power,3),"% of the time. The design's power for detecting effects <i>δ≥</i>",d,
                        " is thus ",round(power,3),".")
 
-          
+
           html$setContent(str)
-        
+
         })
 )
