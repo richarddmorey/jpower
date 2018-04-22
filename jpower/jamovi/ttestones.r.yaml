@@ -1,0 +1,11 @@
+---
+name:  ttestOneS
+title: One Sample T-Test
+jrs:   '1.1'
+
+items:
+    - name:  text
+      title: One Sample T-Test
+      type:  Preformatted
+
+...

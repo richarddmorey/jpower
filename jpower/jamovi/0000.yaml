@@ -24,5 +24,18 @@ analyses:
     menuGroup: jpower
     menuTitle: ANOVA
     menuSubgroup: ANOVA
+    hidden: true
+  - title: Paired Samples T-Test
+    name: ttestPS
+    ns: jpower
+    menuGroup: jpower
+    menuTitle: Paired Samples T-Test
+    menuSubgroup: T-Tests
+  - title: One Sample T-Test
+    name: ttestOneS
+    ns: jpower
+    menuGroup: jpower
+    menuSubgroup: T-Tests
+    menuTitle: One Sample T-Test
 
 ...
