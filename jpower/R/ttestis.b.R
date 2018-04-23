@@ -200,9 +200,9 @@ ttestISClass <- R6::R6Class(
           html$setContent(str)
 
           esText <- c(paste0('0 < δ ≤ ', format(round(probs_es[1],3), nsmall=3)),
-                       paste0(format(round(probs_es[1],3), nsmall=3),' < δ ≤ ', format(round(probs_es[2],3), nsmall=3)),
-                       paste0(format(round(probs_es[2],3), nsmall=3),' < δ ≤ ', format(round(probs_es[3],3), nsmall=3)),
-                       paste0('δ ≥ ', format(round(probs_es[3],3), nsmall=3)))
+                      paste0(format(round(probs_es[1],3), nsmall=3),' < δ ≤ ', format(round(probs_es[2],3), nsmall=3)),
+                      paste0(format(round(probs_es[2],3), nsmall=3),' < δ ≤ ', format(round(probs_es[3],3), nsmall=3)),
+                      paste0('δ ≥ ', format(round(probs_es[3],3), nsmall=3)))
 
           for (i in 1:4) {
               row <- list('es' = format(esText[i], nsmall=3))
@@ -303,63 +303,66 @@ ttestISClass <- R6::R6Class(
         },
         .powerContour = function(image, ggtheme, ...){
 
-          calc <- self$options$calc
+            if (is.null(image$state))
+                return(FALSE)
 
-          image <- self$results$powerContour
+            calc <- self$options$calc
 
-          z.delta <- image$state$z.delta
-          z.pwr <- image$state$z.pwr
-          ps <- image$state$ps
-          pow <- image$state$pow
-          n1 <- image$state$n1
-          n2 <- image$state$n2
-          alpha <- image$state$alpha
-          dd <- image$state$dd
-          nn <- image$state$nn
-          ps <- image$state$ps
-          delta <- image$state$delta
-          n_ratio <- image$state$n_ratio
+            image <- self$results$powerContour
 
-          filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels,
-                         ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),
-                         xlab = "Sample size (group 1)",
-                         plot.axes = {
-                           at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
-                           axis(1, at = log(at.N), lab = at.N)
-                           axis(2)
-                           if(n_ratio!=1){
-                             axis(3, at = log(at.N), lab = ceiling(at.N * n_ratio))
-                             mtext("Sample size (group 2)", 3, line = par()$mgp[1],  adj = .5)
+            z.delta <- image$state$z.delta
+            z.pwr <- image$state$z.pwr
+            ps <- image$state$ps
+            pow <- image$state$pow
+            n1 <- image$state$n1
+            n2 <- image$state$n2
+            alpha <- image$state$alpha
+            dd <- image$state$dd
+            nn <- image$state$nn
+            ps <- image$state$ps
+            delta <- image$state$delta
+            n_ratio <- image$state$n_ratio
+
+            filled.contour(log(nn), dd, z.pwr, color.palette = ps$pal, nlevels = ps$pow.n.levels,
+                           ylab = expression(paste("Hypothetical effect size (",delta,")", sep = "")),
+                           xlab = "Sample size (group 1)",
+                           plot.axes = {
+                               at.N = round(exp(seq(log(min(nn)), log(max(nn)), len = ps$x.axis.n)))
+                               axis(1, at = log(at.N), lab = at.N)
+                               axis(2)
+                               if(n_ratio!=1){
+                                   axis(3, at = log(at.N), lab = ceiling(at.N * n_ratio))
+                                   mtext("Sample size (group 2)", 3, line = par()$mgp[1],  adj = .5)
+                               }
+                               jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
+                               #contour(log(N), delta, z.pwr, add=TRUE)
+                               if(calc == "n"){
+                                   jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                          x1 = log(n1), y1 = par()$usr[3],
+                                                          x0 = log(n1),
+                                                          y0 = delta, lwd = 2, arr.adj = 1)
+                                   jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                            x0 = log(n1), y0 = delta,
+                                                            x1 = par()$usr[1], y1 = delta,
+                                                            lwd = 2)
+                               }else if(calc == "es"){
+                                   jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                            x1 = log(n1), y1 = par()$usr[3],
+                                                            x0 = log(n1),
+                                                            y0 = delta, lwd = 2)
+                                   jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                                          x0 = log(n1), y0 = delta,
+                                                          x1 = par()$usr[1], y1 = delta,
+                                                          lwd = 2, arr.adj = 1)
+                               }
+                               points(log(n1), delta, pch = 21, col = "black", bg = "white", cex = 1.5)
+                           }, key.title = {
+                               mtext("Power",3, .5)
                            }
-                           jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
-                           #contour(log(N), delta, z.pwr, add=TRUE)
-                           if(calc == "n"){
-                           jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                          x1 = log(n1), y1 = par()$usr[3],
-                                          x0 = log(n1),
-                                          y0 = delta, lwd = 2, arr.adj = 1)
-                           jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                            x0 = log(n1), y0 = delta,
-                                            x1 = par()$usr[1], y1 = delta,
-                                            lwd = 2)
-                           }else if(calc == "es"){
-                             jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                                    x1 = log(n1), y1 = par()$usr[3],
-                                                    x0 = log(n1),
-                                                    y0 = delta, lwd = 2)
-                             jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
-                                                      x0 = log(n1), y0 = delta,
-                                                      x1 = par()$usr[1], y1 = delta,
-                                                      lwd = 2, arr.adj = 1)
-                           }
-                           points(log(n1), delta, pch = 21, col = "black", bg = "white", cex = 1.5)
-                         }, key.title = {
-                           mtext("Power",3, .5)
-                         }
-          )
+            )
 
 
-          TRUE
+            TRUE
         },
         .populateContourText = function(r, lst){
 

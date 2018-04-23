@@ -14,16 +14,16 @@ jmvTheme <- function() {
 }
 
 # Workaround for failure of pwr::pwr.t2n.test
-# with large effect sizes - optimization here is 
+# with large effect sizes - optimization here is
 # better
 pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = c("two.sided", "less", "greater")){
-  
+
   if(is.null(d)){
     if(power<sig.level) stop("power < alpha")
     x = try(pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = d, sig.level = sig.level, power = power, alternative = alternative), silent = TRUE)
     if(inherits(x, "try-error")){
-      effN = n1 * n2 / (n1 + n2) 
-      df = n1 + n2 - 2 
+      effN = n1 * n2 / (n1 + n2)
+      df = n1 + n2 - 2
       if( length(alternative) >1 ) alternative == alternative[1]
       if(alternative == "two.sided"){
         crit = qt(1 - sig.level/2, df)
@@ -48,8 +48,8 @@ pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power =
         stop("Invalid alternative")
       }
       METHOD <- c("t test power calculation")
-      ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level, 
-                           power = power, alternative = alternative, method = METHOD), 
+      ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
+                           power = power, alternative = alternative, method = METHOD),
                       class = "power.htest")
       return(ret)
     }else{
@@ -71,10 +71,10 @@ pwr.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
       pow = pt(critt, df, ncp) + 1 - pt(-critt, df, ncp)
     }else if(alternative == "less"){
       critt = qt(sig.level, df)
-      pow = pt(critt, df, ncp) 
+      pow = pt(critt, df, ncp)
     }else if(alternative == "greater"){
       critt = qt(1 - sig.level, df)
-      pow = 1 - pt(critt, df, ncp) 
+      pow = 1 - pt(critt, df, ncp)
     }else{
       stop("Invalid alternative.")
     }
