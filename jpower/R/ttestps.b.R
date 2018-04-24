@@ -589,7 +589,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
             alt <- lst$alt
 
-            effN = n * n / (n + n)
+            effN = n
             df = n - 1
             ncp = sqrt(effN) * d
 
