@@ -5,6 +5,7 @@ version: 0.1.0
 jms: '1.0'
 authors:
   - Richard D. Morey
+  - Ravi Selker
 maintainer: Richard D. Morey <richarddmorey@gmail.com>
 date: '2018-05-06'
 type: R
