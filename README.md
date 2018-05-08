@@ -4,7 +4,7 @@ A module to compute power for various designs within [jamovi](https://www.jamovi
 
 ![Screenshot of jpower](https://github.com/richarddmorey/jpower/raw/master/img/jpower1.png)
 
-Currently, only independent sample t tests are implemented.
+Currently, only t tests are implemented in this test release. We're looking for feedback!
 
 ## How to install jpower in jamovi
 
