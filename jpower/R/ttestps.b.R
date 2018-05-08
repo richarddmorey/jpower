@@ -92,7 +92,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
             table <- self$results$powerEStab
 
-            pow <- c('≤50%', '50% &ndash; 80%', '80% &ndash; 95%', '≥95%')
+            pow <- c('\u226450%', '50% \u2013 80%', '80% \u2013 95%', '\u226595%')
             desc <- c('Likely miss', 'Good chance of missing', 'Probably detect', 'Almost surely detect')
 
             for (i in 1:4) {
@@ -159,7 +159,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
                              ".")
             } else if (calc == "es") {
                 str = paste0("A design with ", n_text, "will reliably (with probability greater than ",
-                             power, ") detect effect sizes of <i>δ≥</i>", round(d,3),
+                             power, ") detect effect sizes of <i>δ\u2265</i>", round(d,3),
                              ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                              ".")
             } else if (calc == "power") {
@@ -220,7 +220,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
             if(alt == "two.sided"){
                 tail_text = "two-sided"
-                null_text = "<i>δ≤</i>0,"
+                null_text = "<i>δ\u2264</i>0,"
                 crit_text = "criteria"
             }else{
                 tail_text = "one-sided"
@@ -233,7 +233,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                          "is larger for larger effect sizes. If we obtained ", n_text,
                          " our test and design would only be sufficiently sensitive (power >", round(power, 3),
-                         " to effect sizes of <i>δ≥</i>",d,". ",
+                         " to effect sizes of <i>δ\u2265</i>",d,". ",
                          "<p>We would be more than likely to miss (power less than 50%) effect sizes less than <i>δ=</i>",
                          round(d50,3),"."
             )
@@ -283,7 +283,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
                 crit_text = "criteria"
             } else{
                 tail_text = "one-sided"
-                null_text = "<i>δ≤</i>0,"
+                null_text = "<i>δ\u2264</i>0,"
                 crit_text = "criterion"
             }
 
@@ -295,9 +295,9 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
                          "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
                          "If the null hypothesis were true and ", null_text,
                          " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
-                         "<p>On the other hand, if <i>δ≥</i>",d,", the evidence would exceed the criterion ",
-                         " &mdash; and hence we would correctly claim that <i>δ≥</i>0 &mdash; at least ",
-                         100*round(power,3),"% of the time. The design's power for detecting effects <i>δ≥</i>",d,
+                         "<p>On the other hand, if <i>δ\u2265</i>",d,", the evidence would exceed the criterion ",
+                         " &mdash; and hence we would correctly claim that <i>δ\u2265</i>0 &mdash; at least ",
+                         100*round(power,3),"% of the time. The design's power for detecting effects <i>δ\u2265</i>",d,
                          " is thus ",round(power,3),".")
 
 
@@ -321,10 +321,10 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
             probs_es <- private$probs_es
 
-            esText <- c(paste0('0 < δ ≤ ', format(round(probs_es[1],3), nsmall=3)),
-                        paste0(format(round(probs_es[1],3), nsmall=3),' < δ ≤ ', format(round(probs_es[2],3), nsmall=3)),
-                        paste0(format(round(probs_es[2],3), nsmall=3),' < δ ≤ ', format(round(probs_es[3],3), nsmall=3)),
-                        paste0('δ ≥ ', format(round(probs_es[3],3), nsmall=3)))
+            esText <- c(paste0('0 < δ \u2264 ', format(round(probs_es[1],3), nsmall=3)),
+                        paste0(format(round(probs_es[1],3), nsmall=3),' < δ \u2264 ', format(round(probs_es[2],3), nsmall=3)),
+                        paste0(format(round(probs_es[2],3), nsmall=3),' < δ \u2264 ', format(round(probs_es[3],3), nsmall=3)),
+                        paste0('δ \u2265 ', format(round(probs_es[3],3), nsmall=3)))
 
             for (i in 1:4) {
                 row <- list('es' = format(esText[i], nsmall=3))
