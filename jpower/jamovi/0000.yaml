@@ -1,13 +1,13 @@
 ---
 title: 'jpower: Power Analysis for Common Research Designs'
 name: jpower
-version: 0.1.1
+version: 0.1.2
 jms: '1.0'
 authors:
   - Richard D. Morey
   - Ravi Selker
 maintainer: Richard D. Morey <richarddmorey@gmail.com>
-date: '2018-05-08'
+date: '2018-05-19'
 type: R
 description: 'Power analysis for common research designs '
 analyses:
