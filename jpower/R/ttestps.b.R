@@ -258,6 +258,7 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             d <- ifelse(calc == 'es', r$es, lst$es)
             d <- round(d,3)
             power <- ifelse(calc == 'power', r$power, lst$pow)
+            alt <- lst$alt
 
             n_text = paste0("sample sizes of at least ",n)
 
