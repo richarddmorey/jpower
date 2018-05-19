@@ -174,7 +174,7 @@ ttestISClass <- R6::R6Class(
           if(calc == "n"){
             str = paste0("We would need ", n_text," to reliably (with probability greater than ",
                          power, ") detect an effect size of ",
-                         "<i>\u03B4=</i>",d,", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
+                         "<i>\u03B4\u2265</i>",d,", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
           }else if(calc == "es"){
             str = paste0("A design with ", n_text, "will reliably (with probability greater than ",
@@ -182,8 +182,8 @@ ttestISClass <- R6::R6Class(
                          ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
           }else if(calc == "power"){
-            str = paste0("A design with ", n_text, " can detect an effect size of ",
-                         "<i>\u03B4=</i>", d, " with a probability of ",
+            str = paste0("A design with ", n_text, " can detect effect sizes of ",
+                         "<i>\u03B4\u2265</i>", d, " with a probability of at least ",
                          round(power,3), ", assuming a ", tail_text, " criterion for detection that allows for a maximum Type I error rate of <i>α=</i>",alpha,
                          ".")
           }
@@ -485,19 +485,26 @@ ttestISClass <- R6::R6Class(
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>\u03B4\u2264</i>0,"
+            alt_text = "<i>|\u03B4|\u003E</i>"
             crit_text = "criteria"
           }else{
             tail_text = "one-sided"
             null_text = "<i>\u03B4=</i>0,"
+            alt_text = "<i>\u03B4\u003E</i>"
             crit_text = "criterion"
+          }
+          
+          if(calc == 'power'){
+            pwr_string = paste0("have power of at least ", round(power, 3))
+          }else{
+            pwr_string = paste0("only be sufficiently sensitive (power >", round(power, 3), ")")
           }
 
           d50 = jpower::pwr.t2n.test(n1 = n1, n2 = n2, sig.level = alpha, power = .5, alternative = alt)$d
 
           str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                        "is larger for larger effect sizes. If we obtained ", n_text,
-                       " our test and design would only be sufficiently sensitive (power >", round(power, 3),
-                       " to effect sizes of <i>\u03B4\u2265</i>",d,". ",
+                       " our test and design would ", pwr_string, " to effect sizes of ", alt_text, d,". ",
                        "<p>We would be more than likely to miss (power less than 50%) effect sizes less than <i>\u03B4=</i>",
                        round(d50,3),"."
           )
@@ -681,16 +688,18 @@ ttestISClass <- R6::R6Class(
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>\u03B4\u2264</i>0,"
+            alt_text = "<i>|\u03B4|\u003E</i>0,"
             crit_text = "criteria"
           }else{
             tail_text = "one-sided"
             null_text = "<i>\u03B4=</i>0,"
+            alt_text = "<i>\u03B4\u2260</i>0,"
             crit_text = "criterion"
           }
 
           str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                        "is larger for larger effect sizes. In order for our test and design to have sufficient sensitivity ",
-                       "(power > ", round(power,3),") to detect an effect size of ", d, " or larger, ",
+                       "(power > ", round(power,3),") to detect that ", alt_text, " when the effect size is ", d, " or larger, ",
                        "we would need ", n_text, "."
           )
 
@@ -749,10 +758,12 @@ ttestISClass <- R6::R6Class(
           if(alt == "two.sided"){
             tail_text = "two-sided"
             null_text = "<i>\u03B4=</i>0,"
+            alt_text = "<i>|\u03B4|\u2265</i>"
             crit_text = "criteria"
           }else{
             tail_text = "one-sided"
             null_text = "<i>\u03B4\u2264</i>0,"
+            alt_text = "<i>\u03B4\u2265</i"
             crit_text = "criterion"
           }
 
@@ -766,7 +777,7 @@ ttestISClass <- R6::R6Class(
                        " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
                        "<p>On the other hand, if <i>\u03B4\u2265</i>",d,", the evidence would exceed the criterion ",
                        " &mdash; and hence we would correctly claim that <i>\u03B4\u2265</i>0 &mdash; at least ",
-                       100*round(power,3),"% of the time. The design's power for detecting effects <i>\u03B4\u2265</i>",d,
+                       100*round(power,3),"% of the time. The design's power for detecting effects of ", alt_text, d,
                        " is thus ",round(power,3),".")
 
 

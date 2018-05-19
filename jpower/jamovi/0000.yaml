@@ -1,5 +1,5 @@
 ---
-title: "jpower: Power Analysis for Common Research Designs"
+title: 'jpower: Power Analysis for Common Research Designs'
 name: jpower
 version: 0.1.1
 jms: '1.0'
@@ -9,8 +9,7 @@ authors:
 maintainer: Richard D. Morey <richarddmorey@gmail.com>
 date: '2018-05-08'
 type: R
-description: >-
-  Power analysis for common research designs 
+description: 'Power analysis for common research designs '
 analyses:
   - title: Independent Samples T-Test
     name: ttestIS
