@@ -18,27 +18,22 @@ children:
         type: TextBox
         label: Minimally-interesting effect size
         format: number
-        inputPattern: '[0-9]+'
       - name: power
         type: TextBox
         label: Minimum desired power
         format: number
-        inputPattern: '[0-9]+'
       - name: 'n'
         type: TextBox
         label: N per group
         format: number
-        inputPattern: '[0-9]+'
       - name: k
         type: TextBox
         label: Number of groups
         format: number
-        inputPattern: '[0-9]+'
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
-        inputPattern: '[0-9]+'
   - type: LayoutBox
     margin: large
     stretchFactor: 1

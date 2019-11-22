@@ -191,6 +191,7 @@ ttestOneS <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('ttestOneS requires jmvcore to be installed (restart may be required)')
 
+
     options <- ttestOneSOptions$new(
         calc = calc,
         es = es,
@@ -203,9 +204,6 @@ ttestOneS <- function(
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN,
         text = text)
-
-    results <- ttestOneSResults$new(
-        options = options)
 
     analysis <- ttestOneSClass$new(
         options = options,
