@@ -345,6 +345,7 @@ ttestPS <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('ttestPS requires jmvcore to be installed (restart may be required)')
 
+
     options <- ttestPSOptions$new(
         calc = calc,
         es = es,
@@ -357,9 +358,6 @@ ttestPS <- function(
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN,
         text = text)
-
-    results <- ttestPSResults$new(
-        options = options)
 
     analysis <- ttestPSClass$new(
         options = options,

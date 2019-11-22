@@ -16,25 +16,21 @@ children:
         type: TextBox
         label: Minimally-interesting effect size (&delta;)
         format: number
-        inputPattern: '[0-9]+'
         enable: '(!calc:es)'
       - name: power
         type: TextBox
         label: Minimum desired power
         format: number
-        inputPattern: '[0-9]+'
         enable: '(!calc:power)'
       - name: 'n'
         type: TextBox
         label: N
         format: number
-        inputPattern: '[0-9]+'
         enable: '(!calc:n)'
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
-        inputPattern: '[0-9]+'
         enable: '(!calc:alpha)'
         suggestedValues:
           - value: 0.1

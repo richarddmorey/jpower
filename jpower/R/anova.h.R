@@ -265,6 +265,7 @@ anova <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('anova requires jmvcore to be installed (restart may be required)')
 
+
     options <- anovaOptions$new(
         estype = estype,
         es = es,
@@ -275,9 +276,6 @@ anova <- function(
         powerDist = powerDist,
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN)
-
-    results <- anovaResults$new(
-        options = options)
 
     analysis <- anovaClass$new(
         options = options,

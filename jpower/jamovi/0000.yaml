@@ -10,6 +10,8 @@ maintainer: Richard D. Morey <richarddmorey@gmail.com>
 date: '2018-05-19'
 type: R
 description: 'Power analysis for common research designs '
+usesNative: false
+minApp: 1.0.8
 analyses:
   - title: Independent Samples T-Test
     name: ttestIS
