@@ -17,7 +17,8 @@ jmvTheme <- function() {
 # with large effect sizes - optimization here is
 # better
 pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = c("two.sided", "less", "greater")){
-
+  if(!is.null(power))
+    if(power>=1) stop("Power cannot be 1.")
   if(is.null(d)){
     if(power<sig.level) stop("power < alpha")
     x = try(pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = d, sig.level = sig.level, power = power, alternative = alternative), silent = TRUE)
@@ -62,6 +63,7 @@ pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power =
 
 
 pwr.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
+  if(power>=1) return(Inf)
   fn = Vectorize(function(n1){
     effN = n1 * n_ratio /  (1 + n_ratio)
     df = n1 * (1 + n_ratio) - 2
