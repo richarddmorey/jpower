@@ -19,6 +19,8 @@ ttestISClass <- R6::R6Class(
             alt = self$options$alt
             es = self$options$es
             alpha = self$options$alpha
+            
+            if(pow>=1) stop("Power must be less than 1.")
 
             stats <- list(n1 = n,
                           n2 = ceiling(n_ratio * n),

@@ -22,6 +22,8 @@ ttestPSClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             alt = self$options$alt
             es = self$options$es
             alpha = self$options$alpha
+            
+            if(pow>=1) stop("Power must be less than 1.")
 
             stats <- list(n=n, pow=pow, alt=alt, es=es, alpha=alpha)
 
