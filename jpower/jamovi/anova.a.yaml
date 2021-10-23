@@ -1,12 +1,32 @@
 ---
 name:  anova
-title: ANOVA
+title: Factorial ANOVA
 menuGroup: jpower
 menuSubgroup: ANOVA
 version: '1.0.0'
 jas: '1.2'
 
 options:
+
+    - name: lev_fac_a
+      title: "# Levels for Factor A"
+      type: Integer
+      min: 2
+      default: 3
+      
+    - name: lev_fac_b
+      title: "# Levels for Factor B"
+      type: Integer
+      min: 0
+      max: 99
+      default: 0
+      
+    - name: lev_fac_c
+      title: "# Levels for Factor C"
+      type: Integer
+      min: 0
+      max: 99
+      default: 0
 
     - name: estype
       title: "Effect size type"

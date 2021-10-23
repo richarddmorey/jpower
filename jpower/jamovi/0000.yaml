@@ -19,13 +19,12 @@ analyses:
     menuGroup: jpower
     menuTitle: Independent Samples T-Test
     menuSubgroup: T-Tests
-  - title: ANOVA
+  - title: Factorial ANOVA
     name: anova
     ns: jpower
     menuGroup: jpower
-    menuTitle: ANOVA
+    menuTitle: Factorial ANOVA
     menuSubgroup: ANOVA
-    hidden: true
   - title: Paired Samples T-Test
     name: ttestPS
     ns: jpower

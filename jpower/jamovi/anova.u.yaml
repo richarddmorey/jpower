@@ -5,6 +5,19 @@ stage: 0
 children:
   - type: LayoutBox
     margin: large
+    style: inline
+    children:
+      - type: TextBox
+        name: lev_fac_a
+        format: number
+      - type: TextBox
+        name: lev_fac_b
+        format: number
+      - type: TextBox
+        name: lev_fac_c
+        format: number
+  - type: LayoutBox
+    margin: large
     children:
       - name: estype
         type: ComboBox
