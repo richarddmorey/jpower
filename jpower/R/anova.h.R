@@ -9,6 +9,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             lev_fac_a = 3,
             lev_fac_b = 0,
             lev_fac_c = 0,
+            type_fac_a = "between",
+            type_fac_b = "between",
+            type_fac_c = "between",
             estype = "f",
             es = 0.3,
             power = 0.8,
@@ -42,6 +45,27 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 min=0,
                 max=99,
                 default=0)
+            private$..type_fac_a <- jmvcore::OptionList$new(
+                "type_fac_a",
+                type_fac_a,
+                options=list(
+                    "between",
+                    "within"),
+                default="between")
+            private$..type_fac_b <- jmvcore::OptionList$new(
+                "type_fac_b",
+                type_fac_b,
+                options=list(
+                    "between",
+                    "within"),
+                default="between")
+            private$..type_fac_c <- jmvcore::OptionList$new(
+                "type_fac_c",
+                type_fac_c,
+                options=list(
+                    "between",
+                    "within"),
+                default="between")
             private$..estype <- jmvcore::OptionList$new(
                 "estype",
                 estype,
@@ -91,6 +115,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..lev_fac_a)
             self$.addOption(private$..lev_fac_b)
             self$.addOption(private$..lev_fac_c)
+            self$.addOption(private$..type_fac_a)
+            self$.addOption(private$..type_fac_b)
+            self$.addOption(private$..type_fac_c)
             self$.addOption(private$..estype)
             self$.addOption(private$..es)
             self$.addOption(private$..power)
@@ -105,6 +132,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         lev_fac_a = function() private$..lev_fac_a$value,
         lev_fac_b = function() private$..lev_fac_b$value,
         lev_fac_c = function() private$..lev_fac_c$value,
+        type_fac_a = function() private$..type_fac_a$value,
+        type_fac_b = function() private$..type_fac_b$value,
+        type_fac_c = function() private$..type_fac_c$value,
         estype = function() private$..estype$value,
         es = function() private$..es$value,
         power = function() private$..power$value,
@@ -118,6 +148,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..lev_fac_a = NA,
         ..lev_fac_b = NA,
         ..lev_fac_c = NA,
+        ..type_fac_a = NA,
+        ..type_fac_b = NA,
+        ..type_fac_c = NA,
         ..estype = NA,
         ..es = NA,
         ..power = NA,
@@ -261,6 +294,9 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param lev_fac_a .
 #' @param lev_fac_b .
 #' @param lev_fac_c .
+#' @param type_fac_a .
+#' @param type_fac_b .
+#' @param type_fac_c .
 #' @param estype .
 #' @param es .
 #' @param power .
@@ -289,6 +325,9 @@ anova <- function(
     lev_fac_a = 3,
     lev_fac_b = 0,
     lev_fac_c = 0,
+    type_fac_a = "between",
+    type_fac_b = "between",
+    type_fac_c = "between",
     estype = "f",
     es = 0.3,
     power = 0.8,
@@ -307,6 +346,9 @@ anova <- function(
         lev_fac_a = lev_fac_a,
         lev_fac_b = lev_fac_b,
         lev_fac_c = lev_fac_c,
+        type_fac_a = type_fac_a,
+        type_fac_b = type_fac_b,
+        type_fac_c = type_fac_c,
         estype = estype,
         es = es,
         power = power,

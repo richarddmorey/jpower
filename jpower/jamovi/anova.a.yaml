@@ -9,24 +9,48 @@ jas: '1.2'
 options:
 
     - name: lev_fac_a
-      title: "# Levels for Factor A"
+      title: "Factor A"
       type: Integer
       min: 2
       default: 3
       
     - name: lev_fac_b
-      title: "# Levels for Factor B"
+      title: "Factor B"
       type: Integer
       min: 0
       max: 99
       default: 0
       
     - name: lev_fac_c
-      title: "# Levels for Factor C"
+      title: "Factor C"
       type: Integer
       min: 0
       max: 99
       default: 0
+      
+    - name: type_fac_a
+      title: "Factor A"
+      type: List
+      options:
+        - between
+        - within
+      default: between
+      
+    - name: type_fac_b
+      title: "Factor B"
+      type: List
+      options:
+        - between
+        - within
+      default: between
+      
+    - name: type_fac_c
+      title: "Factor C"
+      type: List
+      options:
+        - between
+        - within
+      default: between
 
     - name: estype
       title: "Effect size type"
