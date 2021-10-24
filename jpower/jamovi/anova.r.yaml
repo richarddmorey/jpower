@@ -4,6 +4,10 @@ title: ANOVA
 jrs:   "1.1"
 
 items:
+
+    - name:  text
+      title: Design
+      type:  Preformatted
       
     - name:  powertab
       title: A Priori Power Analysis

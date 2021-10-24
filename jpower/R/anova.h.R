@@ -178,6 +178,7 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "anovaResults",
     inherit = jmvcore::Group,
     active = list(
+        text = function() private$.items[["text"]],
         powertab = function() private$.items[["powertab"]],
         powerDist = function() private$.items[["powerDist"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
@@ -189,6 +190,10 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="",
                 title="ANOVA")
+            self$add(jmvcore::Preformatted$new(
+                options=options,
+                name="text",
+                title="Test"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -321,6 +326,7 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param num_facs .
 #' @return A results object containing:
 #' \tabular{llllll}{
+#'   \code{results$text} \tab \tab \tab \tab \tab a preformatted \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr

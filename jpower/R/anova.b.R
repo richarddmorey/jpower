@@ -15,6 +15,26 @@ anovaClass <- R6::R6Class(
             k = self$options$k
             alpha = self$options$alpha
             estype = self$options$estype
+            lev_fac_a = self$options$lev_fac_a
+            lev_fac_b = self$options$lev_fac_b
+            lev_fac_c = self$options$lev_fac_c
+            type_fac_a = self$options$type_fac_a
+            type_fac_b = self$options$type_fac_b
+            type_fac_c = self$options$type_fac_c
+            num_facs = self$options$num_facs
+            if(num_facs == "one"){
+                des_string = paste0(lev_fac_a,"*",type_fac_a)
+                
+            } else if(num_Facs == "two"){
+                des_string = paste0(lev_fac_a,"*",type_fac_a)
+                
+            } else {
+                des_string = paste0(lev_fac_a,"*",type_fac_a)
+                
+            }
+            
+            
+            self$results$text$setContent(des_string)
             
             # Convert omega to f
             if (estype == "omega" && es >= 1 )
@@ -90,6 +110,8 @@ anovaClass <- R6::R6Class(
             
             lims <- data.frame(xlim = c(xlims[1], xlims[2]), 
                                ylim = c(0, y.max * 1.1))
+            
+            
             
             image$setState(list(curves=curves, rect=rect, lims=lims))
             
