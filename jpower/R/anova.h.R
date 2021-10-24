@@ -9,9 +9,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             lev_fac_a = 3,
             lev_fac_b = 0,
             lev_fac_c = 0,
-            type_fac_a = "between",
-            type_fac_b = "between",
-            type_fac_c = "between",
+            type_fac_a = "b",
+            type_fac_b = "b",
+            type_fac_c = "b",
             estype = "f",
             es = 0.3,
             power = 0.8,
@@ -20,7 +20,8 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             alpha = 0.05,
             powerDist = TRUE,
             powerCurveES = FALSE,
-            powerCurveN = FALSE, ...) {
+            powerCurveN = FALSE,
+            num_facs = "one", ...) {
 
             super$initialize(
                 package="jpower",
@@ -49,23 +50,23 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "type_fac_a",
                 type_fac_a,
                 options=list(
-                    "between",
-                    "within"),
-                default="between")
+                    "b",
+                    "w"),
+                default="b")
             private$..type_fac_b <- jmvcore::OptionList$new(
                 "type_fac_b",
                 type_fac_b,
                 options=list(
-                    "between",
-                    "within"),
-                default="between")
+                    "b",
+                    "w"),
+                default="b")
             private$..type_fac_c <- jmvcore::OptionList$new(
                 "type_fac_c",
                 type_fac_c,
                 options=list(
-                    "between",
-                    "within"),
-                default="between")
+                    "b",
+                    "w"),
+                default="b")
             private$..estype <- jmvcore::OptionList$new(
                 "estype",
                 estype,
@@ -111,6 +112,14 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "powerCurveN",
                 powerCurveN,
                 default=FALSE)
+            private$..num_facs <- jmvcore::OptionList$new(
+                "num_facs",
+                num_facs,
+                options=list(
+                    "one",
+                    "two",
+                    "three"),
+                default="one")
 
             self$.addOption(private$..lev_fac_a)
             self$.addOption(private$..lev_fac_b)
@@ -127,6 +136,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..powerDist)
             self$.addOption(private$..powerCurveES)
             self$.addOption(private$..powerCurveN)
+            self$.addOption(private$..num_facs)
         }),
     active = list(
         lev_fac_a = function() private$..lev_fac_a$value,
@@ -143,7 +153,8 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         alpha = function() private$..alpha$value,
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
-        powerCurveN = function() private$..powerCurveN$value),
+        powerCurveN = function() private$..powerCurveN$value,
+        num_facs = function() private$..num_facs$value),
     private = list(
         ..lev_fac_a = NA,
         ..lev_fac_b = NA,
@@ -159,7 +170,8 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..alpha = NA,
         ..powerDist = NA,
         ..powerCurveES = NA,
-        ..powerCurveN = NA)
+        ..powerCurveN = NA,
+        ..num_facs = NA)
 )
 
 anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -306,6 +318,7 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param powerDist .
 #' @param powerCurveES .
 #' @param powerCurveN .
+#' @param num_facs .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
@@ -325,9 +338,9 @@ anova <- function(
     lev_fac_a = 3,
     lev_fac_b = 0,
     lev_fac_c = 0,
-    type_fac_a = "between",
-    type_fac_b = "between",
-    type_fac_c = "between",
+    type_fac_a = "b",
+    type_fac_b = "b",
+    type_fac_c = "b",
     estype = "f",
     es = 0.3,
     power = 0.8,
@@ -336,7 +349,8 @@ anova <- function(
     alpha = 0.05,
     powerDist = TRUE,
     powerCurveES = FALSE,
-    powerCurveN = FALSE) {
+    powerCurveN = FALSE,
+    num_facs = "one") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("anova requires jmvcore to be installed (restart may be required)")
@@ -357,7 +371,8 @@ anova <- function(
         alpha = alpha,
         powerDist = powerDist,
         powerCurveES = powerCurveES,
-        powerCurveN = powerCurveN)
+        powerCurveN = powerCurveN,
+        num_facs = num_facs)
 
     analysis <- anovaClass$new(
         options = options,

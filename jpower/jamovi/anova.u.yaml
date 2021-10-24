@@ -3,6 +3,11 @@ name: anova
 jus: '2.0'
 stage: 0
 children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: num_facs
   - type: Label
     label: Define Number of Levels for Each Factor
     children:
@@ -22,16 +27,16 @@ children:
   - type: Label
     label: Define the Type of Factor
     children:
-          - type: LayoutBox
-            margin: large
-            style: inline
-            children:
-              - type: ComboBox
-                name: type_fac_a
-              - type: ComboBox
-                name: type_fac_b
-              - type: ComboBox
-                name: type_fac_c
+      - type: LayoutBox
+        margin: large
+        style: inline
+        children:
+          - type: ComboBox
+            name: type_fac_a
+          - type: ComboBox
+            name: type_fac_b
+          - type: ComboBox
+            name: type_fac_c
   - type: LayoutBox
     margin: large
     children:
@@ -76,6 +81,5 @@ children:
             name: powerCurveES
           - type: CheckBox
             name: powerCurveN
-
 
 compilerMode: tame

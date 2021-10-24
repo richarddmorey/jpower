@@ -36,7 +36,7 @@ options:
           name: b
         - title: within
           name: w
-      default: between
+      default: b
       
     - name: type_fac_b
       title: "Factor B"
@@ -46,7 +46,7 @@ options:
           name: b
         - title: within
           name: w
-      default: between
+      default: b
       
     - name: type_fac_c
       title: "Factor C"
@@ -56,7 +56,7 @@ options:
           name: b
         - title: within
           name: w
-      default: between
+      default: b
 
     - name: estype
       title: "Effect size type"
@@ -111,5 +111,17 @@ options:
       title: Power curve by N
       type: Bool
       default: false
+      
+    - name: num_facs
+      title: "Design"
+      type: List
+      options:
+        - title: "1: one-way ANOVA"
+          name: one
+        - title: "2: two-way ANOVA"
+          name: two
+        - title: "3: three-way ANOVA"
+          name: three
+      default: one
 
 ...
