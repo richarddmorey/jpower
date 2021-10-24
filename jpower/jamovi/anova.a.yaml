@@ -32,24 +32,30 @@ options:
       title: "Factor A"
       type: List
       options:
-        - between
-        - within
+        - title: between
+          name: b
+        - title: within
+          name: w
       default: between
       
     - name: type_fac_b
       title: "Factor B"
       type: List
       options:
-        - between
-        - within
+        - title: between
+          name: b
+        - title: within
+          name: w
       default: between
       
     - name: type_fac_c
       title: "Factor C"
       type: List
       options:
-        - between
-        - within
+        - title: between
+          name: b
+        - title: within
+          name: w
       default: between
 
     - name: estype
