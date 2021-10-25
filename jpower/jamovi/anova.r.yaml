@@ -5,14 +5,53 @@ jrs:   "1.1"
 
 items:
 
-    - name:  text
+    - name:  designtab
       title: Design
-      type:  Preformatted
-      
-    - name:  powertab
-      title: A Priori Power Analysis
       type: Table
       rows:  1
+      clearWith:
+        - lev_fac_a
+        - lev_fac_b
+        - lev_fac_c
+        - type_fac_a
+        - type_fac_b
+        - type_fac_c
+        - n
+      columns:
+        - name: var[type]
+          title: ''
+          type: text
+        - name: var[des]
+          title: ''
+          type: text
+        - name: var[n]
+          title: ''
+          type: number
+        - name: var[n_obs]
+          title: ''
+          type: integer
+        - name: var[n_tot]
+          title: ''
+          type: integer
+        - name: val[type]
+          title: ''
+          type: text
+        - name: val[des]
+          title: ''
+          type: text
+        - name: val[n]
+          title: ''
+          type: integer
+        - name: val[n_obs]
+          title: ''
+          type: integer
+        - name: val[n_tot]
+          title: ''
+          type: integer
+          
+    - name: main
+      title: Factorial ANOVA Power Analysis
+      type: Table
       clearWith:
         - estype
         - es
@@ -20,30 +59,35 @@ items:
         - n
         - k
         - alpha
-      columns:
-        - name: var[n]
-          title: ''
-          type: text
-        - name: var[es]
-          title: ''
-          type: text
-        - name: var[power]
-          title: ''
-          type: text
-        - name: var[alpha]
-          title: ''
-          type: text
-        - name: val[n]
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+      columns:        
+        - name: name
           title: ""
+          type: text
+
+        - name: num_df
+          title: Numerator DF
           type: integer
-        - name: val[es]
-          title: ""
+          
+        - name: den_df
+          title: Denominator DF
+          type: integer
+          
+        - name: cohen_f
+          title: Cohen's f
           type: number
-        - name: val[power]
-          title: ""
+          
+        - name: alpha_level
+          title: Alpha Level
           type: number
-        - name: val[alpha]
-          title: ""
+          
+        - name: power
+          title: "Power (1-Beta)"
           type: number
           
     - name: powerDist

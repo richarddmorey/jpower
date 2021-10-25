@@ -100,7 +100,7 @@ options:
     - name: powerDist
       title: Power demonstration
       type: Bool
-      default: true
+      default: false
       
     - name: powerCurveES
       title: Power curve by effect size

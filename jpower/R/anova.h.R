@@ -18,7 +18,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             n = 20,
             k = 3,
             alpha = 0.05,
-            powerDist = TRUE,
+            powerDist = FALSE,
             powerCurveES = FALSE,
             powerCurveN = FALSE,
             num_facs = "one", ...) {
@@ -103,7 +103,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..powerDist <- jmvcore::OptionBool$new(
                 "powerDist",
                 powerDist,
-                default=TRUE)
+                default=FALSE)
             private$..powerCurveES <- jmvcore::OptionBool$new(
                 "powerCurveES",
                 powerCurveES,
@@ -178,8 +178,8 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "anovaResults",
     inherit = jmvcore::Group,
     active = list(
-        text = function() private$.items[["text"]],
-        powertab = function() private$.items[["powertab"]],
+        designtab = function() private$.items[["designtab"]],
+        main = function() private$.items[["main"]],
         powerDist = function() private$.items[["powerDist"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
         powerCurveN = function() private$.items[["powerCurveN"]]),
@@ -190,37 +190,46 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="",
                 title="ANOVA")
-            self$add(jmvcore::Preformatted$new(
-                options=options,
-                name="text",
-                title="Design"))
             self$add(jmvcore::Table$new(
                 options=options,
-                name="powertab",
-                title="A Priori Power Analysis",
+                name="designtab",
+                title="Design",
                 rows=1,
                 clearWith=list(
-                    "estype",
-                    "es",
-                    "power",
-                    "n",
-                    "k",
-                    "alpha"),
+                    "lev_fac_a",
+                    "lev_fac_b",
+                    "lev_fac_c",
+                    "type_fac_a",
+                    "type_fac_b",
+                    "type_fac_c",
+                    "n"),
                 columns=list(
+                    list(
+                        `name`="var[type]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="var[des]", 
+                        `title`="", 
+                        `type`="text"),
                     list(
                         `name`="var[n]", 
                         `title`="", 
-                        `type`="text"),
+                        `type`="number"),
                     list(
-                        `name`="var[es]", 
+                        `name`="var[n_obs]", 
+                        `title`="", 
+                        `type`="integer"),
+                    list(
+                        `name`="var[n_tot]", 
+                        `title`="", 
+                        `type`="integer"),
+                    list(
+                        `name`="val[type]", 
                         `title`="", 
                         `type`="text"),
                     list(
-                        `name`="var[power]", 
-                        `title`="", 
-                        `type`="text"),
-                    list(
-                        `name`="var[alpha]", 
+                        `name`="val[des]", 
                         `title`="", 
                         `type`="text"),
                     list(
@@ -228,16 +237,54 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="", 
                         `type`="integer"),
                     list(
-                        `name`="val[es]", 
+                        `name`="val[n_obs]", 
                         `title`="", 
+                        `type`="integer"),
+                    list(
+                        `name`="val[n_tot]", 
+                        `title`="", 
+                        `type`="integer"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="main",
+                title="Factorial ANOVA Power Analysis",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "n",
+                    "k",
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a"),
+                columns=list(
+                    list(
+                        `name`="name", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="num_df", 
+                        `title`="Numerator DF", 
+                        `type`="integer"),
+                    list(
+                        `name`="den_df", 
+                        `title`="Denominator DF", 
+                        `type`="integer"),
+                    list(
+                        `name`="cohen_f", 
+                        `title`="Cohen's f", 
                         `type`="number"),
                     list(
-                        `name`="val[power]", 
-                        `title`="", 
+                        `name`="alpha_level", 
+                        `title`="Alpha Level", 
                         `type`="number"),
                     list(
-                        `name`="val[alpha]", 
-                        `title`="", 
+                        `name`="power", 
+                        `title`="Power (1-Beta)", 
                         `type`="number"))))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -326,8 +373,8 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param num_facs .
 #' @return A results object containing:
 #' \tabular{llllll}{
-#'   \code{results$text} \tab \tab \tab \tab \tab a preformatted \cr
-#'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
@@ -335,9 +382,9 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
 #'
-#' \code{results$powertab$asDF}
+#' \code{results$designtab$asDF}
 #'
-#' \code{as.data.frame(results$powertab)}
+#' \code{as.data.frame(results$designtab)}
 #'
 #' @export
 anova <- function(
@@ -353,7 +400,7 @@ anova <- function(
     n = 20,
     k = 3,
     alpha = 0.05,
-    powerDist = TRUE,
+    powerDist = FALSE,
     powerCurveES = FALSE,
     powerCurveN = FALSE,
     num_facs = "one") {

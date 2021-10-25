@@ -93,3 +93,29 @@ power_ftest <- function(num_df = NULL, den_df = NULL,
                  power = power_final, 
                  method = METHOD), class = "power.htest")
 }
+
+
+gen_df_n = function(n,
+                    des_string,
+                    mu_len){
+  des1 = Superpower::ANOVA_design(des_string,
+                                  mu = 1:mu_len,
+                                  sd = 1,
+                                  r = 0.5,
+                                  n = n,
+                                  plot = FALSE)
+  
+  aov1 = suppressMessages({
+    as.data.frame(afex::aov_car(des1$frml1,
+                                data = des1$dataframe)$anova_table)
+  })
+  aov2 = aov1[1:2]
+  colnames(aov2) = c("num_df","den_df")
+  aov2$factor = rownames(aov2)
+  aov2$n = n
+  
+  df_res = data.frame(factor = aov2$factor,
+                      num_df = aov2$num_df,
+                      den_df = aov2$den_df,
+                      n = aov2$n)
+}
