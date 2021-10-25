@@ -1,0 +1,13 @@
+exportPattern("^[[:alpha:]]+")
+
+export(ttestISClass)
+export(ttestISOptions)
+
+export(anovaClass)
+export(anovaOptions)
+
+export(ttestPSClass)
+export(ttestPSOptions)
+
+export(ttestOneSClass)
+export(ttestOneSOptions)

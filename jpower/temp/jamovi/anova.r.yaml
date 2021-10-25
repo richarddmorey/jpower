@@ -1,0 +1,95 @@
+---
+name:  anova
+title: ANOVA
+jrs:   "1.1"
+
+items:
+
+    - name:  text
+      title: Design
+      type:  Preformatted
+      
+    - name:  powertab
+      title: A Priori Power Analysis
+      type: Table
+      rows:  1
+      clearWith:
+        - estype
+        - es
+        - power
+        - n
+        - k
+        - alpha
+      columns:
+        - name: var[n]
+          title: ''
+          type: text
+        - name: var[es]
+          title: ''
+          type: text
+        - name: var[power]
+          title: ''
+          type: text
+        - name: var[alpha]
+          title: ''
+          type: text
+        - name: val[n]
+          title: ""
+          type: integer
+        - name: val[es]
+          title: ""
+          type: number
+        - name: val[power]
+          title: ""
+          type: number
+        - name: val[alpha]
+          title: ""
+          type: number
+          
+    - name: powerDist
+      title: Power Demonstration
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powerDist
+      visible: (powerDist)
+      clearWith:
+        - estype
+        - es
+        - power
+        - n
+        - k
+        - alpha
+      
+      
+    - name: powerCurveES
+      title: Power Curve by Effect Size
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powerCurveES
+      visible: (powerCurveES)
+      clearWith:
+        - estype
+        - es
+        - power
+        - n
+        - k
+        - alpha
+      
+    - name: powerCurveN
+      title: Power Curve by N
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powerCurveN
+      visible: (powerCurveN)
+      clearWith:
+        - estype
+        - es
+        - power
+        - n
+        - k
+        - alpha
+      
+...
