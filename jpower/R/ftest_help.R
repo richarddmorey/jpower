@@ -107,7 +107,8 @@ gen_df_n = function(n,
   
   aov1 = suppressMessages({
     as.data.frame(afex::aov_car(des1$frml1,
-                                data = des1$dataframe)$anova_table)
+                                data = des1$dataframe,
+                                include_aov = FALSE)$anova_table)
   })
   aov2 = aov1[1:2]
   colnames(aov2) = c("num_df","den_df")

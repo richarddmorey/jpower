@@ -12,7 +12,7 @@ anovaClass <- R6::R6Class(
             n = self$options$n
             pow = self$options$power
             es = self$options$es
-            k = self$options$k
+
             alpha = self$options$alpha
             estype = self$options$estype
             lev_fac_a = self$options$lev_fac_a
@@ -28,6 +28,7 @@ anovaClass <- R6::R6Class(
                 mu_len = lev_fac_a
                 n_obs = lev_fac_a*n
                 n_tot = ifelse(type_fac_a == "b", lev_fac_a*n, n)
+                fct_lvls = c("a")
                 des_t = "One-way ANOVA"
                 
             } else if(num_facs == "two"){
@@ -37,6 +38,7 @@ anovaClass <- R6::R6Class(
                 mlt_a = ifelse(type_fac_a == "w", 1, lev_fac_a)
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
                 n_tot = mlt_a*mlt_b
+                fct_lvls = c("a", "b", "a:b")
                 des_t = "Two-way ANOVA"
                 
             } else {
@@ -47,6 +49,7 @@ anovaClass <- R6::R6Class(
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
                 mlt_c = ifelse(type_fac_c == "w", 1, lev_fac_c)
                 n_tot = mlt_a*mlt_b*mlt_c
+                fct_lvls = c("a", "b", "c", "a:b", "a:c", "c:b", "a:c:b")
                 des_t = "Three-way ANOVA"
             }
             des_res2 = gsub("\\*", " x ", des_string)
@@ -63,7 +66,8 @@ anovaClass <- R6::R6Class(
             
             aov1 = suppressMessages({
                 as.data.frame(afex::aov_car(des1$frml1,
-                              data = des1$dataframe)$anova_table)
+                                            data = des1$dataframe,
+                                            include_aov = FALSE)$anova_table)
             })
             aov2 = aov1[1:2]
             colnames(aov2) = c("num_df","den_df")
@@ -102,10 +106,10 @@ anovaClass <- R6::R6Class(
                                 silent = TRUE)
             
             ## Compute numbers for table
-            pow.n = try(pwr::pwr.anova.test(k = k, f = f.es, sig.level = alpha, power = pow)$n, silent=TRUE)
-            pow.es = try(pwr::pwr.anova.test(k = k, n = n, power = pow, sig.level = alpha)$f, silent=TRUE)
-            pow.pow = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = alpha)$power, silent=TRUE)
-            pow.alpha = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = NULL, power = pow)$sig.level, silent=TRUE)
+            #pow.n = try(pwr::pwr.anova.test(k = k, f = f.es, sig.level = alpha, power = pow)$n, silent=TRUE)
+            #pow.es = try(pwr::pwr.anova.test(k = k, n = n, power = pow, sig.level = alpha)$f, silent=TRUE)
+            #pow.pow = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = alpha)$power, silent=TRUE)
+            #pow.alpha = try(pwr::pwr.anova.test(k = k, n = n, f = f.es, sig.level = NULL, power = pow)$sig.level, silent=TRUE)
             
             
             ## Populate table
@@ -135,7 +139,8 @@ anovaClass <- R6::R6Class(
 
             lst2 = list(n = n, n_tot = n_tot, n_obs = n_obs, 
                         des_string = des_string,
-                        des_t = des_t)
+                        des_t = des_t,
+                        fct_lvls = fct_lvls)
             lst3 = list(des_string = des_string,
                         n = n,
                         mu_len = mu_len,
@@ -143,7 +148,8 @@ anovaClass <- R6::R6Class(
                         alpha_level = alpha,
                         n = n, n_tot = n_tot, n_obs = n_obs, 
                         des_string = des_string,
-                        des_t = des_t)
+                        des_t = des_t,
+                        fct_lvls = fct_lvls)
             private$.preparePowerDist(results)
             private$.preparePowerCurveES(results, lst2)
             private$.preparePowerCurveN(lst3)
@@ -181,40 +187,51 @@ anovaClass <- R6::R6Class(
                                 group = NA,
                                 factor = NA)
             for(fac in facs){
+                
+                
+                
+                df1 = results[which(results$factor == fac), ]$num_df
+                df2 = results[which(results$factor == fac), ]$den_df
+                fac2 = paste0(fac, " (df1=", df1, ", df2=", df2, ")")
+                ncp = df2 * results[which(results$factor == fac), ]$cohen_f ^
+                    2
+                
+                crit = qf(p = 1 - results[which(results$factor == fac), ]$alpha_level,
+                          df1 = df1,
+                          df2 = df2)
+            
+                xlims = c(0, qf(.999, df1, df2, ncp))
+                
+                if (df1 > 2) {
+                    y.max <- (df1 - 2) / df1 * df2 / (df2 + 2)
+                } else{
+                    y.max <- .2
+                }
+                
 
-            df1 = results[which(results$factor == fac),]$num_df
-            df2 = results[which(results$factor == fac),]$den_df
-            ncp = df2 * results[which(results$factor == fac),]$cohen_f^2
+                y.max = df(y.max, df1, df2)
+                
+                xx = seq(xlims[1], xlims[2], len = 100)
+                yy.null = df(xx, df1, df2)
+                yy.alt = df(xx, df1, df2, ncp)
             
-            crit = qf(p = 1 - results[which(results$factor == fac),]$alpha_level, 
-                      df1 = df1, df2 = df2)
-            
-            xlims = c(0, qf(.999, df1, df2, ncp))
-            
-            if (df1 > 2){
-                y.max <- (df1 - 2) / df1 * df2 / (df2 + 2)
-            } else{
-                y.max <- .2
-            }
-               
-
-            y.max = df(y.max, df1, df2)
-            
-            xx = seq(xlims[1], xlims[2], len = 100)
-            yy.null = df(xx, df1, df2)
-            yy.alt = df(xx, df1, df2, ncp)
-            
-            curves <- data.frame(x=rep(xx, 2), 
-                                 ymin=rep(0,length(xx)*2), 
-                                 ymax=c(yy.null, yy.alt), 
-                                 group=rep(c('Null', 'Alt'), each=length(xx)),
-                                 factor=fac)
-            app_df = rbind(app_df, curves)
-            rect <- data.frame(x1 = 0, x2 = crit,
-                               y1 = 0, y2 = y.max * 1.1)
-            
-            lims <- data.frame(xlim = c(xlims[1], xlims[2]), 
-                               ylim = c(0, y.max * 1.1))
+                curves <- data.frame(
+                    x = rep(xx, 2),
+                    ymin = rep(0, length(xx) * 2),
+                    ymax = c(yy.null, yy.alt),
+                    group = rep(c('Null', 'Alt'), each = length(xx)),
+                    factor = fac2
+                )
+                app_df = rbind(app_df, curves)
+                rect <- data.frame(
+                    x1 = 0,
+                    x2 = crit,
+                    y1 = 0,
+                    y2 = y.max * 1.1
+                )
+                
+                lims <- data.frame(xlim = c(xlims[1], xlims[2]),
+                                   ylim = c(0, y.max * 1.1))
             
             }
             
@@ -236,9 +253,9 @@ anovaClass <- R6::R6Class(
                     axis.text.y = ggplot2::element_blank(),
                     axis.ticks.y = ggplot2::element_blank(),
                     legend.position = "none",
-                    strip.text = element_text(face = "bold", 
-                                              size = rel(1.1)),
-                    strip.background = element_rect(
+                    strip.text = ggplot2::element_text(face = "bold", 
+                                              size = ggplot2::rel(1.1)),
+                    strip.background = ggplot2::element_rect(
                         fill = "lightgrey",
                         colour = "black",
                         size = 1
@@ -252,16 +269,16 @@ anovaClass <- R6::R6Class(
                                                   fill=group), alpha=.6) +
                 ggplot2::geom_rect(data=rect, ggplot2::aes(xmin=x1, xmax=x2, 
                                                            ymin=y1, ymax=y2),
-                                   fill='white', alpha = 0.55) +
+                                   fill='white', alpha = 0.3) +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x1),
                                     linetype = 'dashed') +
                 ggplot2::geom_vline(data=rect, ggplot2::aes(xintercept = x2),
                                     linetype = 'dashed') +
                 ggplot2::coord_cartesian(xlim = lims$xlim, ylim = lims$ylim, 
                                          expand = FALSE) +
-                ggplot2::labs(x=expression(paste(italic("F"), " statistic")),
+                ggplot2::labs(x=paste0("F statistic"),
                               y='Probability Density') +
-                facet_wrap(~factor) +
+                ggplot2::facet_wrap(~factor) +
                 ggtheme + themeSpec
             
             print(p)
@@ -349,15 +366,15 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y)) +
                 ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
-                ggplot2::labs(x=paste0("Cohen's", paste0(italic("f"))," = ", lst$cohen_f), y='Power', title = lst2$des_t,
+                ggplot2::labs(x=paste0("Cohen's f = ", lst$cohen_f), y='Power', title = lst2$des_t,
                               subtitle = des_res5,
                               caption = paste0("Number of Subjects: ",lst2$n_tot)) +
-                facet_wrap(~factor) +
+                ggplot2::facet_wrap(~factor) +
                 ggtheme +
                 ggplot2::theme(legend.position="none",
-                               strip.text = element_text(face = "bold", 
-                                                         size = rel(1.1)),
-                               strip.background = element_rect(
+                               strip.text = ggplot2::element_text(face = "bold", 
+                                                         size = ggplot2::rel(1.1)),
+                               strip.background = ggplot2::element_rect(
                                    fill = "lightgrey",
                                    colour = "black",
                                    size = 1
@@ -441,6 +458,12 @@ anovaClass <- R6::R6Class(
             des_res4 = gsub("b", "-levels between", des_res3)
             des_res5 = gsub("x", "by", des_res4)
             
+            #rects$factor = factor(rects$factor,
+            #                      levels = lst$fct_lvls)
+            point$factor = factor(point$factor,
+                                  levels = lst$fct_lvls)
+            curve$factor = factor(curve$factor,
+                                  levels = lst$fct_lvls)
             p <- ggplot2::ggplot() +
                 ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, 
                                                             ymin=y1, ymax=y2, 
@@ -460,16 +483,16 @@ anovaClass <- R6::R6Class(
                 ggplot2::labs(x='Sample Size (per condition)', y='Power', 
                               title = lst$des_t,
                               subtitle = des_res5,
-                              caption = paste0("Cohen's", paste0(italic("f"))," = ", lst$cohen_f) )+
-                facet_wrap(~factor) +
+                              caption = paste0("Cohen's f = ", lst$cohen_f) )+
+                ggplot2::facet_wrap(~factor) +
                 ggplot2::scale_y_continuous(limits = c(0,1.02),
                                             breaks = seq(0,1,.2)) +
                 ggplot2::scale_x_continuous(limits = limset$xlim) +
                 ggtheme +
                 ggplot2::theme(legend.position="none",
-                               strip.text = element_text(face = "bold", 
-                                                         size = rel(1.1)),
-                               strip.background = element_rect(
+                               strip.text = ggplot2::element_text(face = "bold", 
+                                                         size = ggplot2::rel(1.1)),
+                               strip.background = ggplot2::element_rect(
                                    fill = "lightgrey",
                                    colour = "black",
                                    size = 1

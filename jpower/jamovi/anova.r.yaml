@@ -26,13 +26,13 @@ items:
           type: text
         - name: var[n]
           title: ''
-          type: number
+          type: text
         - name: var[n_obs]
           title: ''
-          type: integer
+          type: text
         - name: var[n_tot]
           title: ''
-          type: integer
+          type: text
         - name: val[type]
           title: ''
           type: text
@@ -55,9 +55,7 @@ items:
       clearWith:
         - estype
         - es
-        - power
         - n
-        - k
         - alpha
         - lev_fac_c
         - lev_fac_b
@@ -65,6 +63,7 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
+        - num_facs
       columns:        
         - name: name
           title: ""
@@ -93,47 +92,59 @@ items:
     - name: powerDist
       title: Power Demonstration
       type: Image
-      width:  400
-      height: 300
+      width:  600
+      height: 600
       renderFun: .powerDist
       visible: (powerDist)
       clearWith:
         - estype
         - es
-        - power
-        - n
-        - k
+        - num_facs
         - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
       
       
     - name: powerCurveES
       title: Power Curve by Effect Size
       type: Image
-      width:  400
-      height: 300
+      width:  600
+      height: 600
       renderFun: .powerCurveES
       visible: (powerCurveES)
       clearWith:
         - estype
         - es
         - power
-        - n
-        - k
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
         - alpha
       
     - name: powerCurveN
       title: Power Curve by N
       type: Image
-      width:  400
-      height: 300
+      width:  600
+      height: 600
       renderFun: .powerCurveN
       visible: (powerCurveN)
       clearWith:
         - estype
         - es
         - power
-        - n
-        - k
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
         - alpha
       
 ...
