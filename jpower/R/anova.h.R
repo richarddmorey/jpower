@@ -7,8 +7,8 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             lev_fac_a = 3,
-            lev_fac_b = 0,
-            lev_fac_c = 0,
+            lev_fac_b = 2,
+            lev_fac_c = 2,
             type_fac_a = "b",
             type_fac_b = "b",
             type_fac_c = "b",
@@ -37,15 +37,15 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..lev_fac_b <- jmvcore::OptionInteger$new(
                 "lev_fac_b",
                 lev_fac_b,
-                min=0,
+                min=2,
                 max=99,
-                default=0)
+                default=2)
             private$..lev_fac_c <- jmvcore::OptionInteger$new(
                 "lev_fac_c",
                 lev_fac_c,
-                min=0,
+                min=2,
                 max=99,
-                default=0)
+                default=2)
             private$..type_fac_a <- jmvcore::OptionList$new(
                 "type_fac_a",
                 type_fac_a,
@@ -400,8 +400,8 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @export
 anova <- function(
     lev_fac_a = 3,
-    lev_fac_b = 0,
-    lev_fac_c = 0,
+    lev_fac_b = 2,
+    lev_fac_c = 2,
     type_fac_a = "b",
     type_fac_b = "b",
     type_fac_c = "b",

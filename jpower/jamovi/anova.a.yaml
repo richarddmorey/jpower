@@ -17,16 +17,16 @@ options:
     - name: lev_fac_b
       title: "Factor B"
       type: Integer
-      min: 0
+      min: 2
       max: 99
-      default: 0
+      default: 2
       
     - name: lev_fac_c
       title: "Factor C"
       type: Integer
-      min: 0
+      min: 2
       max: 99
-      default: 0
+      default: 2
       
     - name: type_fac_a
       title: "Factor A"

@@ -131,13 +131,11 @@ anovaClass <- R6::R6Class(
             
             pow_tab$dpow = pow
             results <- pow_tab
-
-            private$.populateMainTable(results)
             
-            
-            ## Prepare plots
+            ## Prepare plots and populate table
 
             lst2 = list(n = n, n_tot = n_tot, n_obs = n_obs, 
+                        cohen_f = f.es,
                         des_string = des_string,
                         des_t = des_t,
                         fct_lvls = fct_lvls)
@@ -150,15 +148,16 @@ anovaClass <- R6::R6Class(
                         des_string = des_string,
                         des_t = des_t,
                         fct_lvls = fct_lvls)
+            private$.populateMainTable(results, lst2)
             private$.preparePowerDist(results)
             private$.preparePowerCurveES(results, lst2)
             private$.preparePowerCurveN(lst3)
             
         },
-        .populateMainTable = function(results) {
+        .populateMainTable = function(results, lst2) {
             
             table <- self$results$main
-            facs = results$factor
+            facs = lst2$fct_lvls
             
             for(fac in facs){
                 res = results[which(results$factor == fac),]
@@ -253,8 +252,7 @@ anovaClass <- R6::R6Class(
                     axis.text.y = ggplot2::element_blank(),
                     axis.ticks.y = ggplot2::element_blank(),
                     legend.position = "none",
-                    strip.text = ggplot2::element_text(face = "bold", 
-                                              size = ggplot2::rel(1.1)),
+                    strip.text = ggplot2::element_text(size = ggplot2::rel(1.1)),
                     strip.background = ggplot2::element_rect(
                         fill = "lightgrey",
                         colour = "black",
@@ -291,7 +289,8 @@ anovaClass <- R6::R6Class(
             
             ff = seq(0, 1, len = 100)
             
-            facs = results$factor
+            facs = factor(results$factor,
+                          levels = lst2$fct_lvls)
             #fac = "a"
             app_curve = data.frame(
                 x = NA,
@@ -309,7 +308,8 @@ anovaClass <- R6::R6Class(
             for(fac in facs){
 
                 res = results[which(results$factor == fac), ]
-                fac2 = paste0(fac," (df1=",res$num_df, ", df2=", res$den_df, ")")
+                fac2 = fac
+                dof = paste0("df1=",res$num_df, ", df2=", res$den_df)
                 y = power_ftest(
                     num_df = res$num_df,
                     den_df = res$den_df,
@@ -325,12 +325,15 @@ anovaClass <- R6::R6Class(
                     beta_level = NULL
                 )$power / 100
                 
-                curve <- data.frame(x = ff, y = y, factor = fac2)
+                curve <- data.frame(x = ff, y = y, 
+                                    factor = fac2, 
+                                    dof = dof)
                 app_curve = rbind(curve, app_curve)
                 
                 point <- data.frame(x = res$cohen_f,
                                     y = y.at,
-                                    factor = fac2)
+                                    factor = fac2,
+                                    dof = dof)
                 app_point = rbind(app_point, point)
 
             }
@@ -356,6 +359,10 @@ anovaClass <- R6::R6Class(
             des_res3 = gsub("w", "-levels within", des_res2)
             des_res4 = gsub("b", "-levels between", des_res3)
             des_res5 = gsub("x", "by", des_res4)
+            point$factor = factor(point$factor,
+                                  levels = lst2$fct_lvls)
+            curve$factor = factor(curve$factor,
+                                  levels = lst2$fct_lvls)
             p <- ggplot2::ggplot() +
                 ggplot2::geom_rect(data=rects, ggplot2::aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2, fill=group), alpha = 0.3) +
                 ggplot2::geom_line(data=curve, ggplot2::aes(x=x, y=y)) +
@@ -366,14 +373,13 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y)) +
                 ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
-                ggplot2::labs(x=paste0("Cohen's f = ", lst$cohen_f), y='Power', title = lst2$des_t,
+                ggplot2::labs(x=paste0("Cohen's f = ", lst2$cohen_f), y='Power', title = lst2$des_t,
                               subtitle = des_res5,
                               caption = paste0("Number of Subjects: ",lst2$n_tot)) +
-                ggplot2::facet_wrap(~factor) +
+                ggplot2::facet_wrap(ggplot2::vars(factor,dof)) +
                 ggtheme +
                 ggplot2::theme(legend.position="none",
-                               strip.text = ggplot2::element_text(face = "bold", 
-                                                         size = ggplot2::rel(1.1)),
+                               strip.text = ggplot2::element_text(size = ggplot2::rel(1.1)),
                                strip.background = ggplot2::element_rect(
                                    fill = "lightgrey",
                                    colour = "black",
@@ -424,11 +430,13 @@ anovaClass <- R6::R6Class(
             
             curve <- data.frame(x=app_df$n, 
                                 y=app_df$power,
-                                factor = app_df$factor)
+                                factor = factor(app_df$factor,
+                                                levels = lst$fct_lvls))
             
             point <- data.frame(x=pow_at_n$n,
                                 y=pow_at_n$power,
-                                factor = pow_at_n$factor)
+                                factor = factor(pow_at_n$factor,
+                                                levels = lst$fct_lvls))
             
             rects <- data.frame(x1 = c(n_min, n_min), x2 = c(xmax, xmax),
                                 y1 = c(0, self$options$power), 
@@ -490,8 +498,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::scale_x_continuous(limits = limset$xlim) +
                 ggtheme +
                 ggplot2::theme(legend.position="none",
-                               strip.text = ggplot2::element_text(face = "bold", 
-                                                         size = ggplot2::rel(1.1)),
+                               strip.text = ggplot2::element_text(size = ggplot2::rel(1.1)),
                                strip.background = ggplot2::element_rect(
                                    fill = "lightgrey",
                                    colour = "black",
