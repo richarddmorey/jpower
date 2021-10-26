@@ -12,6 +12,9 @@ anovaClass <- R6::R6Class(
             n = self$options$n
             pow = self$options$power
             es = self$options$es
+            dep <- self$options$get("dep")
+            cohen_fs <- as.vector(self$data[[dep]])
+            cohen_fs <- cohen_fs[!is.na(cohen_fs)]
 
             alpha = self$options$alpha
             estype = 'f' #self$options$estype
@@ -30,6 +33,9 @@ anovaClass <- R6::R6Class(
                 n_tot = ifelse(type_fac_a == "b", lev_fac_a*n, n)
                 fct_lvls = c("a")
                 des_t = "One-way ANOVA"
+                if(length(cohen_fs) != 1){
+                    stop("Exactly 1 effect size must be provided for one-way ANOVA")
+                }
                 
             } else if(num_facs == "two"){
                 des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b)
@@ -40,6 +46,9 @@ anovaClass <- R6::R6Class(
                 n_tot = mlt_a*mlt_b
                 fct_lvls = c("a", "b", "a:b")
                 des_t = "Two-way ANOVA"
+                if(length(cohen_fs) != 2){
+                    stop("Exactly 2 effect size must be provided for two-way ANOVA")
+                }
                 
             } else {
                 des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b,"*",lev_fac_c,type_fac_c)
@@ -51,13 +60,16 @@ anovaClass <- R6::R6Class(
                 n_tot = mlt_a*mlt_b*mlt_c
                 fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
                 des_t = "Three-way ANOVA"
+                if(length(cohen_fs) != 3){
+                    stop("Exactly 3 effect size must be provided for three-way ANOVA")
+                }
             }
             des_res2 = gsub("\\*", " x ", des_string)
             des_res3 = gsub("w", "-levels within", des_res2)
             des_res4 = gsub("b", "-levels between", des_res3)
             des_res5 = gsub("x", "by", des_res4)
             
-            des1 = Superpower::ANOVA_design(des_string,
+            des1 = Superpower::ANOVA_design(design = des_string,
                                             mu = 1:mu_len,
                                             sd = 1,
                                             r = 0.5,
@@ -95,7 +107,7 @@ anovaClass <- R6::R6Class(
             pow_tab = data.frame(factor = aov2$factor,
                                  num_df = aov2$num_df,
                                  den_df = aov2$den_df,
-                                 cohen_f = rep(f.es, length(aov2$factor)),
+                                 cohen_f = cohen_fs,
                                  alpha_level = rep(alpha, length(aov2$factor)),
                                  power = NA)
             pow_tab$power = try(power_ftest(num_df = pow_tab$num_df,

@@ -8,6 +8,19 @@ jas: '1.2'
 
 options:
 
+    - name: data
+      type: Data
+      title: Column with Effect Sizes
+
+    - name: dep
+      title: Effect Sizes
+      type: Variable
+      suggested:
+        - continuous
+      permitted:
+        - numeric
+      rejectInf: true
+
     - name: lev_fac_a
       title: "Factor A"
       type: Integer
