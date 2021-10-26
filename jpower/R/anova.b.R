@@ -13,7 +13,7 @@ anovaClass <- R6::R6Class(
             pow = self$options$power
             es = self$options$es
             dep <- self$options$get("dep")
-            cohen_fs <- as.vector(self$data[[dep]])
+            cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
             cohen_fs <- cohen_fs[!is.na(cohen_fs)]
 
             alpha = self$options$alpha
@@ -163,7 +163,7 @@ anovaClass <- R6::R6Class(
             private$.populateMainTable(results, lst2)
             private$.preparePowerDist(results, lst2)
             private$.preparePowerCurveES(results, lst2)
-            private$.preparePowerCurveN(lst3)
+            private$.preparePowerCurveN(results, lst3)
             
         },
         .populateMainTable = function(results, lst2) {
@@ -310,14 +310,16 @@ anovaClass <- R6::R6Class(
             app_curve = data.frame(
                 x = NA,
                 y = NA,
-                factor = NA
+                factor = NA,
+                cohen_f =NA
             )
             app_curve = app_curve[FALSE,]
             
             app_point = data.frame(
                 x = NA,
                 y = NA,
-                factor = NA
+                factor = NA,
+                cohen_f =NA
             )
             app_point = app_point[FALSE,]
             for(fac in facs){
@@ -325,6 +327,7 @@ anovaClass <- R6::R6Class(
                 res = results[which(results$factor == fac), ]
                 fac2 = fac
                 dof = paste0("df1=",res$num_df, ", df2=", res$den_df)
+                
                 y = power_ftest(
                     num_df = res$num_df,
                     den_df = res$den_df,
@@ -388,7 +391,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_segment(data=point, ggplot2::aes(x=x, xend=x, y=0, yend=y)) +
                 ggplot2::geom_point(data=point, ggplot2::aes(x, y), size = 3) +
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
-                ggplot2::labs(x=paste0("Cohen's f = ", lst2$cohen_f), y='Power', title = lst2$des_t,
+                ggplot2::labs(x="Cohen's f", y='Power', title = lst2$des_t,
                               subtitle = des_res5,
                               caption = paste0("Number of Subjects: ",lst2$n_tot)) +
                 ggplot2::facet_wrap(ggplot2::vars(factor,dof)) +
@@ -407,7 +410,7 @@ anovaClass <- R6::R6Class(
             TRUE
             
         },
-        .preparePowerCurveN = function(lst) {
+        .preparePowerCurveN = function(results, lst) {
             
             image <- self$results$powerCurveN
             n_max = 100
@@ -505,9 +508,8 @@ anovaClass <- R6::R6Class(
                 ggplot2::geom_hline(yintercept = pow, linetype = 'dashed') +
                 ggplot2::labs(x='Sample Size (per condition)', y='Power', 
                               title = lst$des_t,
-                              subtitle = des_res5,
-                              caption = paste0("Cohen's f = ", lst$cohen_f) )+
-                ggplot2::facet_wrap(~factor) +
+                              subtitle = des_res5)+
+                ggplot2::facet_wrap(ggplot2::vars(factor)) +
                 ggplot2::scale_y_continuous(limits = c(0,1.02),
                                             breaks = seq(0,1,.2)) +
                 ggplot2::scale_x_continuous(limits = limset$xlim) +
