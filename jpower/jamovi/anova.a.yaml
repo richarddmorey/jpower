@@ -58,13 +58,13 @@ options:
           name: w
       default: b
 
-    - name: estype
-      title: "Effect size type"
-      type: List
-      options:
-        - f
-        - omega
-      default: f
+    #- name: estype
+    #  title: "Effect size type"
+    #  type: List
+    #  options:
+    #    - f
+    #    - omega
+    #  default: f
 
     - name: es
       title: "Minimally-interesting effect size"
@@ -84,12 +84,6 @@ options:
       type: Integer
       min: 2
       default: 20
-      
-    - name: k
-      title: "Number of groups"
-      type: Integer
-      min: 2
-      default: 3
       
     - name: alpha
       title: "&alpha; (type I error rate)"

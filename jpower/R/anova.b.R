@@ -14,7 +14,7 @@ anovaClass <- R6::R6Class(
             es = self$options$es
 
             alpha = self$options$alpha
-            estype = self$options$estype
+            estype = 'f' #self$options$estype
             lev_fac_a = self$options$lev_fac_a
             lev_fac_b = self$options$lev_fac_b
             lev_fac_c = self$options$lev_fac_c
@@ -49,7 +49,7 @@ anovaClass <- R6::R6Class(
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
                 mlt_c = ifelse(type_fac_c == "w", 1, lev_fac_c)
                 n_tot = mlt_a*mlt_b*mlt_c
-                fct_lvls = c("a", "b", "c", "a:b", "a:c", "c:b", "a:c:b")
+                fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
                 des_t = "Three-way ANOVA"
             }
             des_res2 = gsub("\\*", " x ", des_string)
@@ -149,7 +149,7 @@ anovaClass <- R6::R6Class(
                         des_t = des_t,
                         fct_lvls = fct_lvls)
             private$.populateMainTable(results, lst2)
-            private$.preparePowerDist(results)
+            private$.preparePowerDist(results, lst2)
             private$.preparePowerCurveES(results, lst2)
             private$.preparePowerCurveN(lst3)
             
@@ -175,23 +175,23 @@ anovaClass <- R6::R6Class(
     
         
         #### Plot functions ----
-        .preparePowerDist = function(results) {
+        .preparePowerDist = function(results, lst2) {
             
             image <- self$results$powerDist
             facs = results$factor
-            fac = "a"
+            #fac = "a"
             app_df = data.frame(x = NA,
                                 ymax = NA,
                                 ymin = NA,
                                 group = NA,
-                                factor = NA)
+                                factor = NA,
+                                dof = NA)
             for(fac in facs){
-                
-                
-                
+
                 df1 = results[which(results$factor == fac), ]$num_df
                 df2 = results[which(results$factor == fac), ]$den_df
-                fac2 = paste0(fac, " (df1=", df1, ", df2=", df2, ")")
+                fac2 = fac
+                dof = paste0("df1=",df1, ", df2=", df2)
                 ncp = df2 * results[which(results$factor == fac), ]$cohen_f ^
                     2
                 
@@ -207,7 +207,6 @@ anovaClass <- R6::R6Class(
                     y.max <- .2
                 }
                 
-
                 y.max = df(y.max, df1, df2)
                 
                 xx = seq(xlims[1], xlims[2], len = 100)
@@ -219,7 +218,8 @@ anovaClass <- R6::R6Class(
                     ymin = rep(0, length(xx) * 2),
                     ymax = c(yy.null, yy.alt),
                     group = rep(c('Null', 'Alt'), each = length(xx)),
-                    factor = fac2
+                    factor = fac2,
+                    dof = dof
                 )
                 app_df = rbind(app_df, curves)
                 rect <- data.frame(
@@ -233,6 +233,9 @@ anovaClass <- R6::R6Class(
                                    ylim = c(0, y.max * 1.1))
             
             }
+            
+            app_df$factor = factor(app_df$factor,
+                                   levels = lst2$fct_lvls)
             
             image$setState(list(curves=app_df, rect=rect, lims=lims))
             
@@ -276,7 +279,7 @@ anovaClass <- R6::R6Class(
                                          expand = FALSE) +
                 ggplot2::labs(x=paste0("F statistic"),
                               y='Probability Density') +
-                ggplot2::facet_wrap(~factor) +
+                ggplot2::facet_wrap(ggplot2::vars(factor,dof)) +
                 ggtheme + themeSpec
             
             print(p)

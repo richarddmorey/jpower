@@ -12,11 +12,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             type_fac_a = "b",
             type_fac_b = "b",
             type_fac_c = "b",
-            estype = "f",
             es = 0.3,
             power = 0.8,
             n = 20,
-            k = 3,
             alpha = 0.05,
             powerDist = FALSE,
             powerCurveES = FALSE,
@@ -67,13 +65,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b",
                     "w"),
                 default="b")
-            private$..estype <- jmvcore::OptionList$new(
-                "estype",
-                estype,
-                options=list(
-                    "f",
-                    "omega"),
-                default="f")
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
@@ -90,11 +81,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 n,
                 min=2,
                 default=20)
-            private$..k <- jmvcore::OptionInteger$new(
-                "k",
-                k,
-                min=2,
-                default=3)
             private$..alpha <- jmvcore::OptionNumber$new(
                 "alpha",
                 alpha,
@@ -127,11 +113,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..type_fac_a)
             self$.addOption(private$..type_fac_b)
             self$.addOption(private$..type_fac_c)
-            self$.addOption(private$..estype)
             self$.addOption(private$..es)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
-            self$.addOption(private$..k)
             self$.addOption(private$..alpha)
             self$.addOption(private$..powerDist)
             self$.addOption(private$..powerCurveES)
@@ -145,11 +129,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         type_fac_a = function() private$..type_fac_a$value,
         type_fac_b = function() private$..type_fac_b$value,
         type_fac_c = function() private$..type_fac_c$value,
-        estype = function() private$..estype$value,
         es = function() private$..es$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
-        k = function() private$..k$value,
         alpha = function() private$..alpha$value,
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
@@ -162,11 +144,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..type_fac_a = NA,
         ..type_fac_b = NA,
         ..type_fac_c = NA,
-        ..estype = NA,
         ..es = NA,
         ..power = NA,
         ..n = NA,
-        ..k = NA,
         ..alpha = NA,
         ..powerDist = NA,
         ..powerCurveES = NA,
@@ -372,11 +352,9 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param type_fac_a .
 #' @param type_fac_b .
 #' @param type_fac_c .
-#' @param estype .
 #' @param es .
 #' @param power .
 #' @param n .
-#' @param k .
 #' @param alpha .
 #' @param powerDist .
 #' @param powerCurveES .
@@ -405,11 +383,9 @@ anova <- function(
     type_fac_a = "b",
     type_fac_b = "b",
     type_fac_c = "b",
-    estype = "f",
     es = 0.3,
     power = 0.8,
     n = 20,
-    k = 3,
     alpha = 0.05,
     powerDist = FALSE,
     powerCurveES = FALSE,
@@ -427,11 +403,9 @@ anova <- function(
         type_fac_a = type_fac_a,
         type_fac_b = type_fac_b,
         type_fac_c = type_fac_c,
-        estype = estype,
         es = es,
         power = power,
         n = n,
-        k = k,
         alpha = alpha,
         powerDist = powerDist,
         powerCurveES = powerCurveES,

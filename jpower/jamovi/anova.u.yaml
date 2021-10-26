@@ -40,14 +40,6 @@ children:
   - type: LayoutBox
     margin: large
     children:
-      - name: estype
-        type: ComboBox
-        label: Effect size type
-        options:
-          - title: f
-            name: f
-          - title: ω²
-            name: omega
       - name: es
         type: TextBox
         label: Minimally-interesting effect size
@@ -60,14 +52,17 @@ children:
         type: TextBox
         label: N per group
         format: number
-      - name: k
-        type: TextBox
-        label: Number of groups
-        format: number
       - name: alpha
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
+  - type: CollapseBox
+    label: Plot Distribution
+    name: spanel
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: powerDist
   - type: LayoutBox
     margin: large
     stretchFactor: 1
@@ -76,10 +71,7 @@ children:
         label: Plots
         children:
           - type: CheckBox
-            name: powerDist
-          - type: CheckBox
             name: powerCurveES
           - type: CheckBox
             name: powerCurveN
-
 compilerMode: tame
