@@ -97,7 +97,8 @@ power_ftest <- function(num_df = NULL, den_df = NULL,
 
 gen_df_n = function(n,
                     des_string,
-                    mu_len){
+                    mu_len,
+                    cohen_f){
   des1 = Superpower::ANOVA_design(des_string,
                                   mu = 1:mu_len,
                                   sd = 1,

@@ -286,6 +286,7 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 renderFun=".powerDist",
                 visible="(powerDist)",
                 clearWith=list(
+                    "dep",
                     "estype",
                     "es",
                     "num_facs",
@@ -333,7 +334,8 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
-                    "alpha")))}))
+                    "alpha",
+                    "dep")))}))
 
 anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "anovaBase",

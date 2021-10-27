@@ -147,14 +147,14 @@ anovaClass <- R6::R6Class(
             ## Prepare plots and populate table
 
             lst2 = list(n = n, n_tot = n_tot, n_obs = n_obs, 
-                        cohen_f = f.es,
+                        cohen_f = cohen_fs,
                         des_string = des_string,
                         des_t = des_t,
                         fct_lvls = fct_lvls)
             lst3 = list(des_string = des_string,
                         n = n,
                         mu_len = mu_len,
-                        cohen_f = f.es,
+                        cohen_f = cohen_fs,
                         alpha_level = alpha,
                         n = n, n_tot = n_tot, n_obs = n_obs, 
                         des_string = des_string,
@@ -434,6 +434,7 @@ anovaClass <- R6::R6Class(
                     des_string = lst$des_string,
                     mu_len = lst$mu_len
                 )
+                df_res$cohen_f = paste0("Cohen's f = ",lst$cohen_f)
                 app_df = rbind(app_df, df_res)
             }
             
@@ -449,12 +450,14 @@ anovaClass <- R6::R6Class(
             curve <- data.frame(x=app_df$n, 
                                 y=app_df$power,
                                 factor = factor(app_df$factor,
-                                                levels = lst$fct_lvls))
+                                                levels = lst$fct_lvls),
+                                cohen_f = app_df$cohen_f)
             
             point <- data.frame(x=pow_at_n$n,
                                 y=pow_at_n$power,
                                 factor = factor(pow_at_n$factor,
-                                                levels = lst$fct_lvls))
+                                                levels = lst$fct_lvls),
+                                cohen_f = app_df$cohen_f)
             
             rects <- data.frame(x1 = c(n_min, n_min), x2 = c(xmax, xmax),
                                 y1 = c(0, self$options$power), 
@@ -509,7 +512,7 @@ anovaClass <- R6::R6Class(
                 ggplot2::labs(x='Sample Size (per condition)', y='Power', 
                               title = lst$des_t,
                               subtitle = des_res5)+
-                ggplot2::facet_wrap(ggplot2::vars(factor)) +
+                ggplot2::facet_wrap(ggplot2::vars(factor,cohen_f)) +
                 ggplot2::scale_y_continuous(limits = c(0,1.02),
                                             breaks = seq(0,1,.2)) +
                 ggplot2::scale_x_continuous(limits = limset$xlim) +

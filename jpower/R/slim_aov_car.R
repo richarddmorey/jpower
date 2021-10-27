@@ -4,17 +4,18 @@
 # @importFrom lme4 findbars nobars 
 # @importFrom stats terms as.formula xtabs contrasts<- coef
 
-aov_car <- function(formula, 
-                    data, 
-                    fun_aggregate = NULL, 
-                    type = afex_options("type"), 
-                    factorize = afex_options("factorize"), 
-                    check_contrasts = afex_options("check_contrasts"), 
-                    observed = NULL, 
-                    anova_table = list(), 
-                    include_aov = afex_options("include_aov"),
-                    return = afex_options("return_aov"), 
-                    ...) {
+slim_aov_car <- function(formula,
+                         data,
+                         fun_aggregate = NULL,
+                         type = 3,
+                         factorize = TRUE,
+                         check_contrasts = TRUE,
+                         observed = NULL,
+                         anova_table = list(),
+                         include_aov = FALSE,
+                         return = "afex_aov",
+                         ...)
+{
   return <- match.arg(return, 
                       c("Anova", "lm", "data", "nice", "afex_aov", 
                         "univariate", "marginal", "aov"))
@@ -315,7 +316,7 @@ aov_car <- function(formula,
       ) 
     }
     if (return == "lm") return(tmp.lm)
-    Anova.out <- Anova(tmp.lm, 
+    Anova.out <- car::Anova(tmp.lm, 
                        idata = idata, 
                        idesign = as.formula(paste0("~", rh3)), 
                        type = type)
@@ -334,7 +335,7 @@ aov_car <- function(formula,
       ) 
     }
     if (return == "lm") return(tmp.lm)
-    Anova.out <- Anova(tmp.lm, type = type)
+    Anova.out <- car::Anova(tmp.lm, type = type)
   }
   if (return == "afex_aov") {
     afex_aov <- list(
