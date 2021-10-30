@@ -4,8 +4,87 @@ title: Factorial ANOVA
 jrs:   '1.1'
 
 items:
-    - name:  text
-      title: Factorial ANOVA
-      type:  Preformatted
+    - name:  designtab
+      title: Design
+      type: Table
+      rows:  1
+      clearWith:
+        - lev_fac_a
+        - lev_fac_b
+        - lev_fac_c
+        - type_fac_a
+        - type_fac_b
+        - type_fac_c
+        - n
+      columns:
+        - name: var[type]
+          title: ''
+          type: text
+        - name: var[des]
+          title: ''
+          type: text
+        - name: var[n]
+          title: ''
+          type: text
+        - name: var[n_obs]
+          title: ''
+          type: text
+        - name: var[n_tot]
+          title: ''
+          type: text
+        - name: val[type]
+          title: ''
+          type: text
+        - name: val[des]
+          title: ''
+          type: text
+        - name: val[n]
+          title: ''
+          type: integer
+        - name: val[n_obs]
+          title: ''
+          type: integer
+        - name: val[n_tot]
+          title: ''
+          type: integer
+          
+    - name: main
+      title: Factorial ANOVA Power Analysis
+      type: Table
+      clearWith:
+        - estype
+        - es
+        - n
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+        - num_facs
+      columns:        
+        - name: name
+          title: ""
+          type: text
 
+        - name: num_df
+          title: Numerator DF
+          type: integer
+          
+        - name: den_df
+          title: Denominator DF
+          type: integer
+          
+        - name: cohen_f
+          title: Cohen's f
+          type: number
+          
+        - name: alpha_level
+          title: Alpha Level
+          type: number
+          
+        - name: power
+          title: "Power (1-Beta)"
+          type: number
 ...

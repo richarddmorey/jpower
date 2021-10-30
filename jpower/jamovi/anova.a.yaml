@@ -3,6 +3,7 @@ name:  anova
 title: Factorial ANOVA
 menuGroup: jpower
 menuSubgroup: ANOVA
+menuSubtitle: Cohen's f
 version: '1.0.0'
 jas: '1.2'
 
@@ -70,14 +71,6 @@ options:
         - title: within
           name: w
       default: b
-
-    #- name: estype
-    #  title: "Effect size type"
-    #  type: List
-    #  options:
-    #    - f
-    #    - omega
-    #  default: f
       
     - name: power
       title: "Minimum desired power"
