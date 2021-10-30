@@ -7,9 +7,17 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             dep = NULL,
-            group = NULL,
-            alt = "notequal",
-            varEq = TRUE, ...) {
+            lev_fac_a = 3,
+            lev_fac_b = 2,
+            lev_fac_c = 2,
+            type_fac_a = "b",
+            type_fac_b = "b",
+            type_fac_c = "b",
+            n = 20,
+            alpha = 0.05,
+            stdev = 1,
+            withcorr = 0,
+            num_facs = "one", ...) {
 
             super$initialize(
                 package="jpower",
@@ -19,45 +27,127 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
             private$..dep <- jmvcore::OptionVariable$new(
                 "dep",
-                dep)
-            private$..group <- jmvcore::OptionVariable$new(
-                "group",
-                group)
-            private$..alt <- jmvcore::OptionList$new(
-                "alt",
-                alt,
+                dep,
+                suggested=list(
+                    "continuous"),
+                permitted=list(
+                    "numeric"),
+                rejectInf=TRUE)
+            private$..lev_fac_a <- jmvcore::OptionInteger$new(
+                "lev_fac_a",
+                lev_fac_a,
+                min=2,
+                default=3)
+            private$..lev_fac_b <- jmvcore::OptionInteger$new(
+                "lev_fac_b",
+                lev_fac_b,
+                min=2,
+                max=99,
+                default=2)
+            private$..lev_fac_c <- jmvcore::OptionInteger$new(
+                "lev_fac_c",
+                lev_fac_c,
+                min=2,
+                max=99,
+                default=2)
+            private$..type_fac_a <- jmvcore::OptionList$new(
+                "type_fac_a",
+                type_fac_a,
                 options=list(
-                    "notequal",
-                    "onegreater",
-                    "twogreater"),
-                default="notequal")
-            private$..varEq <- jmvcore::OptionBool$new(
-                "varEq",
-                varEq,
-                default=TRUE)
+                    "b",
+                    "w"),
+                default="b")
+            private$..type_fac_b <- jmvcore::OptionList$new(
+                "type_fac_b",
+                type_fac_b,
+                options=list(
+                    "b",
+                    "w"),
+                default="b")
+            private$..type_fac_c <- jmvcore::OptionList$new(
+                "type_fac_c",
+                type_fac_c,
+                options=list(
+                    "b",
+                    "w"),
+                default="b")
+            private$..n <- jmvcore::OptionInteger$new(
+                "n",
+                n,
+                min=2,
+                default=20)
+            private$..alpha <- jmvcore::OptionNumber$new(
+                "alpha",
+                alpha,
+                min=0,
+                default=0.05)
+            private$..stdev <- jmvcore::OptionNumber$new(
+                "stdev",
+                stdev,
+                min=1e-23,
+                default=1)
+            private$..withcorr <- jmvcore::OptionNumber$new(
+                "withcorr",
+                withcorr,
+                min=-1,
+                max=1,
+                default=0)
+            private$..num_facs <- jmvcore::OptionList$new(
+                "num_facs",
+                num_facs,
+                options=list(
+                    "one",
+                    "two",
+                    "three"),
+                default="one")
 
             self$.addOption(private$..dep)
-            self$.addOption(private$..group)
-            self$.addOption(private$..alt)
-            self$.addOption(private$..varEq)
+            self$.addOption(private$..lev_fac_a)
+            self$.addOption(private$..lev_fac_b)
+            self$.addOption(private$..lev_fac_c)
+            self$.addOption(private$..type_fac_a)
+            self$.addOption(private$..type_fac_b)
+            self$.addOption(private$..type_fac_c)
+            self$.addOption(private$..n)
+            self$.addOption(private$..alpha)
+            self$.addOption(private$..stdev)
+            self$.addOption(private$..withcorr)
+            self$.addOption(private$..num_facs)
         }),
     active = list(
         dep = function() private$..dep$value,
-        group = function() private$..group$value,
-        alt = function() private$..alt$value,
-        varEq = function() private$..varEq$value),
+        lev_fac_a = function() private$..lev_fac_a$value,
+        lev_fac_b = function() private$..lev_fac_b$value,
+        lev_fac_c = function() private$..lev_fac_c$value,
+        type_fac_a = function() private$..type_fac_a$value,
+        type_fac_b = function() private$..type_fac_b$value,
+        type_fac_c = function() private$..type_fac_c$value,
+        n = function() private$..n$value,
+        alpha = function() private$..alpha$value,
+        stdev = function() private$..stdev$value,
+        withcorr = function() private$..withcorr$value,
+        num_facs = function() private$..num_facs$value),
     private = list(
         ..dep = NA,
-        ..group = NA,
-        ..alt = NA,
-        ..varEq = NA)
+        ..lev_fac_a = NA,
+        ..lev_fac_b = NA,
+        ..lev_fac_c = NA,
+        ..type_fac_a = NA,
+        ..type_fac_b = NA,
+        ..type_fac_c = NA,
+        ..n = NA,
+        ..alpha = NA,
+        ..stdev = NA,
+        ..withcorr = NA,
+        ..num_facs = NA)
 )
 
 muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "muANOVAResults",
     inherit = jmvcore::Group,
     active = list(
-        text = function() private$.items[["text"]]),
+        designtab = function() private$.items[["designtab"]],
+        main = function() private$.items[["main"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -65,10 +155,101 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="",
                 title="Factorial ANOVA")
-            self$add(jmvcore::Preformatted$new(
+            self$add(jmvcore::Table$new(
                 options=options,
-                name="text",
-                title="Factorial ANOVA"))}))
+                name="designtab",
+                title="Design",
+                rows=1,
+                clearWith=list(
+                    "lev_fac_a",
+                    "lev_fac_b",
+                    "lev_fac_c",
+                    "type_fac_a",
+                    "type_fac_b",
+                    "type_fac_c",
+                    "n"),
+                columns=list(
+                    list(
+                        `name`="var[type]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="var[des]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="var[n]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="var[n_obs]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="var[n_tot]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="val[type]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="val[des]", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="val[n]", 
+                        `title`="", 
+                        `type`="integer"),
+                    list(
+                        `name`="val[n_obs]", 
+                        `title`="", 
+                        `type`="integer"),
+                    list(
+                        `name`="val[n_tot]", 
+                        `title`="", 
+                        `type`="integer"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="main",
+                title="Factorial ANOVA Power Analysis",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "n",
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a",
+                    "num_facs"),
+                columns=list(
+                    list(
+                        `name`="name", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="num_df", 
+                        `title`="Numerator DF", 
+                        `type`="integer"),
+                    list(
+                        `name`="den_df", 
+                        `title`="Denominator DF", 
+                        `type`="integer"),
+                    list(
+                        `name`="cohen_f", 
+                        `title`="Cohen's f", 
+                        `type`="number"),
+                    list(
+                        `name`="alpha_level", 
+                        `title`="Alpha Level", 
+                        `type`="number"),
+                    list(
+                        `name`="power", 
+                        `title`="Power (1-Beta)", 
+                        `type`="number"))))}))
 
 muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "muANOVABase",
@@ -95,39 +276,68 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param data .
 #' @param dep .
-#' @param group .
-#' @param alt .
-#' @param varEq .
+#' @param lev_fac_a .
+#' @param lev_fac_b .
+#' @param lev_fac_c .
+#' @param type_fac_a .
+#' @param type_fac_b .
+#' @param type_fac_c .
+#' @param n .
+#' @param alpha .
+#' @param stdev .
+#' @param withcorr .
+#' @param num_facs .
 #' @return A results object containing:
 #' \tabular{llllll}{
-#'   \code{results$text} \tab \tab \tab \tab \tab a preformatted \cr
+#'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
 #' }
+#'
+#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
+#'
+#' \code{results$designtab$asDF}
+#'
+#' \code{as.data.frame(results$designtab)}
 #'
 #' @export
 muANOVA <- function(
     data,
     dep,
-    group,
-    alt = "notequal",
-    varEq = TRUE) {
+    lev_fac_a = 3,
+    lev_fac_b = 2,
+    lev_fac_c = 2,
+    type_fac_a = "b",
+    type_fac_b = "b",
+    type_fac_c = "b",
+    n = 20,
+    alpha = 0.05,
+    stdev = 1,
+    withcorr = 0,
+    num_facs = "one") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("muANOVA requires jmvcore to be installed (restart may be required)")
 
     if ( ! missing(dep)) dep <- jmvcore::resolveQuo(jmvcore::enquo(dep))
-    if ( ! missing(group)) group <- jmvcore::resolveQuo(jmvcore::enquo(group))
     if (missing(data))
         data <- jmvcore::marshalData(
             parent.frame(),
-            `if`( ! missing(dep), dep, NULL),
-            `if`( ! missing(group), group, NULL))
+            `if`( ! missing(dep), dep, NULL))
 
 
     options <- muANOVAOptions$new(
         dep = dep,
-        group = group,
-        alt = alt,
-        varEq = varEq)
+        lev_fac_a = lev_fac_a,
+        lev_fac_b = lev_fac_b,
+        lev_fac_c = lev_fac_c,
+        type_fac_a = type_fac_a,
+        type_fac_b = type_fac_b,
+        type_fac_c = type_fac_c,
+        n = n,
+        alpha = alpha,
+        stdev = stdev,
+        withcorr = withcorr,
+        num_facs = num_facs)
 
     analysis <- muANOVAClass$new(
         options = options,

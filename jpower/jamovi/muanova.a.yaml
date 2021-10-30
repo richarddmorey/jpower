@@ -95,4 +95,16 @@ options:
       min: -0.99999999999999999999999
       max: 0.99999999999999999999999
       default: 0
+      
+    - name: num_facs
+      title: "Design"
+      type: List
+      options:
+        - title: "1: one-way ANOVA"
+          name: one
+        - title: "2: two-way ANOVA"
+          name: two
+        - title: "3: three-way ANOVA"
+          name: three
+      default: one
 ...

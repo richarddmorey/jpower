@@ -26,6 +26,7 @@ analyses:
     menuGroup: jpower
     menuTitle: Factorial ANOVA
     menuSubgroup: ANOVA
+    menuSubtitle: Cohen's f
   - title: Paired Samples T-Test
     name: ttestPS
     ns: jpower
@@ -43,5 +44,7 @@ analyses:
     ns: jpower
     menuGroup: jpower
     menuTitle: Factorial ANOVA
+    menuSubgroup: ANOVA
+    menuSubtitle: Means
 
 ...

@@ -1,5 +1,7 @@
 
-# This file is a generated template, your changes will not be overwritten
+#' @import ggplot2
+#' @importFrom reshape2 melt
+#' @importFrom MASS mvrnorm
 
 muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
     "muANOVAClass",
@@ -107,19 +109,22 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             des_res4 = gsub("b", "-levels between", des_res3)
             des_res5 = gsub("x", "by", des_res4)
             
-            des1 = Superpower::ANOVA_design(design = des_string,
+            des1 = ANOVA_design(design = des_string,
                                             mu = mu,
                                             sd = stdev,
                                             r = withcorr,
-                                            n = n,
-                                            plot = FALSE)
-            exres <- Superpower::ANOVA_exact2(des1, 
-                                              alpha_level = alpha,
-                                              correction = "none",
-                                              verbose = FALSE,
-                                              emm = FALSE,
-                                              liberal_lambda =  FALSE)
-            results = exres$main_result
+                                            n = n)
+            exres <- ANOVA_exact2(
+                des1,
+                alpha_level = alpha,
+                correction = "none",
+                verbose = FALSE,
+                emm = FALSE,
+                liberal_lambda = FALSE
+            )
+            
+            results = cbind(exres$main_results,exres$anova_table)
+            results$factor = results$effect
             
             ## Populate table
             designtab <- self$results$designtab
@@ -153,14 +158,17 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             private$.populateMainTable(results, lst)
 
-        }),
+        },
     .populateMainTable = function(results, lst) {
         
         table <- self$results$main
         facs = lst$fct_lvls
         
+
+        
         for(fac in facs){
             res = results[which(results$factor == fac),]
+            print(res)
             table$addRow(rowKey=fac, list(name=fac))
             tableRow <- list(num_df = res$num_df, 
                              den_df = res$den_df,
@@ -172,4 +180,4 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         
         
     }
-)
+))

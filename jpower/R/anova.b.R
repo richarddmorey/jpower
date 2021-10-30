@@ -25,7 +25,7 @@ anovaClass <- R6::R6Class(
             
             designtab$setRow(rowNo=1, values=row1)
             table <- self$results$main
-            table$addRow(rowKey="a", list(name="a"))
+            table$addRow(rowKey="a", list(name=""))
             tableRow <- list(num_df = "", 
                              den_df = "",
                              cohen_f = "",

@@ -2,7 +2,7 @@ title: Factorial ANOVA
 name: muANOVA
 jus: '3.0'
 stage: 0
-compilerMode: aggressive
+compilerMode: tame
 children:
   - type: CollapseBox
     label: Design Parameters
@@ -65,11 +65,11 @@ children:
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
-      - name: 'stdev'
+      - name: stdev
         type: TextBox
-        label: "Population Standard Deviation (SD)"
+        label: Population Standard Deviation (SD)
         format: number
-      - name: 'withcorr'
+      - name: withcorr
         type: TextBox
-        label: "Within Subject Correlation (r)"
+        label: Within Subject Correlation (r)
         format: number
