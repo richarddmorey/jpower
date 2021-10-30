@@ -42,7 +42,7 @@ anovaClass <- R6::R6Class(
             ## Get options from interface
             n = self$options$n
             pow = self$options$power
-            es = self$options$es
+            #es = self$options$es
             dep <- self$options$get("dep")
             if (is.null(dep) || length(dep) == 0){
                 stop("Must provide Effect Sizes.")
@@ -131,15 +131,15 @@ anovaClass <- R6::R6Class(
             #self$results$text$setContent(des_string)
             
             # Convert omega to f
-            if (estype == "omega" && es >= 1 )
-                jmvcore::reject("Effect size \u03C9\u00B2 must be < 1.", code='error')
-            
-            if (estype == 'f') {
-                f.es <- es 
-            }
-            else {
-                f.es <- sqrt(es/(1-es))
-            }
+            #if (estype == "omega" && es >= 1 )
+            #    jmvcore::reject("Effect size \u03C9\u00B2 must be < 1.", code='error')
+            #
+            #if (estype == 'f') {
+            #    f.es <- es 
+            #}
+            #else {
+            #    f.es <- sqrt(es/(1-es))
+            #}
             
             pow_tab = data.frame(factor = aov2$factor,
                                  num_df = aov2$num_df,

@@ -38,5 +38,10 @@ analyses:
     menuGroup: jpower
     menuSubgroup: T-Tests
     menuTitle: One Sample T-Test
+  - title: Factorial ANOVA
+    name: muANOVA
+    ns: jpower
+    menuGroup: jpower
+    menuTitle: Factorial ANOVA
 
 ...

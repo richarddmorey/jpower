@@ -1,11 +1,11 @@
 ---
-name:  ttestOneS
-title: One Sample T-Test
+name:  muANOVA
+title: Factorial ANOVA
 jrs:   '1.1'
 
 items:
     - name:  text
-      title: One Sample T-Test
+      title: Factorial ANOVA
       type:  Preformatted
 
 ...
