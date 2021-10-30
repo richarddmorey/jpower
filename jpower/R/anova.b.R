@@ -6,6 +6,37 @@ anovaClass <- R6::R6Class(
     inherit = anovaBase,
     private = list(
         #### Init + run functions ----
+        .init = function() {
+            designtab <- self$results$designtab
+            row1 <- list()
+            row1[['var[type]']] <- "Type of ANOVA"
+            row1[['var[des]']] <- "Factors in ANOVA"
+            row1[['var[n]']] <- "Sample Size per Condition"
+            row1[['var[n_obs]']] <- "Total Number of Observations"
+            row1[['var[n_tot]']] <- "Total Sample Size (Subjects)"
+            
+            row1[['val[type]']] <- ""
+            row1[['val[des]']] <- ""
+            row1[['val[n]']] <- ""
+            row1[['val[n_obs]']] <- ""
+            row1[['val[n_tot]']] <- ""
+            
+
+            
+            designtab$setRow(rowNo=1, values=row1)
+            table <- self$results$main
+            table$addRow(rowKey="a", list(name="a"))
+            tableRow <- list(num_df = "", 
+                             den_df = "",
+                             cohen_f = "",
+                             alpha_level = "",
+                             power = "")
+            table$setRow(rowKey = "a", tableRow)
+            
+            #private$.initPowerTab()
+            #private$.initPowerESTab()
+            
+        },
         .run = function() {
             #modelTerms <- private$.modelTerms()
             ## Get options from interface
@@ -13,8 +44,14 @@ anovaClass <- R6::R6Class(
             pow = self$options$power
             es = self$options$es
             dep <- self$options$get("dep")
+            if (is.null(dep) || length(dep) == 0){
+                stop("Must provide Effect Sizes.")
+            }
             cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
             cohen_fs <- cohen_fs[!is.na(cohen_fs)]
+            
+
+                
 
             alpha = self$options$alpha
             estype = 'f' #self$options$estype
