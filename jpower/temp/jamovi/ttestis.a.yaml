@@ -1,0 +1,87 @@
+---
+name:  ttestIS
+title: Independent Samples T-Test
+menuGroup: jpower
+menuSubgroup: T-Tests
+version: '1.0.0'
+jas: '1.2'
+
+options:
+    - name: calc
+      title: 'Calculate'
+      type: List
+      options:
+        - name: n
+          title: "N per group"
+        - name: power
+          title: "Power"
+        - name: es
+          title: "Effect size"
+      default: n
+
+    - name: es
+      title: "Minimally-interesting effect size (&delta;)"
+      type: Number
+      min: 0.01
+      default: .5
+
+    - name: power
+      title: "Minimum desired power"
+      type: Number
+      min: 0
+      max: 1
+      default: .9
+
+    - name: n
+      title: "N per group"
+      type: Integer
+      min: 2
+      default: 20
+
+    - name: alt
+      title: Tails
+      type: List
+      options:
+        - "two.sided"
+        - "less"
+        - "greater"
+      default: "two.sided"
+
+    - name: alpha
+      title: "&alpha; (type I error rate)"
+      type: Number
+      min: 0
+      default: 0.05
+      
+    - name: n_ratio
+      title: "Sample size ratio (N<sub>2</sub>/N<sub>1</sub>)"
+      type: Number
+      min: 0
+      default: 1      
+
+    - name: powerContour
+      title: Power contour plot
+      type: Bool
+      default: true
+
+    - name: powerDist
+      title: Power demonstration
+      type: Bool
+      default: false
+
+    - name: powerCurveES
+      title: Power curve by effect size
+      type: Bool
+      default: true
+
+    - name: powerCurveN
+      title: Power curve by N
+      type: Bool
+      default: false
+      
+    - name: text
+      title: Explanatory text
+      type: Bool
+      default: true
+
+...

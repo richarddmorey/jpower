@@ -1,0 +1,11 @@
+Package: jpower
+Type: Package
+Title: Power Analyses for Common Research Designs
+Version: 0.2.0
+Author: Richard D. Morey, Aaron R. Caldwell, Ravi Selker
+Maintainer: Richard D. Morey <yourself@somewhere.net>
+Description: A jamovi module for power analysis.
+License: MIT + file LICENSEs
+Encoding: UTF-8
+LazyData: true
+Imports: pwr, ggplot2, jmvcore, R6, viridis, shape, Superpower, afex, crayon

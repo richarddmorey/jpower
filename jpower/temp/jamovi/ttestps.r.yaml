@@ -1,0 +1,136 @@
+---
+name:  ttestPS
+title: Paired Samples T-Test
+jrs:   '1.1'
+
+items:
+    - name: intro
+      title: Introduction
+      type: Html
+      visible: (text)
+
+    - name:  powertab
+      title: A Priori Power Analysis
+      type: Table
+      rows:  1
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+      columns: []
+
+    - name: tabText
+      title: Table context
+      type: Html
+      visible: (text)
+
+    - name:  powerEStab
+      title: Power by Effect Size
+      type: Table
+      rows:  4
+      visible: (text)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+      columns:
+        - name: es
+          title: 'True effect size'
+          type: number
+
+        - name: power
+          title: 'Power to detect'
+          type: text
+
+        - name: desc
+          title: 'Description'
+          type: text
+
+    - name: powerContour
+      title: Power Contour
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerContour
+      visible: (powerContour)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+
+    - name: contourText
+      title: Power contour context
+      type: Html
+      visible: (text & powerContour)
+
+    - name: powerCurveES
+      title: Power Curve by Effect Size
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerCurveES
+      visible: (powerCurveES & !calc:n)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+
+    - name: curveESText
+      title: Power contour by effect size context
+      type: Html
+      visible: (text & powerCurveES & !calc:n)
+
+    - name: powerCurveN
+      title: Power Curve by N
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .powerCurveN
+      visible: (powerCurveN & !calc:es)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+
+    - name: curveNText
+      title: Power contour by N context
+      type: Html
+      visible: (text & powerCurveN & !calc:es)
+
+    - name: powerDist
+      title: Power Demonstration
+      type: Image
+      width:  400
+      height: 300
+      renderFun: .powerDist
+      visible: (powerDist)
+      clearWith:
+        - es
+        - power
+        - n
+        - alt
+        - alpha
+        - calc
+        - n_ratio
+
+    - name: distText
+      title: Sampling distributions
+      type: Html
+      visible: (text & powerDist)
+
+...
