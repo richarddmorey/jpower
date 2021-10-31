@@ -98,8 +98,6 @@ items:
       visible: (powerDist)
       clearWith:
         - dep
-        - estype
-        - es
         - num_facs
         - alpha
         - lev_fac_c

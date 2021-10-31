@@ -87,4 +87,22 @@ items:
         - name: power
           title: "Power (1-Beta)"
           type: number
+          
+    - name: DesPlot
+      title: Plot of Design
+      type: Image
+      width:  600
+      height: 600
+      renderFun: .DesPlot
+      visible: (DesPlot)
+      clearWith:
+        - dep
+        - num_facs
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
 ...
