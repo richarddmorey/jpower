@@ -8,5 +8,5 @@ Description: A jamovi module for power analysis.
 License: MIT + file LICENSEs
 Encoding: UTF-8
 LazyData: true
-Imports: pwr, ggplot2, jmvcore, R6, viridis, shape, Superpower, afex, MASS, reshape2
+Imports: pwr, ggplot2, jmvcore, R6, viridis, shape,  afex, MASS, reshape2
 RoxygenNote: 7.1.2

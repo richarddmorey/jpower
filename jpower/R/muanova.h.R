@@ -17,7 +17,11 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             alpha = 0.05,
             stdev = 1,
             withcorr = 0,
-            num_facs = "one", ...) {
+            num_facs = "one",
+            powerDist = FALSE,
+            powerCurveES = FALSE,
+            powerCurveN = FALSE,
+            power = 0.8, ...) {
 
             super$initialize(
                 package="jpower",
@@ -100,6 +104,24 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "two",
                     "three"),
                 default="one")
+            private$..powerDist <- jmvcore::OptionBool$new(
+                "powerDist",
+                powerDist,
+                default=FALSE)
+            private$..powerCurveES <- jmvcore::OptionBool$new(
+                "powerCurveES",
+                powerCurveES,
+                default=FALSE)
+            private$..powerCurveN <- jmvcore::OptionBool$new(
+                "powerCurveN",
+                powerCurveN,
+                default=FALSE)
+            private$..power <- jmvcore::OptionNumber$new(
+                "power",
+                power,
+                min=0,
+                max=1,
+                default=0.8)
 
             self$.addOption(private$..dep)
             self$.addOption(private$..lev_fac_a)
@@ -113,6 +135,10 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..stdev)
             self$.addOption(private$..withcorr)
             self$.addOption(private$..num_facs)
+            self$.addOption(private$..powerDist)
+            self$.addOption(private$..powerCurveES)
+            self$.addOption(private$..powerCurveN)
+            self$.addOption(private$..power)
         }),
     active = list(
         dep = function() private$..dep$value,
@@ -126,7 +152,11 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         alpha = function() private$..alpha$value,
         stdev = function() private$..stdev$value,
         withcorr = function() private$..withcorr$value,
-        num_facs = function() private$..num_facs$value),
+        num_facs = function() private$..num_facs$value,
+        powerDist = function() private$..powerDist$value,
+        powerCurveES = function() private$..powerCurveES$value,
+        powerCurveN = function() private$..powerCurveN$value,
+        power = function() private$..power$value),
     private = list(
         ..dep = NA,
         ..lev_fac_a = NA,
@@ -139,7 +169,11 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..alpha = NA,
         ..stdev = NA,
         ..withcorr = NA,
-        ..num_facs = NA)
+        ..num_facs = NA,
+        ..powerDist = NA,
+        ..powerCurveES = NA,
+        ..powerCurveN = NA,
+        ..power = NA)
 )
 
 muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -147,7 +181,11 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         designtab = function() private$.items[["designtab"]],
-        main = function() private$.items[["main"]]),
+        main = function() private$.items[["main"]],
+        DesPlot = function() private$.items[["DesPlot"]],
+        powerDist = function() private$.items[["powerDist"]],
+        powerCurveES = function() private$.items[["powerCurveES"]],
+        powerCurveN = function() private$.items[["powerCurveN"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -249,7 +287,81 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="power", 
                         `title`="Power (1-Beta)", 
-                        `type`="number"))))}))
+                        `type`="number"))))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="DesPlot",
+                title="Plot of Design",
+                width=600,
+                height=600,
+                renderFun=".DesPlot",
+                clearWith=list(
+                    "dep",
+                    "num_facs",
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerDist",
+                title="Power Demonstration",
+                width=600,
+                height=600,
+                renderFun=".powerDist",
+                visible="(powerDist)",
+                clearWith=list(
+                    "dep",
+                    "num_facs",
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerCurveES",
+                title="Power Curve by Effect Size",
+                width=600,
+                height=600,
+                renderFun=".powerCurveES",
+                visible="(powerCurveES)",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a",
+                    "alpha")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerCurveN",
+                title="Power Curve by N",
+                width=600,
+                height=600,
+                renderFun=".powerCurveN",
+                visible="(powerCurveN)",
+                clearWith=list(
+                    "estype",
+                    "es",
+                    "power",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a",
+                    "alpha",
+                    "dep")))}))
 
 muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "muANOVABase",
@@ -287,10 +399,18 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param stdev .
 #' @param withcorr .
 #' @param num_facs .
+#' @param powerDist .
+#' @param powerCurveES .
+#' @param powerCurveN .
+#' @param power .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$DesPlot} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -313,7 +433,11 @@ muANOVA <- function(
     alpha = 0.05,
     stdev = 1,
     withcorr = 0,
-    num_facs = "one") {
+    num_facs = "one",
+    powerDist = FALSE,
+    powerCurveES = FALSE,
+    powerCurveN = FALSE,
+    power = 0.8) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("muANOVA requires jmvcore to be installed (restart may be required)")
@@ -337,7 +461,11 @@ muANOVA <- function(
         alpha = alpha,
         stdev = stdev,
         withcorr = withcorr,
-        num_facs = num_facs)
+        num_facs = num_facs,
+        powerDist = powerDist,
+        powerCurveES = powerCurveES,
+        powerCurveN = powerCurveN,
+        power = power)
 
     analysis <- muANOVAClass$new(
         options = options,

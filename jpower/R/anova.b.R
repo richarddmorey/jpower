@@ -22,20 +22,35 @@ anovaClass <- R6::R6Class(
             row1[['val[n_obs]']] <- ""
             row1[['val[n_tot]']] <- ""
             
-
+            lev_fac_a = self$options$lev_fac_a
+            lev_fac_b = self$options$lev_fac_b
+            lev_fac_c = self$options$lev_fac_c
+            type_fac_a = self$options$type_fac_a
+            type_fac_b = self$options$type_fac_b
+            type_fac_c = self$options$type_fac_c
+            num_facs = self$options$num_facs
             
+            if(num_facs == "one"){
+                des_string = paste0(lev_fac_a,type_fac_a)
+                fct_lvls = c("a")
+                
+            } else if(num_facs == "two"){
+                des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b)
+                fct_lvls = c("a", "b", "a:b")
+                
+            } else {
+                des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b,"*",lev_fac_c,type_fac_c)
+                fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
+        
+            }
+            
+
             designtab$setRow(rowNo=1, values=row1)
             table <- self$results$main
-            table$addRow(rowKey="a", list(name=""))
-            tableRow <- list(num_df = "", 
-                             den_df = "",
-                             cohen_f = "",
-                             alpha_level = "",
-                             power = "")
-            table$setRow(rowKey = "a", tableRow)
             
-            #private$.initPowerTab()
-            #private$.initPowerESTab()
+            for(fac in fct_lvls){
+                table$addRow(rowKey=fac, list(name=fac))
+            }
             
         },
         .run = function() {
@@ -50,9 +65,6 @@ anovaClass <- R6::R6Class(
             }
             cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
             cohen_fs <- cohen_fs[!is.na(cohen_fs)]
-            
-
-                
 
             alpha = self$options$alpha
             estype = 'f' #self$options$estype
@@ -181,7 +193,7 @@ anovaClass <- R6::R6Class(
             
             for(fac in facs){
                 res = results[which(results$factor == fac),]
-                table$addRow(rowKey=fac, list(name=fac))
+                #table$addRow(rowKey=fac, list(name=fac))
                 tableRow <- list(num_df = res$num_df, 
                                  den_df = res$den_df,
                                  cohen_f = res$cohen_f,

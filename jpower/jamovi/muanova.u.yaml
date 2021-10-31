@@ -48,7 +48,7 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Effect Sizes
+        label: Means
         children:
           - type: VariablesListBox
             name: dep
@@ -73,3 +73,24 @@ children:
         type: TextBox
         label: Within Subject Correlation (r)
         format: number
+  - type: CollapseBox
+    label: Plot F Distribution
+    name: spanel
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: powerDist
+  - type: CollapseBox
+    label: Plot Power Curve
+    name: spanelpow
+    collapsed: true
+    children:
+      - name: power
+        type: TextBox
+        label: Minimum desired power
+        format: number
+      - type: CheckBox
+        name: powerCurveES
+      - type: CheckBox
+        name: powerCurveN
+

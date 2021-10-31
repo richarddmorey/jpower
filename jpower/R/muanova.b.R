@@ -23,33 +23,61 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             row1[['val[n_obs]']] <- ""
             row1[['val[n_tot]']] <- ""
             
+            lev_fac_a = self$options$lev_fac_a
+            lev_fac_b = self$options$lev_fac_b
+            lev_fac_c = self$options$lev_fac_c
+            type_fac_a = self$options$type_fac_a
+            type_fac_b = self$options$type_fac_b
+            type_fac_c = self$options$type_fac_c
+            num_facs = self$options$num_facs
             
-            
+            if(num_facs == "one"){
+                des_string = paste0(lev_fac_a,type_fac_a)
+                
+                fct_lvls = c("a")
+
+            } else if(num_facs == "two"){
+                des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b)
+
+                fct_lvls = c("a", "b", "a:b")
+                
+            } else {
+                des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b,"*",lev_fac_c,type_fac_c)
+
+                fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
+
+            }
+
             designtab$setRow(rowNo=1, values=row1)
             
             table <- self$results$main
-            table$addRow(rowKey="a", list(name="a"))
-            tableRow <- list(num_df = "", 
-                             den_df = "",
-                             cohen_f = "",
-                             alpha_level = "",
-                             power = "")
-            table$setRow(rowKey = "a", tableRow)
             
-            #private$.initPowerTab()
-            #private$.initPowerESTab()
+            for(fac in fct_lvls){
+                table$addRow(rowKey=fac, list(name=fac))
+            }
+            #table$addRow(rowKey="...",
+            #             list(name="..."))
+
+            #tableRow <- list(num_df = "", 
+            #                 den_df = "",
+            #                 cohen_f = "",
+            #                 alpha_level = "",
+            #                 power = "")
+            #table$setRow(rowKey = as.factor("a"), tableRow)
+
             
         },
         .run = function() {
             
             n = self$options$n
             stdev = self$options$stdev
-            withcorr = self$options$withcorr
+            withcorr = as.numeric(self$options$withcorr)
+            #print(withcorr)
             #pow = self$options$power
             #es = self$options$es
             dep <- self$options$get("dep")
             if (is.null(dep) || length(dep) == 0){
-                stop("Must provide Effect Sizes.")
+                stop("Must provide Means.")
             }
             mu <- as.numeric(as.vector(self$data[[dep]]))
             mu <- mu[!is.na(mu)]
@@ -62,6 +90,8 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             type_fac_b = self$options$type_fac_b
             type_fac_c = self$options$type_fac_c
             num_facs = self$options$num_facs
+            
+            DesPlot <- self$results$DesPlot
             
             if(num_facs == "one"){
                 des_string = paste0(lev_fac_a,type_fac_a)
@@ -156,9 +186,16 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 des_t = des_t,
                 fct_lvls = fct_lvls
             )
+            
+            DesPlot$setState(des1$meansplot)
 
             private$.populateMainTable(results, lst)
-            private$.prepareDesPlot(des1)
+            results = data.frame(factor = results$factor,
+                                 num_df = results$num_df,
+                                 den_df = results$den_df,
+                                 cohen_f = results$cohen_f,
+                                 alpha_level = rep(alpha, length(results$factor)),
+                                 power = results$power)
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
             private$.preparePowerCurveN(results, lst)
@@ -171,8 +208,8 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
         for(fac in facs){
             res = results[which(results$factor == fac),]
-            print(res)
-            table$addRow(rowKey=fac, list(name=fac))
+            #print(res)
+            #table$addRow(rowKey=fac, list(name=fac))
             tableRow <- list(num_df = res$num_df, 
                              den_df = res$den_df,
                              cohen_f = res$cohen_f,
@@ -182,15 +219,14 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         }
         
     },
-    .prepareDesPlot = function(design) {
-        p = design$meansplot
-        image$setState(list(p = p))
+    .DesPlot = function(image, ...) {
         
-    },
-    .DesPlot = function(image, ggtheme, ...) {
+        if (is.null(image$state)){
+            return(FALSE)
+        }
+            
         
-        
-        p = image$state$p
+        p = image$state
         print(p)
         
         TRUE

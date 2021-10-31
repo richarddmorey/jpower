@@ -278,8 +278,6 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(powerDist)",
                 clearWith=list(
                     "dep",
-                    "estype",
-                    "es",
                     "num_facs",
                     "alpha",
                     "lev_fac_c",

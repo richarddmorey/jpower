@@ -13,7 +13,7 @@ options:
       title: Column with Effect Sizes
 
     - name: dep
-      title: Effect Sizes
+      title: Means
       type: Variable
       suggested:
         - continuous
@@ -107,4 +107,26 @@ options:
         - title: "3: three-way ANOVA"
           name: three
       default: one
+      
+    - name: powerDist
+      title: Power demonstration
+      type: Bool
+      default: false
+      
+    - name: powerCurveES
+      title: Power curve by effect size
+      type: Bool
+      default: false
+      
+    - name: powerCurveN
+      title: Power curve by N
+      type: Bool
+      default: false
+
+    - name: power
+      title: "Minimum desired power"
+      type: Number
+      min: 0
+      max: 1
+      default: .8
 ...

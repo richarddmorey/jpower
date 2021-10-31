@@ -94,7 +94,6 @@ items:
       width:  600
       height: 600
       renderFun: .DesPlot
-      visible: (DesPlot)
       clearWith:
         - dep
         - num_facs
@@ -105,4 +104,62 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
+        
+    - name: powerDist
+      title: Power Demonstration
+      type: Image
+      width:  600
+      height: 600
+      renderFun: .powerDist
+      visible: (powerDist)
+      clearWith:
+        - dep
+        - num_facs
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+      
+      
+    - name: powerCurveES
+      title: Power Curve by Effect Size
+      type: Image
+      width:  600
+      height: 600
+      renderFun: .powerCurveES
+      visible: (powerCurveES)
+      clearWith:
+        - estype
+        - es
+        - power
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+        - alpha
+      
+    - name: powerCurveN
+      title: Power Curve by N
+      type: Image
+      width:  600
+      height: 600
+      renderFun: .powerCurveN
+      visible: (powerCurveN)
+      clearWith:
+        - estype
+        - es
+        - power
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+        - alpha
+        - dep
 ...
