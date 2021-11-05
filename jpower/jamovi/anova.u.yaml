@@ -26,9 +26,11 @@ children:
               - type: TextBox
                 name: lev_fac_b
                 format: number
+                enable: '(!num_facs:one)'
               - type: TextBox
                 name: lev_fac_c
                 format: number
+                enable: '(num_facs:three)'
       - type: Label
         label: Define the Type of Factor
         children:
@@ -40,8 +42,10 @@ children:
                 name: type_fac_a
               - type: ComboBox
                 name: type_fac_b
+                enable: '(!num_facs:one)'
               - type: ComboBox
                 name: type_fac_c
+                enable: '(num_facs:three)'
   - type: VariableSupplier
     persistentItems: false
     stretchFactor: 1
@@ -53,6 +57,59 @@ children:
             name: dep
             maxItemCount: 1
             isTarget: true
+  - type: CollapseBox
+    label: Effect Sizes
+    name: espanel
+    collapsed: true
+    children:
+      - type: Label
+        label: Main Effects
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'eff_fac_a'
+                type: TextBox
+                label: A
+                format: number
+              - name: 'eff_fac_b'
+                type: TextBox
+                label: B
+                format: number
+                enable: '(!num_facs:one)'
+              - name: 'eff_fac_c'
+                type: TextBox
+                label: C
+                format: number
+                enable: '(num_facs:three)'
+      - type: Label
+        label: Interactions
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'eff_fac_ab'
+                type: TextBox
+                label: A:B
+                format: number
+                enable: '(!num_facs:one)'
+              - name: 'eff_fac_bc'
+                type: TextBox
+                label: B:C
+                format: number
+                enable: '(num_facs:three)'
+              - name: 'eff_fac_ac'
+                type: TextBox
+                label: A:C
+                format: number
+                enable: '(num_facs:three)'
+              - name: 'eff_fac_abc'
+                type: TextBox
+                label: A:B:C
+                format: number
+                enable: '(num_facs:three)'
   - type: LayoutBox
     margin: large
     children:
@@ -84,5 +141,13 @@ children:
         name: powerCurveES
       - type: CheckBox
         name: powerCurveN
+      - name: 'min_n'
+        type: TextBox
+        label: Minimum N per group
+        format: number
+      - name: 'max_n'
+        type: TextBox
+        label: Maximum N per group
+        format: number
 
 compilerMode: tame

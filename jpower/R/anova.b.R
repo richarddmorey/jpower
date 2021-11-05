@@ -59,12 +59,12 @@ anovaClass <- R6::R6Class(
             n = self$options$n
             pow = self$options$power
             #es = self$options$es
-            dep <- self$options$get("dep")
-            if (is.null(dep) || length(dep) == 0){
-                stop("Must provide Effect Sizes.")
-            }
-            cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
-            cohen_fs <- cohen_fs[!is.na(cohen_fs)]
+            #dep <- self$options$get("dep")
+            #if (is.null(dep) || length(dep) == 0){
+            #    stop("Must provide Effect Sizes.")
+            #}
+            #cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
+            #cohen_fs <- cohen_fs[!is.na(cohen_fs)]
 
             alpha = self$options$alpha
             estype = 'f' #self$options$estype
@@ -83,9 +83,8 @@ anovaClass <- R6::R6Class(
                 n_tot = ifelse(type_fac_a == "b", lev_fac_a*n, n)
                 fct_lvls = c("a")
                 des_t = "One-way ANOVA"
-                if(length(cohen_fs) != 1){
-                    stop("Exactly 1 effect size must be provided for one-way ANOVA")
-                }
+                cohen_fs = as.numeric(self$options$eff_fac_a)
+
                 
             } else if(num_facs == "two"){
                 des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b)
@@ -96,9 +95,10 @@ anovaClass <- R6::R6Class(
                 n_tot = mlt_a*mlt_b
                 fct_lvls = c("a", "b", "a:b")
                 des_t = "Two-way ANOVA"
-                if(length(cohen_fs) != 2){
-                    stop("Exactly 2 effect size must be provided for two-way ANOVA")
-                }
+                cohen_fs = as.numeric(c(self$options$eff_fac_a,
+                                        self$options$eff_fac_b,
+                                        self$options$eff_fac_ab))
+
                 
             } else {
                 des_string = paste0(lev_fac_a,type_fac_a,"*",lev_fac_b,type_fac_b,"*",lev_fac_c,type_fac_c)
@@ -110,15 +110,22 @@ anovaClass <- R6::R6Class(
                 n_tot = mlt_a*mlt_b*mlt_c
                 fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
                 des_t = "Three-way ANOVA"
-                if(length(cohen_fs) != 3){
-                    stop("Exactly 3 effect size must be provided for three-way ANOVA")
-                }
+                cohen_fs = as.numeric(c(self$options$eff_fac_a,
+                                        self$options$eff_fac_b,
+                                        self$options$eff_fac_c,
+                                        self$options$eff_fac_ab,
+                                        self$options$eff_fac_ac,
+                                        self$options$eff_fac_bc,
+                                        self$options$eff_fac_abc
+                ))
+
+                
             }
             des_res2 = gsub("\\*", " x ", des_string)
             des_res3 = gsub("w", "-levels within", des_res2)
             des_res4 = gsub("b", "-levels between", des_res3)
             des_res5 = gsub("x", "by", des_res4)
-            
+            # Get DFs
             des1 = ANOVA_design(design = des_string,
                                             mu = 1:mu_len,
                                             sd = 1,
@@ -172,14 +179,16 @@ anovaClass <- R6::R6Class(
             ## Prepare plots and populate table
 
             lst = list(des_string = des_string,
-                        n = n,
-                        mu_len = mu_len,
-                        cohen_f = cohen_fs,
-                        alpha_level = alpha,
-                        n = n, n_tot = n_tot, n_obs = n_obs, 
-                        des_string = des_string,
-                        des_t = des_t,
-                        fct_lvls = fct_lvls)
+                       n = n,
+                       mu_len = mu_len,
+                       cohen_f = cohen_fs,
+                       alpha_level = alpha,
+                       n_min = self$options$min_n,
+                       n_max = self$options$max_n,
+                       n = n, n_tot = n_tot, n_obs = n_obs,
+                       des_string = des_string,
+                       des_t = des_t,
+                       fct_lvls = fct_lvls)
             private$.populateMainTable(results, lst)
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
@@ -296,10 +305,9 @@ anovaClass <- R6::R6Class(
                 )
             
             p <- ggplot(data = curves) + 
-                geom_ribbon(aes(x=x, 
-                                                  ymin=ymin, 
-                                                  ymax=ymax, 
-                                                  fill=group), alpha=.6) +
+                geom_ribbon(aes(x = x,  ymin = ymin,
+                                ymax = ymax,
+                                fill = group), alpha=.6) +
                 geom_rect(data=rect, aes(xmin=x1, xmax=x2, 
                                                            ymin=y1, ymax=y2),
                                    fill='white', alpha = 0.3) +
@@ -433,12 +441,12 @@ anovaClass <- R6::R6Class(
         .preparePowerCurveN = function(results, lst) {
             
             image <- self$results$powerCurveN
-            n_max = 100
-            n_min = 5
-            xmax = 100
+            n_max = lst$n_max
+            n_min = lst$n_min
+            xmax = n_max
             
             
-            nn = seq(n_min, xmax)
+            nn = seq(n_min, n_max)
             
             app_df = data.frame(factor = NA,
                                 n = NA,

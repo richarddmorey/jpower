@@ -19,7 +19,16 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             powerDist = FALSE,
             powerCurveES = FALSE,
             powerCurveN = FALSE,
-            num_facs = "one", ...) {
+            num_facs = "one",
+            eff_fac_a = 0,
+            eff_fac_b = 0,
+            eff_fac_c = 0,
+            eff_fac_ab = 0,
+            eff_fac_bc = 0,
+            eff_fac_ac = 0,
+            eff_fac_abc = 0,
+            min_n = 3,
+            max_n = 100, ...) {
 
             super$initialize(
                 package="jpower",
@@ -109,6 +118,58 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "two",
                     "three"),
                 default="one")
+            private$..eff_fac_a <- jmvcore::OptionNumber$new(
+                "eff_fac_a",
+                eff_fac_a,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_b <- jmvcore::OptionNumber$new(
+                "eff_fac_b",
+                eff_fac_b,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_c <- jmvcore::OptionNumber$new(
+                "eff_fac_c",
+                eff_fac_c,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_ab <- jmvcore::OptionNumber$new(
+                "eff_fac_ab",
+                eff_fac_ab,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_bc <- jmvcore::OptionNumber$new(
+                "eff_fac_bc",
+                eff_fac_bc,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_ac <- jmvcore::OptionNumber$new(
+                "eff_fac_ac",
+                eff_fac_ac,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..eff_fac_abc <- jmvcore::OptionNumber$new(
+                "eff_fac_abc",
+                eff_fac_abc,
+                min=0,
+                max=70.70537,
+                default=0)
+            private$..min_n <- jmvcore::OptionInteger$new(
+                "min_n",
+                min_n,
+                min=3,
+                default=3)
+            private$..max_n <- jmvcore::OptionInteger$new(
+                "max_n",
+                max_n,
+                min=4,
+                default=100)
 
             self$.addOption(private$..dep)
             self$.addOption(private$..lev_fac_a)
@@ -124,6 +185,15 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..powerCurveES)
             self$.addOption(private$..powerCurveN)
             self$.addOption(private$..num_facs)
+            self$.addOption(private$..eff_fac_a)
+            self$.addOption(private$..eff_fac_b)
+            self$.addOption(private$..eff_fac_c)
+            self$.addOption(private$..eff_fac_ab)
+            self$.addOption(private$..eff_fac_bc)
+            self$.addOption(private$..eff_fac_ac)
+            self$.addOption(private$..eff_fac_abc)
+            self$.addOption(private$..min_n)
+            self$.addOption(private$..max_n)
         }),
     active = list(
         dep = function() private$..dep$value,
@@ -139,7 +209,16 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
         powerCurveN = function() private$..powerCurveN$value,
-        num_facs = function() private$..num_facs$value),
+        num_facs = function() private$..num_facs$value,
+        eff_fac_a = function() private$..eff_fac_a$value,
+        eff_fac_b = function() private$..eff_fac_b$value,
+        eff_fac_c = function() private$..eff_fac_c$value,
+        eff_fac_ab = function() private$..eff_fac_ab$value,
+        eff_fac_bc = function() private$..eff_fac_bc$value,
+        eff_fac_ac = function() private$..eff_fac_ac$value,
+        eff_fac_abc = function() private$..eff_fac_abc$value,
+        min_n = function() private$..min_n$value,
+        max_n = function() private$..max_n$value),
     private = list(
         ..dep = NA,
         ..lev_fac_a = NA,
@@ -154,7 +233,16 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..powerDist = NA,
         ..powerCurveES = NA,
         ..powerCurveN = NA,
-        ..num_facs = NA)
+        ..num_facs = NA,
+        ..eff_fac_a = NA,
+        ..eff_fac_b = NA,
+        ..eff_fac_c = NA,
+        ..eff_fac_ab = NA,
+        ..eff_fac_bc = NA,
+        ..eff_fac_ac = NA,
+        ..eff_fac_abc = NA,
+        ..min_n = NA,
+        ..max_n = NA)
 )
 
 anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -323,6 +411,10 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
+                    "type_fac_ab",
+                    "type_fac_bc",
+                    "type_fac_ac",
+                    "type_fac_abc",
                     "alpha",
                     "dep")))}))
 
@@ -364,6 +456,15 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param powerCurveES .
 #' @param powerCurveN .
 #' @param num_facs .
+#' @param eff_fac_a .
+#' @param eff_fac_b .
+#' @param eff_fac_c .
+#' @param eff_fac_ab .
+#' @param eff_fac_bc .
+#' @param eff_fac_ac .
+#' @param eff_fac_abc .
+#' @param min_n .
+#' @param max_n .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
@@ -395,7 +496,16 @@ anova <- function(
     powerDist = FALSE,
     powerCurveES = FALSE,
     powerCurveN = FALSE,
-    num_facs = "one") {
+    num_facs = "one",
+    eff_fac_a = 0,
+    eff_fac_b = 0,
+    eff_fac_c = 0,
+    eff_fac_ab = 0,
+    eff_fac_bc = 0,
+    eff_fac_ac = 0,
+    eff_fac_abc = 0,
+    min_n = 3,
+    max_n = 100) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("anova requires jmvcore to be installed (restart may be required)")
@@ -421,7 +531,16 @@ anova <- function(
         powerDist = powerDist,
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN,
-        num_facs = num_facs)
+        num_facs = num_facs,
+        eff_fac_a = eff_fac_a,
+        eff_fac_b = eff_fac_b,
+        eff_fac_c = eff_fac_c,
+        eff_fac_ab = eff_fac_ab,
+        eff_fac_bc = eff_fac_bc,
+        eff_fac_ac = eff_fac_ac,
+        eff_fac_abc = eff_fac_abc,
+        min_n = min_n,
+        max_n = max_n)
 
     analysis <- anovaClass$new(
         options = options,

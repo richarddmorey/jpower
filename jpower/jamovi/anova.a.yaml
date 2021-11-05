@@ -117,5 +117,66 @@ options:
         - title: "3: three-way ANOVA"
           name: three
       default: one
+      
+    - name: eff_fac_a
+      title: "Effect size for A"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_b
+      title: "Effect size for B"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_c
+      title: "Effect size for C"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_ab
+      title: "Effect size for A:B"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_bc
+      title: "Effect size for B:C"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_ac
+      title: "Effect size for A:C"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: eff_fac_abc
+      title: "Effect size for A:C"
+      type: Number
+      min: 0
+      max: 70.70537
+      default: 0
+      
+    - name: min_n
+      title: "Min N per group"
+      type: Integer
+      min: 3
+      default: 3
+      
+    - name: max_n
+      title: "Max N per group"
+      type: Integer
+      min: 4
+      default: 100
 
 ...
