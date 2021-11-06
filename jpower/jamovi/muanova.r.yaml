@@ -52,8 +52,6 @@ items:
       title: Factorial ANOVA Power Analysis
       type: Table
       clearWith:
-        - estype
-        - es
         - n
         - alpha
         - lev_fac_c
@@ -63,6 +61,7 @@ items:
         - type_fac_b
         - type_fac_a
         - num_facs
+        - dep
       columns:        
         - name: name
           title: ""
@@ -114,6 +113,7 @@ items:
       visible: (powerDist)
       clearWith:
         - dep
+        - power
         - num_facs
         - alpha
         - lev_fac_c
@@ -132,8 +132,6 @@ items:
       renderFun: .powerCurveES
       visible: (powerCurveES)
       clearWith:
-        - estype
-        - es
         - power
         - lev_fac_c
         - lev_fac_b
@@ -142,6 +140,7 @@ items:
         - type_fac_b
         - type_fac_a
         - alpha
+        - num_facs
       
     - name: powerCurveN
       title: Power Curve by N

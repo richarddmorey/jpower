@@ -6,7 +6,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            dep = NULL,
             lev_fac_a = 3,
             lev_fac_b = 2,
             lev_fac_c = 2,
@@ -33,17 +32,9 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package="jpower",
                 name="anova",
-                requiresData=TRUE,
+                requiresData=FALSE,
                 ...)
 
-            private$..dep <- jmvcore::OptionVariable$new(
-                "dep",
-                dep,
-                suggested=list(
-                    "continuous"),
-                permitted=list(
-                    "numeric"),
-                rejectInf=TRUE)
             private$..lev_fac_a <- jmvcore::OptionInteger$new(
                 "lev_fac_a",
                 lev_fac_a,
@@ -171,7 +162,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 min=4,
                 default=100)
 
-            self$.addOption(private$..dep)
             self$.addOption(private$..lev_fac_a)
             self$.addOption(private$..lev_fac_b)
             self$.addOption(private$..lev_fac_c)
@@ -196,7 +186,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..max_n)
         }),
     active = list(
-        dep = function() private$..dep$value,
         lev_fac_a = function() private$..lev_fac_a$value,
         lev_fac_b = function() private$..lev_fac_b$value,
         lev_fac_c = function() private$..lev_fac_c$value,
@@ -220,7 +209,6 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         min_n = function() private$..min_n$value,
         max_n = function() private$..max_n$value),
     private = list(
-        ..dep = NA,
         ..lev_fac_a = NA,
         ..lev_fac_b = NA,
         ..lev_fac_c = NA,
@@ -320,8 +308,6 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="main",
                 title="Factorial ANOVA Power Analysis",
                 clearWith=list(
-                    "estype",
-                    "es",
                     "n",
                     "alpha",
                     "lev_fac_c",
@@ -330,6 +316,13 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
+                    "eff_fac_c",
+                    "eff_fac_b",
+                    "eff_fac_a",
+                    "eff_fac_ab",
+                    "eff_fac_bc",
+                    "eff_fac_ac",
+                    "eff_fac_abc",
                     "num_facs"),
                 columns=list(
                     list(
@@ -373,7 +366,14 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "lev_fac_a",
                     "type_fac_c",
                     "type_fac_b",
-                    "type_fac_a")))
+                    "type_fac_a",
+                    "eff_fac_c",
+                    "eff_fac_b",
+                    "eff_fac_a",
+                    "eff_fac_ab",
+                    "eff_fac_bc",
+                    "eff_fac_ac",
+                    "eff_fac_abc")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveES",
@@ -383,8 +383,6 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 renderFun=".powerCurveES",
                 visible="(powerCurveES)",
                 clearWith=list(
-                    "estype",
-                    "es",
                     "power",
                     "lev_fac_c",
                     "lev_fac_b",
@@ -402,8 +400,6 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 renderFun=".powerCurveN",
                 visible="(powerCurveN)",
                 clearWith=list(
-                    "estype",
-                    "es",
                     "power",
                     "lev_fac_c",
                     "lev_fac_b",
@@ -411,10 +407,15 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
-                    "type_fac_ab",
-                    "type_fac_bc",
-                    "type_fac_ac",
-                    "type_fac_abc",
+                    "eff_fac_c",
+                    "eff_fac_b",
+                    "eff_fac_a",
+                    "eff_fac_ab",
+                    "eff_fac_bc",
+                    "eff_fac_ac",
+                    "eff_fac_abc",
+                    "max_n",
+                    "min_n",
                     "alpha",
                     "dep")))}))
 
@@ -441,8 +442,6 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' Factorial ANOVA
 #'
 #' 
-#' @param data .
-#' @param dep .
 #' @param lev_fac_a .
 #' @param lev_fac_b .
 #' @param lev_fac_c .
@@ -482,8 +481,6 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' @export
 anova <- function(
-    data,
-    dep,
     lev_fac_a = 3,
     lev_fac_b = 2,
     lev_fac_c = 2,
@@ -510,15 +507,8 @@ anova <- function(
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("anova requires jmvcore to be installed (restart may be required)")
 
-    if ( ! missing(dep)) dep <- jmvcore::resolveQuo(jmvcore::enquo(dep))
-    if (missing(data))
-        data <- jmvcore::marshalData(
-            parent.frame(),
-            `if`( ! missing(dep), dep, NULL))
-
 
     options <- anovaOptions$new(
-        dep = dep,
         lev_fac_a = lev_fac_a,
         lev_fac_b = lev_fac_b,
         lev_fac_c = lev_fac_c,

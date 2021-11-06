@@ -482,8 +482,8 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 mu_len = lst$mu_len
             )
             
-            df_res$cohen_f = round(lst$cohen_f, 4)
-            df_res$cohen_f = paste0("Cohen's f = ",lst$cohen_f)
+            #df_res$cohen_f = round(lst$cohen_f, 4)
+            df_res$cohen_f = paste0("Cohen's f = ",round(lst$cohen_f, 4))
             app_df = rbind(app_df, df_res)
         }
         

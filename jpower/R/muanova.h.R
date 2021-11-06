@@ -252,8 +252,6 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="main",
                 title="Factorial ANOVA Power Analysis",
                 clearWith=list(
-                    "estype",
-                    "es",
                     "n",
                     "alpha",
                     "lev_fac_c",
@@ -262,7 +260,8 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
-                    "num_facs"),
+                    "num_facs",
+                    "dep"),
                 columns=list(
                     list(
                         `name`="name", 
@@ -315,6 +314,7 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(powerDist)",
                 clearWith=list(
                     "dep",
+                    "power",
                     "num_facs",
                     "alpha",
                     "lev_fac_c",
@@ -332,8 +332,6 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 renderFun=".powerCurveES",
                 visible="(powerCurveES)",
                 clearWith=list(
-                    "estype",
-                    "es",
                     "power",
                     "lev_fac_c",
                     "lev_fac_b",
@@ -341,7 +339,8 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a",
-                    "alpha")))
+                    "alpha",
+                    "num_facs")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveN",

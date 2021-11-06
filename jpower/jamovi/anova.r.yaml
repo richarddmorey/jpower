@@ -53,8 +53,6 @@ items:
       title: Factorial ANOVA Power Analysis
       type: Table
       clearWith:
-        - estype
-        - es
         - n
         - alpha
         - lev_fac_c
@@ -63,6 +61,13 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
+        - eff_fac_c
+        - eff_fac_b
+        - eff_fac_a
+        - eff_fac_ab
+        - eff_fac_bc
+        - eff_fac_ac
+        - eff_fac_abc
         - num_facs
       columns:        
         - name: name
@@ -106,6 +111,13 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
+        - eff_fac_c
+        - eff_fac_b
+        - eff_fac_a
+        - eff_fac_ab
+        - eff_fac_bc
+        - eff_fac_ac
+        - eff_fac_abc
       
       
     - name: powerCurveES
@@ -116,8 +128,6 @@ items:
       renderFun: .powerCurveES
       visible: (powerCurveES)
       clearWith:
-        - estype
-        - es
         - power
         - lev_fac_c
         - lev_fac_b
@@ -135,8 +145,6 @@ items:
       renderFun: .powerCurveN
       visible: (powerCurveN)
       clearWith:
-        - estype
-        - es
         - power
         - lev_fac_c
         - lev_fac_b
@@ -144,10 +152,13 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - type_fac_ab
-        - type_fac_bc
-        - type_fac_ac
-        - type_fac_abc
+        - eff_fac_c
+        - eff_fac_b
+        - eff_fac_a
+        - eff_fac_ab
+        - eff_fac_bc
+        - eff_fac_ac
+        - eff_fac_abc
         - max_n
         - min_n
         - alpha
