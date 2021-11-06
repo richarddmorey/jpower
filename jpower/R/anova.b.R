@@ -47,24 +47,18 @@ anovaClass <- R6::R6Class(
 
             designtab$setRow(rowNo=1, values=row1)
             table <- self$results$main
+            tabN <- self$results$tabN
             
             for(fac in fct_lvls){
                 table$addRow(rowKey=fac, list(name=fac))
+                tabN$addRow(rowKey=fac, list(name=fac))
             }
             
         },
         .run = function() {
-            #modelTerms <- private$.modelTerms()
-            ## Get options from interface
+
             n = self$options$n
             pow = self$options$power
-            #es = self$options$es
-            #dep <- self$options$get("dep")
-            #if (is.null(dep) || length(dep) == 0){
-            #    stop("Must provide Effect Sizes.")
-            #}
-            #cohen_fs <- as.numeric(as.vector(self$data[[dep]]))
-            #cohen_fs <- cohen_fs[!is.na(cohen_fs)]
 
             alpha = self$options$alpha
             estype = 'f' #self$options$estype
@@ -155,7 +149,6 @@ anovaClass <- R6::R6Class(
                                             )$power,
                                 silent = TRUE)
             
-            
             ## Populate table
             designtab <- self$results$designtab
             row1 <- list()
@@ -175,6 +168,38 @@ anovaClass <- R6::R6Class(
             
             pow_tab$dpow = pow
             results <- pow_tab
+            
+            ## Find N for each factor for desired power
+            
+            n_max = self$options$n_max
+            n_min = self$options$n_min
+            xmax = n_max
+            nn = seq(n_min, n_max)
+            
+            app_df = data.frame(factor = NA,
+                                n = NA,
+                                num_df = NA,
+                                den_df = NA,
+                                cohen_f = NA,
+                                alpha_level = NA)
+            app_df = app_df[FALSE,]
+            
+            for(nn1 in nn){
+                df_res = gen_df_n(
+                    n = nn1,
+                    des_string = lst$des_string,
+                    mu_len = lst$mu_len
+                )
+                df_res$cohen_f = paste0("Cohen's f = ",lst$cohen_f)
+                app_df = rbind(app_df, df_res)
+            }
+            
+            app_df$power = power_ftest(
+                num_df = app_df$num_df,
+                den_df = app_df$den_df,
+                cohen_f = lst$cohen_f,
+                alpha_level = lst$alpha
+            )$power / 100
             
             ## Prepare plots and populate table
 
@@ -444,8 +469,6 @@ anovaClass <- R6::R6Class(
             n_max = lst$n_max
             n_min = lst$n_min
             xmax = n_max
-            
-            
             nn = seq(n_min, n_max)
             
             app_df = data.frame(factor = NA,

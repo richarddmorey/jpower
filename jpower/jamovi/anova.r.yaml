@@ -94,6 +94,55 @@ items:
           title: "Power (1-Beta)"
           type: number
           
+    - name: main
+      title: Factorial ANOVA Power Analysis
+      type: Table
+      clearWith:
+        - n
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
+        - eff_fac_c
+        - eff_fac_b
+        - eff_fac_a
+        - eff_fac_ab
+        - eff_fac_bc
+        - eff_fac_ac
+        - eff_fac_abc
+        - num_facs
+      columns:        
+        - name: name
+          title: ""
+          type: text
+
+        - name: num_df
+          title: Numerator DF
+          type: integer
+          
+        - name: den_df
+          title: Denominator DF
+          type: integer
+          
+        - name: cohen_f
+          title: Cohen's f
+          type: number
+          
+        - name: alpha_level
+          title: Alpha Level
+          type: number
+          
+        - name: power
+          title: "Power (1-Beta)"
+          type: number
+          
+        - name: N
+          title: "N per group"
+          type: integer
+          
     - name: powerDist
       title: Power Demonstration
       type: Image

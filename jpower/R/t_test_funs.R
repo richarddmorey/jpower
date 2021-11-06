@@ -2,7 +2,10 @@
 # with large effect sizes - optimization here is
 # better
 
-pwr.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = c("two.sided", "less", "greater")){
+pwr.t2n.test = function(n1 = NULL, n2 = NULL, 
+                        d = NULL, sig.level = .05,
+                        power = NULL, 
+                        alternative = c("two.sided", "less", "greater")){
   if(!is.null(power))
     if(power>=1) stop("Power cannot be 1.")
   if(is.null(d)){
