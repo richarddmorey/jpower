@@ -57,10 +57,7 @@ pwr.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
     if(alternative == "two.sided"){
       critt = qt(sig.level/2, df)
       pow = pt(critt, df, ncp) + 1 - pt(-critt, df, ncp)
-    }else if(alternative == "less"){
-      critt = qt(sig.level, df)
-      pow = pt(critt, df, ncp)
-    }else if(alternative == "greater"){
+    }else if(alternative == "less" || alternative == "greater"){
       critt = qt(1 - sig.level, df)
       pow = 1 - pt(critt, df, ncp)
     }else{
