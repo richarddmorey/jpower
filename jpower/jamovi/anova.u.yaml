@@ -120,6 +120,10 @@ children:
         margin: large
         style: inline
         children:
+          - name: power
+            type: TextBox
+            label: Desired power
+            format: number
           - name: 'min_n'
             type: TextBox
             label: Min. N per group
@@ -127,10 +131,6 @@ children:
           - name: 'max_n'
             type: TextBox
             label: Max. N per group
-            format: number
-          - name: power
-            type: TextBox
-            label: Desired power
             format: number
   - type: CollapseBox
     label: Plots
