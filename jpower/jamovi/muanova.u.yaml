@@ -93,4 +93,20 @@ children:
         name: powerCurveES
       - type: CheckBox
         name: powerCurveN
-
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: CheckBox
+        name: findN
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: min_n
+        format: number
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: max_n
+        format: number

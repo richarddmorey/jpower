@@ -129,4 +129,21 @@ options:
       min: 0
       max: 1
       default: .8
+      
+    - name: findN
+      title: Find N (table)
+      type: Bool
+      default: false
+      
+    - name: min_n
+      title: "Min N per group"
+      type: Integer
+      min: 3
+      default: 3
+      
+    - name: max_n
+      title: "Max N per group"
+      type: Integer
+      min: 4
+      default: 100
 ...

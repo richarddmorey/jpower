@@ -114,6 +114,8 @@ items:
         - eff_fac_ac
         - eff_fac_abc
         - num_facs
+        - min_n
+        - max_n
       columns:        
         - name: name
           title: ""

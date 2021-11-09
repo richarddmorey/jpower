@@ -21,7 +21,10 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             powerDist = FALSE,
             powerCurveES = FALSE,
             powerCurveN = FALSE,
-            power = 0.8, ...) {
+            power = 0.8,
+            findN = FALSE,
+            min_n = 3,
+            max_n = 100, ...) {
 
             super$initialize(
                 package="jpower",
@@ -122,6 +125,20 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 min=0,
                 max=1,
                 default=0.8)
+            private$..findN <- jmvcore::OptionBool$new(
+                "findN",
+                findN,
+                default=FALSE)
+            private$..min_n <- jmvcore::OptionInteger$new(
+                "min_n",
+                min_n,
+                min=3,
+                default=3)
+            private$..max_n <- jmvcore::OptionInteger$new(
+                "max_n",
+                max_n,
+                min=4,
+                default=100)
 
             self$.addOption(private$..dep)
             self$.addOption(private$..lev_fac_a)
@@ -139,6 +156,9 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..powerCurveES)
             self$.addOption(private$..powerCurveN)
             self$.addOption(private$..power)
+            self$.addOption(private$..findN)
+            self$.addOption(private$..min_n)
+            self$.addOption(private$..max_n)
         }),
     active = list(
         dep = function() private$..dep$value,
@@ -156,7 +176,10 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
         powerCurveN = function() private$..powerCurveN$value,
-        power = function() private$..power$value),
+        power = function() private$..power$value,
+        findN = function() private$..findN$value,
+        min_n = function() private$..min_n$value,
+        max_n = function() private$..max_n$value),
     private = list(
         ..dep = NA,
         ..lev_fac_a = NA,
@@ -173,7 +196,10 @@ muANOVAOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..powerDist = NA,
         ..powerCurveES = NA,
         ..powerCurveN = NA,
-        ..power = NA)
+        ..power = NA,
+        ..findN = NA,
+        ..min_n = NA,
+        ..max_n = NA)
 )
 
 muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -182,6 +208,7 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         designtab = function() private$.items[["designtab"]],
         main = function() private$.items[["main"]],
+        tabN = function() private$.items[["tabN"]],
         DesPlot = function() private$.items[["DesPlot"]],
         powerDist = function() private$.items[["powerDist"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
@@ -287,6 +314,46 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="power", 
                         `title`="Power (1-Beta)", 
                         `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="tabN",
+                title="N for Desired Power",
+                visible="(findN)",
+                clearWith=list(
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a",
+                    "eff_fac_c",
+                    "eff_fac_b",
+                    "eff_fac_a",
+                    "eff_fac_ab",
+                    "eff_fac_bc",
+                    "eff_fac_ac",
+                    "eff_fac_abc",
+                    "num_facs",
+                    "min_n",
+                    "max_n"),
+                columns=list(
+                    list(
+                        `name`="name", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="n", 
+                        `title`="N per group", 
+                        `type`="integer"),
+                    list(
+                        `name`="power", 
+                        `title`="Estimated Power", 
+                        `type`="number"),
+                    list(
+                        `name`="label", 
+                        `title`="", 
+                        `type`="text"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="DesPlot",
@@ -402,10 +469,14 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param powerCurveES .
 #' @param powerCurveN .
 #' @param power .
+#' @param findN .
+#' @param min_n .
+#' @param max_n .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$tabN} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$DesPlot} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
@@ -436,7 +507,10 @@ muANOVA <- function(
     powerDist = FALSE,
     powerCurveES = FALSE,
     powerCurveN = FALSE,
-    power = 0.8) {
+    power = 0.8,
+    findN = FALSE,
+    min_n = 3,
+    max_n = 100) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("muANOVA requires jmvcore to be installed (restart may be required)")
@@ -464,7 +538,10 @@ muANOVA <- function(
         powerDist = powerDist,
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN,
-        power = power)
+        power = power,
+        findN = findN,
+        min_n = min_n,
+        max_n = max_n)
 
     analysis <- muANOVAClass$new(
         options = options,

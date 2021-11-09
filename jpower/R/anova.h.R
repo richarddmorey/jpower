@@ -378,7 +378,9 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "eff_fac_bc",
                     "eff_fac_ac",
                     "eff_fac_abc",
-                    "num_facs"),
+                    "num_facs",
+                    "min_n",
+                    "max_n"),
                 columns=list(
                     list(
                         `name`="name", 
