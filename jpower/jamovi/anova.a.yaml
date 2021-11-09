@@ -93,6 +93,11 @@ options:
       type: Bool
       default: false
       
+    - name: findN
+      title: Find N (table)
+      type: Bool
+      default: false
+      
     - name: num_facs
       title: "Design"
       type: List

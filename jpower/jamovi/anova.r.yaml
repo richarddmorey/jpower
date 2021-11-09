@@ -94,11 +94,11 @@ items:
           title: "Power (1-Beta)"
           type: number
           
-    - name: main
-      title: Factorial ANOVA Power Analysis
+    - name: tabN
+      title: N for Desired Power
       type: Table
+      visible: (findN)
       clearWith:
-        - n
         - alpha
         - lev_fac_c
         - lev_fac_b
@@ -118,30 +118,18 @@ items:
         - name: name
           title: ""
           type: text
-
-        - name: num_df
-          title: Numerator DF
+          
+        - name: n
+          title: N per group
           type: integer
-          
-        - name: den_df
-          title: Denominator DF
-          type: integer
-          
-        - name: cohen_f
-          title: Cohen's f
-          type: number
-          
-        - name: alpha_level
-          title: Alpha Level
-          type: number
           
         - name: power
-          title: "Power (1-Beta)"
+          title: "Estimated Power"
           type: number
-          
-        - name: N
-          title: "N per group"
-          type: integer
+
+        - name: label
+          title: ""
+          type: text
           
     - name: powerDist
       title: Power Demonstration

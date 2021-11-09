@@ -18,6 +18,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             powerDist = FALSE,
             powerCurveES = FALSE,
             powerCurveN = FALSE,
+            findN = FALSE,
             num_facs = "one",
             eff_fac_a = 0,
             eff_fac_b = 0,
@@ -101,6 +102,10 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "powerCurveN",
                 powerCurveN,
                 default=FALSE)
+            private$..findN <- jmvcore::OptionBool$new(
+                "findN",
+                findN,
+                default=FALSE)
             private$..num_facs <- jmvcore::OptionList$new(
                 "num_facs",
                 num_facs,
@@ -174,6 +179,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..powerDist)
             self$.addOption(private$..powerCurveES)
             self$.addOption(private$..powerCurveN)
+            self$.addOption(private$..findN)
             self$.addOption(private$..num_facs)
             self$.addOption(private$..eff_fac_a)
             self$.addOption(private$..eff_fac_b)
@@ -198,6 +204,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerDist = function() private$..powerDist$value,
         powerCurveES = function() private$..powerCurveES$value,
         powerCurveN = function() private$..powerCurveN$value,
+        findN = function() private$..findN$value,
         num_facs = function() private$..num_facs$value,
         eff_fac_a = function() private$..eff_fac_a$value,
         eff_fac_b = function() private$..eff_fac_b$value,
@@ -221,6 +228,7 @@ anovaOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..powerDist = NA,
         ..powerCurveES = NA,
         ..powerCurveN = NA,
+        ..findN = NA,
         ..num_facs = NA,
         ..eff_fac_a = NA,
         ..eff_fac_b = NA,
@@ -239,6 +247,7 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         designtab = function() private$.items[["designtab"]],
         main = function() private$.items[["main"]],
+        tabN = function() private$.items[["tabN"]],
         powerDist = function() private$.items[["powerDist"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
         powerCurveN = function() private$.items[["powerCurveN"]]),
@@ -349,6 +358,44 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="power", 
                         `title`="Power (1-Beta)", 
                         `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="tabN",
+                title="N for Desired Power",
+                visible="(findN)",
+                clearWith=list(
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a",
+                    "eff_fac_c",
+                    "eff_fac_b",
+                    "eff_fac_a",
+                    "eff_fac_ab",
+                    "eff_fac_bc",
+                    "eff_fac_ac",
+                    "eff_fac_abc",
+                    "num_facs"),
+                columns=list(
+                    list(
+                        `name`="name", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="n", 
+                        `title`="N per group", 
+                        `type`="integer"),
+                    list(
+                        `name`="power", 
+                        `title`="Estimated Power", 
+                        `type`="number"),
+                    list(
+                        `name`="label", 
+                        `title`="", 
+                        `type`="text"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerDist",
@@ -454,6 +501,7 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param powerDist .
 #' @param powerCurveES .
 #' @param powerCurveN .
+#' @param findN .
 #' @param num_facs .
 #' @param eff_fac_a .
 #' @param eff_fac_b .
@@ -468,6 +516,7 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$tabN} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
@@ -493,6 +542,7 @@ anova <- function(
     powerDist = FALSE,
     powerCurveES = FALSE,
     powerCurveN = FALSE,
+    findN = FALSE,
     num_facs = "one",
     eff_fac_a = 0,
     eff_fac_b = 0,
@@ -521,6 +571,7 @@ anova <- function(
         powerDist = powerDist,
         powerCurveES = powerCurveES,
         powerCurveN = powerCurveN,
+        findN = findN,
         num_facs = num_facs,
         eff_fac_a = eff_fac_a,
         eff_fac_b = eff_fac_b,

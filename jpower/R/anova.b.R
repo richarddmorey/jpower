@@ -69,6 +69,7 @@ anovaClass <- R6::R6Class(
             type_fac_b = self$options$type_fac_b
             type_fac_c = self$options$type_fac_c
             num_facs = self$options$num_facs
+            desired_power = self$options$power*100
             
             if(num_facs == "one"){
                 des_string = paste0(lev_fac_a,type_fac_a)
@@ -133,6 +134,7 @@ anovaClass <- R6::R6Class(
             })
             aov2 = aov1[1:2]
             colnames(aov2) = c("num_df","den_df")
+            aov2 = aov2[fct_lvls,]
             aov2$factor = rownames(aov2)
             aov2$n = n
 
@@ -171,35 +173,93 @@ anovaClass <- R6::R6Class(
             
             ## Find N for each factor for desired power
             
-            n_max = self$options$n_max
-            n_min = self$options$n_min
+            max_n = self$options$max_n
+            min_n = self$options$min_n
+            n_max = max_n
+            n_min = min_n
             xmax = n_max
             nn = seq(n_min, n_max)
             
-            app_df = data.frame(factor = NA,
-                                n = NA,
-                                num_df = NA,
-                                den_df = NA,
-                                cohen_f = NA,
-                                alpha_level = NA)
-            app_df = app_df[FALSE,]
+            length_power <- length(pow_tab$power)
             
-            for(nn1 in nn){
-                df_res = gen_df_n(
-                    n = nn1,
-                    des_string = lst$des_string,
-                    mu_len = lst$mu_len
-                )
-                df_res$cohen_f = paste0("Cohen's f = ",lst$cohen_f)
-                app_df = rbind(app_df, df_res)
+            power_df <- as.data.frame(matrix(0, ncol = length_power + 1,
+                                             nrow = max_n + 1 - min_n))
+            power_df[,1] <- c((min_n):max_n)
+            
+            colnames(power_df) <- c("n", row.names(pow_tab$factor))
+            
+            for (i in 1:(max_n + 1 - min_n)) {
+                
+                des1 <- ANOVA_design(design = des_string,
+                                              n = i + min_n - 1,
+                                              mu = rep(0, mu_len),
+                                              sd = 1,
+                                              r = 0.5)
+            
+                
+                aov1 = suppressMessages({
+                    as.data.frame(aov_car(des1$frml1,
+                                          data = des1$dataframe,
+                                          include_aov = FALSE)$anova_table)
+                })
+                
+                aov2 = aov1[1:2]
+                colnames(aov2) = c("num_df","den_df")
+                aov2$n = n
+                aov2 = aov2[fct_lvls,]
+                aov2$cohen_f = cohen_fs
+                
+                aov2$power = power_ftest(aov2$num_df,
+                                         aov2$den_df,
+                                         aov2$cohen_f,
+                                         alpha_level = alpha)$power
+                
+                power_df[i, 2:(1 + length_power)] <- aov2$power
+                
             }
             
-            app_df$power = power_ftest(
-                num_df = app_df$num_df,
-                den_df = app_df$den_df,
-                cohen_f = lst$cohen_f,
-                alpha_level = lst$alpha
-            )$power / 100
+            #create data frame for annotation for desired power
+            annotate_df <- as.data.frame(matrix(0, ncol = 7, nrow = length(row.names(aov2)))) #three rows, for N, power, and variable label
+            colnames(annotate_df) <- c("n", "power", "variable", "label") # add columns names
+            annotate_df$variable <- as.factor(c(row.names(aov2))) #add variable label names
+            annotate_df$num_df <- aov2$num_df
+            annotate_df$den_df <- aov2$den_df
+            annotate_df$cohen_f <- aov2$cohen_f
+            anova_n = annotate_df
+            
+            # Create a dataframe with columns for each effect and rows for the N and power for that N
+            for (i in 1:length_power) {
+                annotate_df[i,1] <- tryCatch(findInterval(desired_power, 
+                                                          power_df[,(1 + i)]),
+                                             error=function(e){max_n-min_n}) + min_n #use findinterval to find the first value in the vector before desired power. Add 1 (we want to achieve the power, not stop just short) then add min_n (because the vector starts at min_n, not 0)
+                if(annotate_df[i,1] > max_n){annotate_df[i,1] <- max_n} # catches cases that do not reach desired power. Then just plot max_n
+                if(annotate_df[i,1] == max_n){annotate_df[i,1] <- (min_n+max_n)/2} # We will plot that max power is not reached at midpoint of max n
+                annotate_df[i,2] <- power_df[annotate_df[i,1]-min_n+1,(i+1)] #store exact power at N for which we pass desired power (for plot)
+                if(annotate_df[i,2] < desired_power){annotate_df[i,4] <- "Desired Power Not Reached"}
+                if(annotate_df[i,2] >= desired_power){annotate_df[i,4] <- annotate_df[i,1]}
+                if(annotate_df[i,2] < desired_power){annotate_df[i,5] <- 5}
+                
+                # Repeat process for tabular results
+                anova_n[i,1] <- tryCatch(findInterval(desired_power,
+                                                      power_df[,(1 + i)]),
+                                         error=function(e){max_n-min_n}) + min_n #use findinterval to find the first value in the vector before desired power. Add 1 (we want to achieve the power, not stop just short) then add min_n (because the vector starts at min_n, not 0)
+                if(anova_n[i,1] > max_n){anova_n[i,1] <- max_n} # catches cases that do not reach desired power. Then just plot max_n
+                anova_n[i,2] <- power_df[anova_n[i,1]-min_n+1,(i+1)] #store exact power at N for which we pass desired power (for plot)
+                if(anova_n[i,2] < desired_power){anova_n[i,4] <- "Desired Power Not Reached"}
+                if(anova_n[i,2] >= desired_power){anova_n[i,4] <- "Desired Power Achieved"}
+                
+            }
+            
+            tabN <- self$results$tabN
+            
+            for(fac in fct_lvls){
+                res = anova_n[which(results$factor == fac),]
+                #table$addRow(rowKey=fac, list(name=fac))
+                tableRow <- list(n = res$n,
+                                 power = res$power/100,
+                                 label = res$label)
+                tabN$setRow(rowKey = fac, tableRow)
+            }
             
             ## Prepare plots and populate table
 

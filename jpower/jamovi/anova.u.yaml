@@ -101,6 +101,7 @@ children:
                 enable: '(num_facs:three)'
   - type: LayoutBox
     margin: large
+    style: inline
     children:
       - name: 'n'
         type: TextBox
@@ -110,33 +111,40 @@ children:
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
+  - type: Label
+    label: Determine Sample Size (N)
+    children:
+      - type: CheckBox
+        name: findN
+      - type: LayoutBox
+        margin: large
+        style: inline
+        children:
+          - name: 'min_n'
+            type: TextBox
+            label: Min. N per group
+            format: number
+          - name: 'max_n'
+            type: TextBox
+            label: Max. N per group
+            format: number
+          - name: power
+            type: TextBox
+            label: Desired power
+            format: number
   - type: CollapseBox
-    label: Plot F Distribution
+    label: Plots
     name: spanel
     collapsed: true
     children:
       - type: CheckBox
         name: powerDist
-  - type: CollapseBox
-    label: Plot Power Curve
-    name: spanelpow
-    collapsed: true
-    children:
-      - name: power
-        type: TextBox
-        label: Minimum desired power
-        format: number
+        label: "F distribution"
       - type: CheckBox
         name: powerCurveES
       - type: CheckBox
         name: powerCurveN
-      - name: 'min_n'
-        type: TextBox
-        label: Minimum N per group
-        format: number
-      - name: 'max_n'
-        type: TextBox
-        label: Maximum N per group
-        format: number
+
+
 
 compilerMode: tame
