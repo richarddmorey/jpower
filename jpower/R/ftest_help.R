@@ -99,12 +99,11 @@ gen_df_n = function(n,
                     des_string,
                     mu_len,
                     cohen_f){
-  des1 = Superpower::ANOVA_design(des_string,
+  des1 = ANOVA_design(des_string,
                                   mu = 1:mu_len,
                                   sd = 1,
                                   r = 0.5,
-                                  n = n,
-                                  plot = FALSE)
+                                  n = n)
   
   aov1 = suppressMessages({
     as.data.frame(afex::aov_car(des1$frml1,
