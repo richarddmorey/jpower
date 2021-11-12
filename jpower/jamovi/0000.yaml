@@ -46,14 +46,5 @@ analyses:
     menuTitle: Factorial ANOVA
     menuSubgroup: ANOVA
     menuSubtitle: Means
-datasets:
-  - name: Cohen's f effect sizes
-    path: cohen_f.csv
-    description: >-
-      The proper number of effect sizes for one, two, and three factor design
-      power analysis
-    tags:
-      - power
-      - cohen
 
 ...

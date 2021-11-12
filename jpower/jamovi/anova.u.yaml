@@ -6,7 +6,7 @@ children:
   - type: CollapseBox
     label: Design Parameters
     name: spaneld
-    collapsed: true
+    collapsed: false
     children:
       - type: LayoutBox
         margin: large
@@ -49,7 +49,7 @@ children:
   - type: CollapseBox
     label: Effect Sizes
     name: espanel
-    collapsed: true
+    collapsed: false
     children:
       - type: Label
         label: Main Effects
@@ -111,8 +111,10 @@ children:
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
-  - type: Label
-    label: Determine Sample Size (N)
+  - type: CollapseBox
+    label: Determine Sample Size
+    name: Npanel
+    collapsed: true
     children:
       - type: CheckBox
         name: findN

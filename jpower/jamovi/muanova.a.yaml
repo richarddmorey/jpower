@@ -109,7 +109,7 @@ options:
       default: one
       
     - name: powerDist
-      title: Power demonstration
+      title: F distribution
       type: Bool
       default: false
       
