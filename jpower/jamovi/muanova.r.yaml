@@ -180,6 +180,7 @@ items:
         - type_fac_a
         - alpha
         - num_facs
+        - n
       
     - name: powerCurveN
       title: Power Curve by N

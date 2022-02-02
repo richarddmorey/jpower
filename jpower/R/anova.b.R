@@ -274,6 +274,8 @@ anovaClass <- R6::R6Class(
                        des_string = des_string,
                        des_t = des_t,
                        fct_lvls = fct_lvls)
+            private$.populateIntro()
+            private$.populateTabPowText() 
             private$.populateMainTable(results, lst)
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
@@ -639,5 +641,87 @@ anovaClass <- R6::R6Class(
             
             TRUE
             
+        },
+        .populateIntro = function(){
+            
+            #calc <- self$options$calc
+            
+            html <- self$results$intro
+            
+            str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
+                         "the sensitivity of a design and test. ")
+
+            str = paste0(
+                str,
+                "An ANOVA may have multiple tests and this function calculates the sensitivity of the chosen design ",
+                "for detecting the specified effect size(s)."
+            )
+            
+            
+            html$setContent(str)
+            
+        },
+        .populateDistText = function(r, lst){
+          
+          html <- self$results$distText
+          
+          ## Get options from interface
+          calc <- self$options$calc
+          n_ratio <- lst$n_ratio
+          n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+          n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+          d <- ifelse(calc == 'es', r$es, lst$es)
+          d <- round(d,2)
+          power <- ifelse(calc == 'power', r$power, lst$pow)
+          alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+          alt <- lst$alt
+          
+          n_text = ifelse(n1==n2,
+                          paste0("a sample size of ",n1," in each group"),
+                          paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
+          )
+          
+          if(alt == "two.sided"){
+            tail_text = "two-sided"
+            null_text = "<i>\u03B4=</i>0,"
+            alt_text = "<i>|\u03B4|\u2265</i>"
+            crit_text = "criteria"
+          }else{
+            tail_text = "one-sided"
+            null_text = "<i>\u03B4\u2264</i>0,"
+            alt_text = "<i>\u03B4\u2265</i"
+            crit_text = "criterion"
+          }
+          
+          str = paste0("<p>The figure above shows two sampling distributions: the sampling distribution ",
+                       "of the <i>estimated</i> effect size when <i>\u03B4=</i>0 (left), and when <i>\u03B4=</i>",d,
+                       " (right). Both assume ",n_text,".",
+                       "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
+                       " test with <i>α=</i>",alpha,". When the observed effect size is far enough ",
+                       "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
+                       "If the null hypothesis were true and ", null_text,
+                       " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
+                       "<p>On the other hand, if <i>\u03B4\u2265</i>",d,", the evidence would exceed the criterion ",
+                       " &mdash; and hence we would correctly claim that <i>\u03B4\u2265</i>0 &mdash; at least ",
+                       100*round(power,3),"% of the time. The design's power for detecting effects of ", alt_text, d,
+                       " is thus ",round(power,3),".")
+          
+          
+          html$setContent(str)
+          
+        },
+        .populateTabPowText = function(){
+          
+          #calc <- self$options$calc
+          
+          html <- self$results$text1
+          
+          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. </p>",
+                       "<p> This is the conditional power of design (detailed in the table above) for settings that the user has input. </p>",
+                       "<p> Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
+          
+          
+          html$setContent(str)
+          
         })
 )

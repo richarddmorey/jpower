@@ -5,6 +5,11 @@ jrs:   "1.1"
 
 items:
 
+    - name: intro
+      title: Introduction
+      type: Html
+      visible: (text)
+
     - name:  designtab
       title: Design
       type: Table
@@ -48,6 +53,10 @@ items:
         - name: val[n_tot]
           title: ''
           type: integer
+          
+    - name: text1
+      type: Html
+      visible: (text)
           
     - name: main
       title: Factorial ANOVA Power Analysis
@@ -174,7 +183,9 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - alpha
+        - dep
+        - num_facs
+        - n
       
     - name: powerCurveN
       title: Power Curve by N

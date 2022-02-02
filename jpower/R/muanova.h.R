@@ -407,7 +407,8 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_b",
                     "type_fac_a",
                     "alpha",
-                    "num_facs")))
+                    "num_facs",
+                    "n")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveN",
