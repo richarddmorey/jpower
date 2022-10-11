@@ -87,7 +87,7 @@ anovaClass <- R6::R6Class(
                 n_obs = mu_len*n
                 mlt_a = ifelse(type_fac_a == "w", 1, lev_fac_a)
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
-                n_tot = mlt_a*mlt_b
+                n_tot = mlt_a*mlt_b*n
                 fct_lvls = c("a", "b", "a:b")
                 des_t = "Two-way ANOVA"
                 cohen_fs = as.numeric(c(self$options$eff_fac_a,
@@ -102,7 +102,7 @@ anovaClass <- R6::R6Class(
                 mlt_a = ifelse(type_fac_a == "w", 1, lev_fac_a)
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
                 mlt_c = ifelse(type_fac_c == "w", 1, lev_fac_c)
-                n_tot = mlt_a*mlt_b*mlt_c
+                n_tot = mlt_a*mlt_b*mlt_c*n
                 fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
                 des_t = "Three-way ANOVA"
                 cohen_fs = as.numeric(c(self$options$eff_fac_a,
@@ -649,12 +649,12 @@ anovaClass <- R6::R6Class(
             html <- self$results$intro
             
             str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
-                         "the sensitivity of a design and test. ")
+                         "the sensitivity of a design and statistical test. ")
 
             str = paste0(
                 str,
                 "An ANOVA may have multiple tests and this function calculates the sensitivity of the chosen design ",
-                "for detecting the specified effect size(s)."
+                "for detecting the specified effect size (Cohen's <i>f</i>)."
             )
             
             
@@ -717,7 +717,7 @@ anovaClass <- R6::R6Class(
           html <- self$results$text1
           
           str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. </p>",
-                       "<p> This is the conditional power of design (detailed in the table above) for settings that the user has input. </p>",
+                       "<p> This is the conditional power of the design (detailed in the table above) for settings that the user has provided. </p>",
                        "<p> Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
           
           
