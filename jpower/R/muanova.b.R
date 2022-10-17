@@ -292,10 +292,46 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                  label = res$label)
                 tabN$setRow(rowKey = fac, tableRow)
             }
+            # Populate ----
+            private$.populateIntro()
+            private$.populateTabPowText() 
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
             private$.preparePowerCurveN(results, lst)
 
+        },
+        .populateIntro = function(){
+          
+          #calc <- self$options$calc
+          
+          html <- self$results$intro
+          
+          str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
+                       "the sensitivity of a design and statistical test. ")
+          
+          str = paste0(
+            str,
+            "An ANOVA may have multiple tests and this function calculates the sensitivity of the chosen design ",
+            "for detecting the specified effect size (Cohen's <i>f</i>)."
+          )
+          
+          
+          html$setContent(str)
+          
+        },
+        .populateTabPowText = function(){
+          
+          #calc <- self$options$calc
+          
+          html <- self$results$text1
+          
+          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. </p>",
+                       "<p> This is the conditional power of the design (detailed in the table above) for settings that the user has provided. </p>",
+                       "<p> Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
+          
+          
+          html$setContent(str)
+          
         },
     .populateMainTable = function(results, lst) {
         
@@ -315,14 +351,14 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         }
         
     },
-    .DesPlot = function(image, ...) {
+    .DesPlot = function(image, ggtheme,...) {
         
         if (is.null(image$state)){
             return(FALSE)
         }
             
         
-        p = image$state
+        p = image$state +ggtheme
         print(p)
         
         TRUE

@@ -1,6 +1,6 @@
 ---
 name:  anova
-title: ANOVA
+title: ANOVA (imputed effect sizes)
 jrs:   "1.1"
 
 items:
@@ -103,6 +103,10 @@ items:
           title: "Power (1-Beta)"
           type: number
           
+    - name: text2
+      type: Html
+      visible: (findN)
+          
     - name: tabN
       title: N for Desired Power
       type: Table
@@ -166,7 +170,11 @@ items:
         - eff_fac_bc
         - eff_fac_ac
         - eff_fac_abc
-      
+        
+    - name: distText
+      title: Power contour context
+      type: Html
+      visible: (powerDist)      
       
     - name: powerCurveES
       title: Power Curve by Effect Size

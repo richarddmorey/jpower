@@ -1,9 +1,15 @@
 ---
 name:  muANOVA
-title: Factorial ANOVA
+title: ANOVA (imputed means)
 jrs:   '1.1'
 
 items:
+
+    - name: intro
+      title: Introduction
+      type: Html
+      visible: (text)
+
     - name:  designtab
       title: Design
       type: Table
@@ -47,6 +53,10 @@ items:
         - name: val[n_tot]
           title: ''
           type: integer
+          
+    - name: text1
+      type: Html
+      visible: (text)
           
     - name: main
       title: Factorial ANOVA Power Analysis

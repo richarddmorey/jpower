@@ -206,7 +206,9 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "muANOVAResults",
     inherit = jmvcore::Group,
     active = list(
+        intro = function() private$.items[["intro"]],
         designtab = function() private$.items[["designtab"]],
+        text1 = function() private$.items[["text1"]],
         main = function() private$.items[["main"]],
         tabN = function() private$.items[["tabN"]],
         DesPlot = function() private$.items[["DesPlot"]],
@@ -219,7 +221,12 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Factorial ANOVA")
+                title="ANOVA (imputed means)")
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="intro",
+                title="Introduction",
+                visible="(text)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="designtab",
@@ -274,6 +281,10 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="val[n_tot]", 
                         `title`="", 
                         `type`="integer"))))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="text1",
+                visible="(text)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="main",
@@ -475,7 +486,9 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param max_n .
 #' @return A results object containing:
 #' \tabular{llllll}{
+#'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$text1} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$tabN} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$DesPlot} \tab \tab \tab \tab \tab an image \cr

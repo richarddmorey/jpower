@@ -249,8 +249,10 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         designtab = function() private$.items[["designtab"]],
         text1 = function() private$.items[["text1"]],
         main = function() private$.items[["main"]],
+        text2 = function() private$.items[["text2"]],
         tabN = function() private$.items[["tabN"]],
         powerDist = function() private$.items[["powerDist"]],
+        distText = function() private$.items[["distText"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
         powerCurveN = function() private$.items[["powerCurveN"]]),
     private = list(),
@@ -259,7 +261,7 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="ANOVA")
+                title="ANOVA (imputed effect sizes)")
             self$add(jmvcore::Html$new(
                 options=options,
                 name="intro",
@@ -369,6 +371,10 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="power", 
                         `title`="Power (1-Beta)", 
                         `type`="number"))))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="text2",
+                visible="(findN)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tabN",
@@ -434,6 +440,11 @@ anovaResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "eff_fac_bc",
                     "eff_fac_ac",
                     "eff_fac_abc")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="distText",
+                title="Power contour context",
+                visible="(powerDist)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveES",
@@ -533,8 +544,10 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$text1} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$text2} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$tabN} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$distText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
 #' }

@@ -46,6 +46,21 @@ children:
               - type: ComboBox
                 name: type_fac_c
                 enable: '(num_facs:three)'
+      - type: Label
+        label: Set Other Design Parameters
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'n'
+                type: TextBox
+                label: N per group
+                format: number
+              - name: alpha
+                type: TextBox
+                label: '&alpha; (type I error rate)'
+                format: number
   - type: CollapseBox
     label: Effect Sizes
     name: espanel
@@ -99,18 +114,7 @@ children:
                 label: A:B:C
                 format: number
                 enable: '(num_facs:three)'
-  - type: LayoutBox
-    margin: large
-    style: inline
-    children:
-      - name: 'n'
-        type: TextBox
-        label: N per group
-        format: number
-      - name: alpha
-        type: TextBox
-        label: '&alpha; (type I error rate)'
-        format: number
+
   - type: CollapseBox
     label: Determine Sample Size
     name: Npanel
