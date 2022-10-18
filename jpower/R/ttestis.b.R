@@ -53,15 +53,15 @@ ttestISClass <- R6::R6Class(
 
 
             ## Compute numbers for table
-            pow.n = try(ceiling(jpower::pwr.t2n.ratio(n_ratio = stats$n_ratio, d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)), silent=TRUE)
-            pow.es = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
-            pow.pow = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
-#            pow.alpha = try(jpower::pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
+            pow.n = try(ceiling(pwr.t2n.ratio(n_ratio = stats$n_ratio, d = stats$es, sig.level = stats$alpha, power = stats$pow, alternative = stats$alt)), silent=TRUE)
+            pow.es = try(pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, power = stats$pow, sig.level = stats$alpha, alternative = stats$alt)$d, silent=TRUE)
+            pow.pow = try(pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = stats$alpha, alternative = stats$alt)$power, silent=TRUE)
+#            pow.alpha = try(pwr.t2n.test(n1 = stats$n1, n2 = stats$n2, d = stats$es, sig.level = NULL, power = stats$pow, alternative = stats$alt)$sig.level, silent=TRUE)
 
 #            if (class(pow.alpha) == 'try-error')
 #                pow.alpha <- 0
 
-            d50 = jpower::pwr.t2n.test(n1 = stats$n1,
+            d50 = pwr.t2n.test(n1 = stats$n1,
                                        n2 = stats$n2,
                                        sig.level = stats$alpha,
                                        power = .5, alternative = stats$alt)$d
@@ -168,7 +168,7 @@ ttestISClass <- R6::R6Class(
 
           probs = c(.5, .8, .95)
           probs_es = sapply(probs, function(p){
-            jpower::pwr.t2n.test(n1 = n1, n2 = n2,
+            pwr.t2n.test(n1 = n1, n2 = n2,
                                  sig.level = alpha, power = p,
                                  alternative = alt)$d
           })
@@ -238,7 +238,7 @@ ttestISClass <- R6::R6Class(
 
           image <- self$results$powerContour
 
-          ps <- jpower::ttestPlotSettings
+          ps <- ttestPlotSettings
 
           calc <- self$options$calc
 
@@ -251,7 +251,7 @@ ttestISClass <- R6::R6Class(
           alt <- lst$alt
 
 
-          maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio,
+          maxn <- pwr.t2n.ratio(n_ratio = n_ratio,
                                         power = max(0.9, power),
                                         d = d,
                                         sig.level = alpha,
@@ -273,7 +273,7 @@ ttestISClass <- R6::R6Class(
           nn2 = ceiling(n_ratio * nn)
 
           z.pwr = sapply(dd, function(delta){
-            jpower::pwr.t2n.test(nn, nn2,
+            pwr.t2n.test(nn, nn2,
                               d = delta,
                               sig.level = alpha,
                               alternative = alt)$power
@@ -281,7 +281,7 @@ ttestISClass <- R6::R6Class(
 
           z.delta = sapply(nn, function(N){
             n2 = ceiling(n_ratio * N)
-            jpower::pwr.t2n.test(N, n2,
+            pwr.t2n.test(N, n2,
                               sig.level = alpha,
                               power = power,
                               alternative = alt)$d
@@ -336,23 +336,23 @@ ttestISClass <- R6::R6Class(
                                    axis(3, at = log(at.N), lab = ceiling(at.N * n_ratio))
                                    mtext("Sample size (group 2)", 3, line = par()$mgp[1],  adj = .5)
                                }
-                               jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
+                               striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2], x = log(nn), y = z.delta, lwd = 2)
                                #contour(log(N), delta, z.pwr, add=TRUE)
                                if(calc == "n"){
-                                   jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                   striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                                           x1 = log(n1), y1 = par()$usr[3],
                                                           x0 = log(n1),
                                                           y0 = delta, lwd = 2, arr.adj = 1)
-                                   jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                   striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                                             x0 = log(n1), y0 = delta,
                                                             x1 = par()$usr[1], y1 = delta,
                                                             lwd = 2)
                                }else if(calc == "es"){
-                                   jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                   striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                                             x1 = log(n1), y1 = par()$usr[3],
                                                             x0 = log(n1),
                                                             y0 = delta, lwd = 2)
-                                   jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+                                   striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                                                           x0 = log(n1), y0 = delta,
                                                           x1 = par()$usr[1], y1 = delta,
                                                           lwd = 2, arr.adj = 1)
@@ -398,7 +398,7 @@ ttestISClass <- R6::R6Class(
 
             image <- self$results$powerCurveES
 
-            ps <- jpower::ttestPlotSettings
+            ps <- ttestPlotSettings
 
             calc <- self$options$calc
 
@@ -411,7 +411,7 @@ ttestISClass <- R6::R6Class(
 
             dd = seq(ps$mind, ps$maxd, len = ps$curve.n)
 
-            y = jpower::pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
+            y = pwr.t2n.test(n1 = n1, n2 = n2, d = dd, sig.level = alpha, alternative = alt)$power
             cols = ps$pal(ps$pow.n.levels)
             yrect = seq(0,1,1/ps$pow.n.levels)
 
@@ -433,7 +433,7 @@ ttestISClass <- R6::R6Class(
             dd <- image$state$dd
             delta <- image$state$delta
 
-            ps <- jpower::ttestPlotSettings
+            ps <- ttestPlotSettings
 
 
             label <- jmvcore::format("  N\u2081 = {}, N\u2082 = {}, \u03B1 = {}", n1, n2, round(alpha,3))
@@ -450,13 +450,13 @@ ttestISClass <- R6::R6Class(
                    col = cols[i])
             }
 
-            jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                           dd, y, lwd = 3)
-            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                            x0 = delta, y0 = pow,
                            x1 = delta,
                            y1 = 0, lwd = 3, arr.adj = 1)
-            jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                              x0 = min(dd), y0 = pow,
                              x1 = delta, y1 = pow,
                              lwd = 3)
@@ -502,7 +502,7 @@ ttestISClass <- R6::R6Class(
             pwr_string = paste0("only be sufficiently sensitive (power >", round(power, 3), ")")
           }
 
-          d50 = jpower::pwr.t2n.test(n1 = n1, n2 = n2, sig.level = alpha, power = .5, alternative = alt)$d
+          d50 = pwr.t2n.test(n1 = n1, n2 = n2, sig.level = alpha, power = .5, alternative = alt)$d
 
           str = paste0("<p>The power curve above shows how the sensitivity of the test and design ",
                        "is larger for larger effect sizes. If we obtained ", n_text,
@@ -520,7 +520,7 @@ ttestISClass <- R6::R6Class(
 
             calc <- self$options$calc
 
-            ps <- jpower::ttestPlotSettings
+            ps <- ttestPlotSettings
 
             n1 <- ifelse(calc == 'n', r$n1, lst$n1)
             n2 <- ifelse(calc == 'n', r$n2, lst$n2)
@@ -530,7 +530,7 @@ ttestISClass <- R6::R6Class(
             alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
             alt <- lst$alt
 
-            maxn <- jpower::pwr.t2n.ratio(n_ratio = n_ratio,
+            maxn <- pwr.t2n.ratio(n_ratio = n_ratio,
                                           power = max(0.9, power),
                                           d = d,
                                           sig.level = alpha,
@@ -549,7 +549,7 @@ ttestISClass <- R6::R6Class(
 
             nn = seq(minn, maxn)
 
-            y = jpower::pwr.t2n.test(n1 = nn,
+            y = pwr.t2n.test(n1 = nn,
                                   n2 = ceiling(nn * lst$n_ratio),
                                   d = d, sig.level = alpha, alternative = alt)$power
 
@@ -578,7 +578,7 @@ ttestISClass <- R6::R6Class(
             n1 <- image$state$n1
             y <- image$state$y
 
-            ps <- jpower::ttestPlotSettings
+            ps <- ttestPlotSettings
 
             label <- jmvcore::format(" N\u2082 = {} \u00D7 N\u2081,  \u03B4 = {}, \u03B1 = {}", round(n_ratio, 3), round(delta,3), round(alpha,3))
 
@@ -599,13 +599,13 @@ ttestISClass <- R6::R6Class(
                    col = cols[i])
             }
 
-            jpower::striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.lines(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                           log(nn), y, lwd = 3)
-            jpower::striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.Arrows(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                            x0 = log(n1), y0 = pow,
                            x1 = log(n1),
                            y1 = 0, lwd = 3, arr.adj = 1)
-            jpower::striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
+            striped.segments(col1 = ps$stripe.cols[1], col2 = ps$stripe.cols[2],
                              x0 = min(log(nn)), y0 = pow,
                              x1 = log(n1), y1 = pow,
                              lwd = 3)
@@ -710,7 +710,7 @@ ttestISClass <- R6::R6Class(
         },
         .powerDist = function(image, ggtheme, ...) {
 
-            ps <- jpower::ttestPlotSettings
+            ps <- ttestPlotSettings
 
             if (is.null(image$state))
                 return(FALSE)

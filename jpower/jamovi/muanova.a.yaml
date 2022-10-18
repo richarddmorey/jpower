@@ -1,13 +1,25 @@
 ---
-name:  anova
-title: ANOVA (imputed effect sizes)
+name:  muANOVA
+title: ANOVA (imputed means)
 menuGroup: jpower
 menuSubgroup: Analysis of Variance (ANOVA)
-menuSubtitle: Cohen's f
+menuSubtitle: Means
 version: '1.0.0'
 jas: '1.2'
 
 options:
+    - name: data
+      type: Data
+      title: Column with Means
+
+    - name: dep
+      title: Means
+      type: Variable
+      suggested:
+        - continuous
+      permitted:
+        - numeric
+      rejectInf: true
 
     - name: lev_fac_a
       title: "Factor A"
@@ -59,13 +71,6 @@ options:
           name: w
       default: b
       
-    - name: power
-      title: "Minimum desired power"
-      type: Number
-      min: 0
-      max: 1
-      default: .8
-      
     - name: n
       title: "N per group"
       type: Integer
@@ -78,25 +83,18 @@ options:
       min: 0
       default: 0.05
       
-    - name: powerDist
-      title: Power demonstration
-      type: Bool
-      default: false
+    - name: stdev
+      title: "Population Standard Deviation (SD)"
+      type: Number
+      min: 0.00000000000000000000001
+      default: 1
       
-    - name: powerCurveES
-      title: Power curve by effect size
-      type: Bool
-      default: false
-      
-    - name: powerCurveN
-      title: Power curve by N
-      type: Bool
-      default: false
-      
-    - name: findN
-      title: Find N (table)
-      type: Bool
-      default: false
+    - name: withcorr
+      title: "Within Subject Correlation (r)"
+      type: Number
+      min: -0.99999999999999999999999
+      max: 0.99999999999999999999999
+      default: 0
       
     - name: num_facs
       title: "Design"
@@ -110,54 +108,32 @@ options:
           name: three
       default: one
       
-    - name: eff_fac_a
-      title: "Effect size for A"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
+    - name: powerDist
+      title: F distribution
+      type: Bool
+      default: false
       
-    - name: eff_fac_b
-      title: "Effect size for B"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
+    - name: powerCurveES
+      title: Power curve by effect size
+      type: Bool
+      default: false
       
-    - name: eff_fac_c
-      title: "Effect size for C"
+    - name: powerCurveN
+      title: Power curve by N
+      type: Bool
+      default: false
+
+    - name: power
+      title: "Minimum desired power"
       type: Number
       min: 0
-      max: 70.70537
-      default: 0
+      max: 1
+      default: .8
       
-    - name: eff_fac_ab
-      title: "Effect size for A:B"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
-      
-    - name: eff_fac_bc
-      title: "Effect size for B:C"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
-      
-    - name: eff_fac_ac
-      title: "Effect size for A:C"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
-      
-    - name: eff_fac_abc
-      title: "Effect size for A:C"
-      type: Number
-      min: 0
-      max: 70.70537
-      default: 0
+    - name: findN
+      title: Find N (table)
+      type: Bool
+      default: false
       
     - name: min_n
       title: "Min N per group"
@@ -170,5 +146,4 @@ options:
       type: Integer
       min: 4
       default: 100
-
 ...

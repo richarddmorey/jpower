@@ -1,14 +1,14 @@
 ---
-name:  anova
-title: ANOVA (imputed effect sizes)
-jrs:   "1.1"
+name:  muANOVA
+title: ANOVA (imputed means)
+jrs:   '1.1'
 items:
 
     - name: intro
       title: Introduction
       type: Html
       visible: (text)
-
+      
     - name:  designtab
       title: Design
       type: Table
@@ -52,6 +52,23 @@ items:
         - name: val[n_tot]
           title: ''
           type: integer
+      
+    - name: DesPlot
+      title: Plot of Design
+      type: Image
+      width:  650
+      height: 450
+      renderFun: .DesPlot
+      clearWith:
+        - dep
+        - num_facs
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
           
     - name: text1
       type: Html
@@ -69,14 +86,8 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - eff_fac_c
-        - eff_fac_b
-        - eff_fac_a
-        - eff_fac_ab
-        - eff_fac_bc
-        - eff_fac_ac
-        - eff_fac_abc
         - num_facs
+        - dep
       columns:        
         - name: name
           title: ""
@@ -101,11 +112,11 @@ items:
         - name: power
           title: "Power (1-Beta)"
           type: number
-          
+
     - name: text2
       type: Html
       visible: (findN)
-          
+
     - name: tabN
       title: N for Desired Power
       type: Table
@@ -144,7 +155,7 @@ items:
         - name: label
           title: ""
           type: text
-          
+        
     - name: powerDist
       title: Power Demonstration
       type: Image
@@ -154,6 +165,7 @@ items:
       visible: (powerDist)
       clearWith:
         - dep
+        - power
         - num_facs
         - alpha
         - lev_fac_c
@@ -162,18 +174,11 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - eff_fac_c
-        - eff_fac_b
-        - eff_fac_a
-        - eff_fac_ab
-        - eff_fac_bc
-        - eff_fac_ac
-        - eff_fac_abc
-        
+      
     - name: distText
       title: Power contour context
       type: Html
-      visible: (powerDist)      
+      visible: (powerDist)    
       
     - name: powerCurveES
       title: Power Curve by Effect Size
@@ -190,7 +195,7 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - dep
+        - alpha
         - num_facs
         - n
       
@@ -202,6 +207,8 @@ items:
       renderFun: .powerCurveN
       visible: (powerCurveN)
       clearWith:
+        - estype
+        - es
         - power
         - lev_fac_c
         - lev_fac_b
@@ -209,17 +216,6 @@ items:
         - type_fac_c
         - type_fac_b
         - type_fac_a
-        - eff_fac_c
-        - eff_fac_b
-        - eff_fac_a
-        - eff_fac_ab
-        - eff_fac_bc
-        - eff_fac_ac
-        - eff_fac_abc
-        - max_n
-        - min_n
         - alpha
         - dep
-
-      
 ...

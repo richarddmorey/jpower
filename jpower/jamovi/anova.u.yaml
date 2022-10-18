@@ -1,50 +1,154 @@
-title: ANOVA
+title: ANOVA (imputed effect sizes)
 name: anova
-jus: '2.0'
+jus: '3.0'
 stage: 0
+compilerMode: tame
 children:
-  - type: LayoutBox
-    margin: large
+  - type: CollapseBox
+    label: Design Parameters
+    name: spaneld
+    collapsed: false
     children:
-      - name: estype
-        type: ComboBox
-        label: Effect size type
-        options:
-          - title: f
-            name: f
-          - title: ω²
-            name: omega
-      - name: es
-        type: TextBox
-        label: Minimally-interesting effect size
-        format: number
-      - name: power
-        type: TextBox
-        label: Minimum desired power
-        format: number
-      - name: 'n'
-        type: TextBox
-        label: N per group
-        format: number
-      - name: k
-        type: TextBox
-        label: Number of groups
-        format: number
-      - name: alpha
-        type: TextBox
-        label: '&alpha; (type I error rate)'
-        format: number
-  - type: LayoutBox
-    margin: large
-    stretchFactor: 1
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: ComboBox
+            name: num_facs
+      - type: Label
+        label: Define Number of Levels for Each Factor
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - type: TextBox
+                name: lev_fac_a
+                format: number
+              - type: TextBox
+                name: lev_fac_b
+                format: number
+                enable: '(!num_facs:one)'
+              - type: TextBox
+                name: lev_fac_c
+                format: number
+                enable: '(num_facs:three)'
+      - type: Label
+        label: Define the Type of Factor
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - type: ComboBox
+                name: type_fac_a
+              - type: ComboBox
+                name: type_fac_b
+                enable: '(!num_facs:one)'
+              - type: ComboBox
+                name: type_fac_c
+                enable: '(num_facs:three)'
+      - type: Label
+        label: Set Other Design Parameters
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'n'
+                type: TextBox
+                label: N per group
+                format: number
+              - name: alpha
+                type: TextBox
+                label: '&alpha; (type I error rate)'
+                format: number
+  - type: CollapseBox
+    label: Effect Sizes
+    name: espanel
+    collapsed: false
     children:
       - type: Label
-        label: Plots
+        label: Main Effects
         children:
-          - type: CheckBox
-            name: powerDist
-          - type: CheckBox
-            name: powerCurveES
-          - type: CheckBox
-            name: powerCurveN
-compilerMode: tame
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'eff_fac_a'
+                type: TextBox
+                label: A
+                format: number
+              - name: 'eff_fac_b'
+                type: TextBox
+                label: B
+                format: number
+                enable: '(!num_facs:one)'
+              - name: 'eff_fac_c'
+                type: TextBox
+                label: C
+                format: number
+                enable: '(num_facs:three)'
+      - type: Label
+        label: Interactions
+        children:
+          - type: LayoutBox
+            margin: large
+            style: inline
+            children:
+              - name: 'eff_fac_ab'
+                type: TextBox
+                label: A:B
+                format: number
+                enable: '(!num_facs:one)'
+              - name: 'eff_fac_bc'
+                type: TextBox
+                label: B:C
+                format: number
+                enable: '(num_facs:three)'
+              - name: 'eff_fac_ac'
+                type: TextBox
+                label: A:C
+                format: number
+                enable: '(num_facs:three)'
+              - name: 'eff_fac_abc'
+                type: TextBox
+                label: A:B:C
+                format: number
+                enable: '(num_facs:three)'
+
+  - type: CollapseBox
+    label: Determine Sample Size
+    name: Npanel
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: findN
+      - type: LayoutBox
+        margin: large
+        style: inline
+        children:
+          - name: power
+            type: TextBox
+            label: Desired power
+            format: number
+          - name: 'min_n'
+            type: TextBox
+            label: Min. N per group
+            format: number
+          - name: 'max_n'
+            type: TextBox
+            label: Max. N per group
+            format: number
+  - type: CollapseBox
+    label: Plots
+    name: spanel
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: powerDist
+        label: "F distribution"
+      - type: CheckBox
+        name: powerCurveES
+      - type: CheckBox
+        name: powerCurveN
+

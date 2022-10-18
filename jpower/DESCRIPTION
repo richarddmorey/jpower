@@ -1,12 +1,12 @@
 Package: jpower
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.0.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Power Analyses for Common Research Designs
+Version: 0.2.0
+Author: Richard D. Morey, Aaron R. Caldwell, Ravi Selker
+Maintainer: Richard D. Morey <yourself@somewhere.net>
+Description: A jamovi module for power analysis.
+License: MIT + file LICENSEs
 Encoding: UTF-8
 LazyData: true
-Imports: pwr, ggplot2, jmvcore, R6, viridis, shape
+Imports: pwr, ggplot2, jmvcore, R6, viridis, shape, afex, MASS, reshape2
+RoxygenNote: 7.1.2

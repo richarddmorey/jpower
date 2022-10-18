@@ -1,13 +1,14 @@
 ---
 title: 'jpower: Power Analysis for Common Research Designs'
 name: jpower
-version: 0.1.2
+version: 0.2.0
 jms: '1.0'
 authors:
   - Richard D. Morey
   - Ravi Selker
+  - Aaron R. Caldwell
 maintainer: Richard D. Morey <richarddmorey@gmail.com>
-date: '2018-05-19'
+date: '2021-10-25'
 type: R
 description: 'Power analysis for common research designs '
 usesNative: false
@@ -19,13 +20,13 @@ analyses:
     menuGroup: jpower
     menuTitle: Independent Samples T-Test
     menuSubgroup: T-Tests
-  - title: ANOVA
+  - title: ANOVA (imputed effect sizes)
     name: anova
     ns: jpower
     menuGroup: jpower
-    menuTitle: ANOVA
-    menuSubgroup: ANOVA
-    hidden: true
+    menuTitle: ANOVA (imputed effect sizes)
+    menuSubgroup: Analysis of Variance (ANOVA)
+    menuSubtitle: Cohen's f
   - title: Paired Samples T-Test
     name: ttestPS
     ns: jpower
@@ -38,5 +39,12 @@ analyses:
     menuGroup: jpower
     menuSubgroup: T-Tests
     menuTitle: One Sample T-Test
+  - title: ANOVA (imputed means)
+    name: muANOVA
+    ns: jpower
+    menuGroup: jpower
+    menuTitle: ANOVA (imputed means)
+    menuSubgroup: Analysis of Variance (ANOVA)
+    menuSubtitle: Means
 
 ...
