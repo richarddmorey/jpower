@@ -277,7 +277,7 @@ anovaClass <- R6::R6Class(
             # Populate -------
             private$.populateIntro()
             private$.populateTabPowText() 
-            private$.populateFindNText()
+            private$.populateFindNText(lst)
             private$.populateMainTable(results, lst)
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
@@ -645,6 +645,7 @@ anovaClass <- R6::R6Class(
             TRUE
             
         },
+        # Populate text ------
         .populateIntro = function(){
             
             #calc <- self$options$calc
@@ -657,7 +658,8 @@ anovaClass <- R6::R6Class(
             str = paste0(
                 str,
                 "An ANOVA may have multiple tests and this function calculates the sensitivity of the chosen design ",
-                "for detecting the specified effect size (Cohen's <i>f</i>)."
+                "for detecting the specified effect size (Cohen's <i>f</i>).",
+                "<p>Below is a table detailing the design.</p>"
             )
             
             
@@ -729,19 +731,22 @@ anovaClass <- R6::R6Class(
           
           html <- self$results$text1
           
-          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. </p>",
-                       "<p> This is the conditional power of the design (detailed in the table above) for settings that the user has provided. </p>",
-                       "<p> Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
+          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. ",
+                       "This is the conditional power of the design (detailed in the table above) for settings that the user has provided. ",
+                       "Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
           
           
           html$setContent(str)
           
         },
-        .populateFindNText = function(){
+        .populateFindNText = function(lst){
           html <- self$results$text2
           
           str = paste0("<p> The table below indicates the sample size (per group) that would yield the desired power",
-                       " for each ANOVA-level effect. </p>")
+                       " for each ANOVA-level effect. ",
+                       "This is limited to a sample size",
+                       " between ",lst$n_min," and ",lst$n_max," 
+                       (per condition/group). </p>")
           
           
           html$setContent(str)

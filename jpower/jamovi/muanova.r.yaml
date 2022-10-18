@@ -2,14 +2,13 @@
 name:  muANOVA
 title: ANOVA (imputed means)
 jrs:   '1.1'
-
 items:
 
     - name: intro
       title: Introduction
       type: Html
       visible: (text)
-
+      
     - name:  designtab
       title: Design
       type: Table
@@ -53,6 +52,23 @@ items:
         - name: val[n_tot]
           title: ''
           type: integer
+      
+    - name: DesPlot
+      title: Plot of Design
+      type: Image
+      width:  650
+      height: 450
+      renderFun: .DesPlot
+      clearWith:
+        - dep
+        - num_facs
+        - alpha
+        - lev_fac_c
+        - lev_fac_b
+        - lev_fac_a
+        - type_fac_c
+        - type_fac_b
+        - type_fac_a
           
     - name: text1
       type: Html
@@ -96,7 +112,11 @@ items:
         - name: power
           title: "Power (1-Beta)"
           type: number
-          
+
+    - name: text2
+      type: Html
+      visible: (findN)
+
     - name: tabN
       title: N for Desired Power
       type: Table
@@ -135,23 +155,6 @@ items:
         - name: label
           title: ""
           type: text
-          
-    - name: DesPlot
-      title: Plot of Design
-      type: Image
-      width:  600
-      height: 600
-      renderFun: .DesPlot
-      clearWith:
-        - dep
-        - num_facs
-        - alpha
-        - lev_fac_c
-        - lev_fac_b
-        - lev_fac_a
-        - type_fac_c
-        - type_fac_b
-        - type_fac_a
         
     - name: powerDist
       title: Power Demonstration
@@ -172,6 +175,10 @@ items:
         - type_fac_b
         - type_fac_a
       
+    - name: distText
+      title: Power contour context
+      type: Html
+      visible: (powerDist)    
       
     - name: powerCurveES
       title: Power Curve by Effect Size

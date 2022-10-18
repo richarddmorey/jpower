@@ -2,7 +2,6 @@
 name:  anova
 title: ANOVA (imputed effect sizes)
 jrs:   "1.1"
-
 items:
 
     - name: intro

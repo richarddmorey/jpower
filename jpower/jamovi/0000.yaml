@@ -20,12 +20,12 @@ analyses:
     menuGroup: jpower
     menuTitle: Independent Samples T-Test
     menuSubgroup: T-Tests
-  - title: Factorial ANOVA
+  - title: ANOVA (imputed effect sizes)
     name: anova
     ns: jpower
     menuGroup: jpower
-    menuTitle: Factorial ANOVA
-    menuSubgroup: ANOVA
+    menuTitle: ANOVA (imputed effect sizes)
+    menuSubgroup: Analysis of Variance (ANOVA)
     menuSubtitle: Cohen's f
   - title: Paired Samples T-Test
     name: ttestPS
@@ -39,12 +39,12 @@ analyses:
     menuGroup: jpower
     menuSubgroup: T-Tests
     menuTitle: One Sample T-Test
-  - title: Factorial ANOVA
+  - title: ANOVA (imputed means)
     name: muANOVA
     ns: jpower
     menuGroup: jpower
-    menuTitle: Factorial ANOVA
-    menuSubgroup: ANOVA
+    menuTitle: ANOVA (imputed means)
+    menuSubgroup: Analysis of Variance (ANOVA)
     menuSubtitle: Means
 
 ...

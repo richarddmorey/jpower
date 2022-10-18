@@ -1,8 +1,8 @@
 ---
 name:  anova
-title: Factorial ANOVA
+title: ANOVA (imputed effect sizes)
 menuGroup: jpower
-menuSubgroup: ANOVA
+menuSubgroup: Analysis of Variance (ANOVA)
 menuSubtitle: Cohen's f
 version: '1.0.0'
 jas: '1.2'

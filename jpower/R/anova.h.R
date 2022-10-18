@@ -512,7 +512,7 @@ anovaBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresMissings = FALSE)
         }))
 
-#' Factorial ANOVA
+#' ANOVA (imputed effect sizes)
 #'
 #' 
 #' @param lev_fac_a .

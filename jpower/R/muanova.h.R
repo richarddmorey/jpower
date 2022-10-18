@@ -208,11 +208,13 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         designtab = function() private$.items[["designtab"]],
+        DesPlot = function() private$.items[["DesPlot"]],
         text1 = function() private$.items[["text1"]],
         main = function() private$.items[["main"]],
+        text2 = function() private$.items[["text2"]],
         tabN = function() private$.items[["tabN"]],
-        DesPlot = function() private$.items[["DesPlot"]],
         powerDist = function() private$.items[["powerDist"]],
+        distText = function() private$.items[["distText"]],
         powerCurveES = function() private$.items[["powerCurveES"]],
         powerCurveN = function() private$.items[["powerCurveN"]]),
     private = list(),
@@ -281,6 +283,23 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="val[n_tot]", 
                         `title`="", 
                         `type`="integer"))))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="DesPlot",
+                title="Plot of Design",
+                width=650,
+                height=450,
+                renderFun=".DesPlot",
+                clearWith=list(
+                    "dep",
+                    "num_facs",
+                    "alpha",
+                    "lev_fac_c",
+                    "lev_fac_b",
+                    "lev_fac_a",
+                    "type_fac_c",
+                    "type_fac_b",
+                    "type_fac_a")))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="text1",
@@ -325,6 +344,10 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="power", 
                         `title`="Power (1-Beta)", 
                         `type`="number"))))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="text2",
+                visible="(findN)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tabN",
@@ -367,23 +390,6 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"))))
             self$add(jmvcore::Image$new(
                 options=options,
-                name="DesPlot",
-                title="Plot of Design",
-                width=600,
-                height=600,
-                renderFun=".DesPlot",
-                clearWith=list(
-                    "dep",
-                    "num_facs",
-                    "alpha",
-                    "lev_fac_c",
-                    "lev_fac_b",
-                    "lev_fac_a",
-                    "type_fac_c",
-                    "type_fac_b",
-                    "type_fac_a")))
-            self$add(jmvcore::Image$new(
-                options=options,
                 name="powerDist",
                 title="Power Demonstration",
                 width=600,
@@ -401,6 +407,11 @@ muANOVAResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "type_fac_c",
                     "type_fac_b",
                     "type_fac_a")))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="distText",
+                title="Power contour context",
+                visible="(powerDist)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCurveES",
@@ -461,7 +472,7 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresMissings = FALSE)
         }))
 
-#' Factorial ANOVA
+#' ANOVA (imputed means)
 #'
 #' 
 #' @param data .
@@ -488,11 +499,13 @@ muANOVABase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$designtab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$DesPlot} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$text1} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$main} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$text2} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$tabN} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$DesPlot} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerDist} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$distText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
 #' }

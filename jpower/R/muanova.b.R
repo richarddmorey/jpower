@@ -114,7 +114,7 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 n_obs = mu_len*n
                 mlt_a = ifelse(type_fac_a == "w", 1, lev_fac_a)
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
-                n_tot = mlt_a*mlt_b
+                n_tot = mlt_a*mlt_b * n
                 fct_lvls = c("a", "b", "a:b")
                 tot_lvls = lev_fac_a*lev_fac_b
                 des_t = "Two-way ANOVA"
@@ -129,7 +129,7 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 mlt_a = ifelse(type_fac_a == "w", 1, lev_fac_a)
                 mlt_b = ifelse(type_fac_b == "w", 1, lev_fac_b)
                 mlt_c = ifelse(type_fac_c == "w", 1, lev_fac_c)
-                n_tot = mlt_a*mlt_b*mlt_c
+                n_tot = mlt_a*mlt_b*mlt_c * n
                 fct_lvls = c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c")
                 tot_lvls = lev_fac_a*lev_fac_b*lev_fac_c
                 des_t = "Three-way ANOVA"
@@ -177,8 +177,6 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             
             designtab$setRow(rowNo=1, values=row1)
             
-
-            
             lst = list(
                 des_string = des_string,
                 n = n,
@@ -189,7 +187,9 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 n_tot = n_tot,
                 n_obs = n_obs,
                 des_t = des_t,
-                fct_lvls = fct_lvls
+                fct_lvls = fct_lvls,
+                max_n = self$options$max_n,
+                min_n = self$options$min_n
             )
             
             DesPlot$setState(des1$meansplot)
@@ -295,6 +295,8 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             # Populate ----
             private$.populateIntro()
             private$.populateTabPowText() 
+            private$.populateFindNText(lst)
+            private$.populateDistText(results,lst) 
             private$.preparePowerDist(results, lst)
             private$.preparePowerCurveES(results, lst)
             private$.preparePowerCurveN(results, lst)
@@ -306,13 +308,16 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           
           html <- self$results$intro
           
-          str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
-                       "the sensitivity of a design and statistical test. ")
+          #str = paste0("The purpose of a <i>power analysis</i> is to evaluate ",
+          #             "the sensitivity of a design and statistical test. ")
           
           str = paste0(
-            str,
-            "An ANOVA may have multiple tests and this function calculates the sensitivity of the chosen design ",
-            "for detecting the specified effect size (Cohen's <i>f</i>)."
+             "<p> The purpose of a <i>power analysis</i> is to evaluate ", 
+            "the sensitivity of a design and statistical test. ",
+            "An ANOVA may have multiple tests and this function calculates the ",
+            "sensitivity of the chosen design ",
+            "for detecting the specified effect size (Cohen's <i>f</i>). </p>",
+            "<p>Below is a plot and table detailing the design.</p>"
           )
           
           
@@ -325,9 +330,9 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           
           html <- self$results$text1
           
-          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. </p>",
-                       "<p> This is the conditional power of the design (detailed in the table above) for settings that the user has provided. </p>",
-                       "<p> Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
+          str = paste0("<p> The table below indicates the power for each component of the ANOVA for the given design and provided sample size. ",
+                       "This is the conditional power of the design (detailed in the table above) for settings that the user has provided. ",
+                       "Changes to the design (e.g., sample size or number of levels) will affect the estimated power. </p>")
           
           
           html$setContent(str)
@@ -351,6 +356,77 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         }
         
     },
+    .populateFindNText = function(lst){
+      html <- self$results$text2
+      
+      str = paste0("<p> The table below indicates the sample size (per group) that would yield the desired power",
+                   " for each ANOVA-level effect. ",
+                   "This is limited to a sample size",
+                   " between ",lst$min_n," and ",lst$max_n," 
+                   (per condition/group). </p>")
+      
+      
+      html$setContent(str)
+    },
+    .populateDistText = function(r, lst){
+      
+      html <- self$results$distText
+      alpha= lst$alpha_level
+      ## Get options from interface
+      #calc <- self$options$calc
+      #n_ratio <- lst$n_ratio
+      #n1 <- ifelse(calc == 'n', r$n1, lst$n1)
+      #n2 <- ifelse(calc == 'n', r$n2, lst$n2)
+      #d <- ifelse(calc == 'es', r$es, lst$es)
+      #d <- round(d,2)
+      #power <- ifelse(calc == 'power', r$power, lst$pow)
+      #alpha <- ifelse(calc == 'alpha', r$alpha, lst$alpha)
+      #alt <- lst$alt
+      
+      #n_text = ifelse(n1==n2,
+      #                paste0("a sample size of ",n1," in each group"),
+      #                paste0("group sample sizes of ", n1, " and ", n2, ", respectively")
+      #)
+      
+      #if(alt == "two.sided"){
+      tail_text = "two-sided"
+      null_text = "<i>f=</i>0,"
+      alt_text = "<i>|\u03B4|\u2265</i>"
+      crit_text = "criteria"
+      #} else{
+      #  tail_text = "one-sided"
+      #  null_text = "<i>\u03B4\u2264</i>0,"
+      #  alt_text = "<i>\u03B4\u2265</i"
+      #  crit_text = "criterion"
+      #}
+      
+      #str = paste0("<p>The figure above shows two sampling distributions: the sampling distribution ",
+      #             "of the <i>estimated</i> effect size when <i>\u03B4=</i>0 (left), and when <i>\u03B4=</i>",d,
+      #             " (right). Both assume ",n_text,".",
+      #             "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
+      #             " test with <i>α=</i>",alpha,". When the observed effect size is far enough ",
+      #             "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
+      #             "If the null hypothesis were true and ", null_text,
+      #             " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ",
+      #             "<p>On the other hand, if <i>\u03B4\u2265</i>",d,", the evidence would exceed the criterion ",
+      #             " &mdash; and hence we would correctly claim that <i>\u03B4\u2265</i>0 &mdash; at least ",
+      #             100*round(power,3),"% of the time. The design's power for detecting effects of ", alt_text, d,
+      #            " is thus ",round(power,3),".")
+      
+      str = paste0("<p>The figure above shows two sampling distributions: the sampling distribution ",
+                   "of the <i>estimated</i> effect size when <i>f=</i>0 (left), and when <i>f</i> &#8800 0",
+                   " (right).",
+                   "<p>The vertical dashed lines show the ",crit_text," we would set for a ", tail_text,
+                   " test with <i>α=</i>",alpha,". When the observed effect size is far enough ",
+                   "away from 0 to be more extreme than the ",crit_text," we say we 'reject' the null hypothesis. ",
+                   "If the null hypothesis were true and ", null_text,
+                   " the evidence would lead us to wrongly reject the null hypothesis at most ",100*alpha,"% of the time. ")
+      
+      
+      
+      html$setContent(str)
+      
+    },
     .DesPlot = function(image, ggtheme,...) {
         
         if (is.null(image$state)){
@@ -358,7 +434,8 @@ muANOVAClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         }
             
         
-        p = image$state +ggtheme
+        p = image$state + ggtheme +
+          theme(legend.position = "top")
         print(p)
         
         TRUE
