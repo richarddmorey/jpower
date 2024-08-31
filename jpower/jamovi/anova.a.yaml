@@ -1,8 +1,8 @@
 ---
 name:  anova
 title: ANOVA
-menuGroup: jpower
-menuSubgroup: ANOVA
+menuGroup: Power
+menuSubgroup: jpower
 version: '1.0.0'
 jas: '1.2'
 
@@ -21,42 +21,42 @@ options:
       type: Number
       min: 0
       default: .3
-      
+
     - name: power
       title: "Minimum desired power"
       type: Number
       min: 0
       max: 1
       default: .8
-      
+
     - name: n
       title: "N per group"
       type: Integer
       min: 2
       default: 20
-      
+
     - name: k
       title: "Number of groups"
       type: Integer
       min: 2
       default: 3
-      
+
     - name: alpha
       title: "&alpha; (type I error rate)"
       type: Number
       min: 0
       default: 0.05
-      
+
     - name: powerDist
       title: Power demonstration
       type: Bool
       default: true
-      
+
     - name: powerCurveES
       title: Power curve by effect size
       type: Bool
       default: false
-      
+
     - name: powerCurveN
       title: Power curve by N
       type: Bool
