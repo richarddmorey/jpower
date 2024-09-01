@@ -1,7 +1,7 @@
 ---
 title: 'jpower: Power Analysis for Common Research Designs'
 name: jpower
-version: 0.1.2
+version: 0.1.3
 jms: '1.0'
 authors:
   - Richard D. Morey
@@ -16,27 +16,27 @@ analyses:
   - title: Independent Samples T-Test
     name: ttestIS
     ns: jpower
-    menuGroup: jpower
+    menuGroup: Power
     menuTitle: Independent Samples T-Test
-    menuSubgroup: T-Tests
+    menuSubgroup: jpower
   - title: ANOVA
     name: anova
     ns: jpower
-    menuGroup: jpower
+    menuGroup: Power
     menuTitle: ANOVA
-    menuSubgroup: ANOVA
+    menuSubgroup: jpower
     hidden: true
   - title: Paired Samples T-Test
     name: ttestPS
     ns: jpower
-    menuGroup: jpower
+    menuGroup: Power
     menuTitle: Paired Samples T-Test
-    menuSubgroup: T-Tests
+    menuSubgroup: jpower
   - title: One Sample T-Test
     name: ttestOneS
     ns: jpower
-    menuGroup: jpower
-    menuSubgroup: T-Tests
+    menuGroup: Power
+    menuSubgroup: jpower
     menuTitle: One Sample T-Test
 
 ...

@@ -1,8 +1,8 @@
 ---
 name:  ttestOneS
 title: One Sample T-Test
-menuGroup: jpower
-menuSubgroup: T-Tests
+menuGroup: Power
+menuSubgroup: jpower
 version: '1.0.0'
 jas: '1.2'
 

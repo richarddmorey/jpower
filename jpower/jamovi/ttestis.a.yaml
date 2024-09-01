@@ -1,8 +1,8 @@
 ---
 name:  ttestIS
 title: Independent Samples T-Test
-menuGroup: jpower
-menuSubgroup: T-Tests
+menuGroup: Power
+menuSubgroup: jpower
 version: '1.0.0'
 jas: '1.2'
 
@@ -52,12 +52,12 @@ options:
       type: Number
       min: 0
       default: 0.05
-      
+
     - name: n_ratio
       title: "Sample size ratio (N<sub>2</sub>/N<sub>1</sub>)"
       type: Number
       min: 0
-      default: 1      
+      default: 1
 
     - name: powerContour
       title: Power contour plot
@@ -78,7 +78,7 @@ options:
       title: Power curve by N
       type: Bool
       default: false
-      
+
     - name: text
       title: Explanatory text
       type: Bool
